@@ -23,20 +23,32 @@
 /* Define
 /* ******************************************************************************** */
 
-#define WCMD_MEDIUM_SERIAL	0
-#define WCMD_MEDIUM_UDP		1
-#define WCMD_MEDIUM_TCP		2
-
-
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
 
+typedef enum {
+	WCMD_MEDIUM_SERIAL = 0,
+	WCMD_MEDIUM_UDP,
+	WCMD_MEDIUM_TCP
+} WCMD_MEDIUM_ENUM;
 
 
 /* ******************************************************************************** */
-/* Functions Prototypes
+/* Functions Prototypes - Configuration
 /* ******************************************************************************** */
+void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_X);
+
+
+/* ******************************************************************************** */
+/* Functions Prototypes - Exported
+/* ******************************************************************************** */
+boolean WCmdMedium_IsConnected(void);
+int WCmdMedium_DataAvailable(void);
+unsigned char WCmdMedium_ReadByte(void);
+void WCmdMedium_WriteByte(unsigned char Byte_UB);
+void WCmdMedium_Flush(void);
+void WCmdMedium_Stop(void);
 
 
 #endif // __WCOMMAND_MEDIUM_H__

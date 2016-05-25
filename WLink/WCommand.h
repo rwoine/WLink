@@ -51,6 +51,11 @@ typedef enum
 	WCMD_FCT_STS_ERROR
 } WCMD_FCT_STS;
 
+typedef struct {
+	unsigned char CmdID_UB;
+	WCMD_FCT_STS(*FctHandler)(const unsigned char*, unsigned long, unsigned char*, unsigned long*);
+} WCMD_FCT_DESCR;
+
 
 /* ******************************************************************************** */
 /* Functions Prototypes
@@ -64,17 +69,12 @@ WCMD_FCT_STS WCmdProcess_GetRevisionId(const unsigned char * pParam_UB, unsigned
 /* Functions Mapping
 /* ******************************************************************************** */
 
-typedef struct {
-	unsigned char CmdID_UB;
-	WCMD_FCT_STS(*FctHandler)(const unsigned char*, unsigned long, unsigned char*, unsigned long*);
-} WCMD_FCT_DESCR;
-
-const WCMD_FCT_DESCR GL_pFctDescr[] =
+const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 {
 	{ WCMD_GET_REVISION_ID, WCmdProcess_GetRevisionId }
 };
 
-#define WCMD_FCT_DESCR_SIZE (sizeof(GL_pFctDescr)/sizeof(WCMD_FCT_DESCR))
+#define WCMD_FCT_DESCR_SIZE (sizeof(cGL_pFctDescr_X)/sizeof(WCMD_FCT_DESCR))
 
 
 #endif // __WCOMMAND_H__

@@ -33,6 +33,7 @@ const unsigned char cGL_pWLinkRevisionId_UB[] = "16051401";	// YYMMDDVV - Year-M
 /* ******************************************************************************** */
 
 GLOBAL_PARAM_STRUCT GL_GlobalData_X;
+HardwareSerial* GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
 
 
 /* ******************************************************************************** */

@@ -65,7 +65,5 @@
 #define PORT_COM2			2
 #define PORT_COM3			3
 
-HardwareSerial* GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
-
 
 #endif // __HARDWARE_H__
