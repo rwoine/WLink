@@ -25,7 +25,7 @@
 /* Define
 /* ******************************************************************************** */
 
-const unsigned char cGL_pWLinkRevisionId_UB[] = "16051401";	// YYMMDDVV - Year-Month-Day-Version
+const unsigned char cGL_pWLinkRevisionId_UB[] = "16052501";	// YYMMDDVV - Year-Month-Day-Version
 
 
 /* ******************************************************************************** */
