@@ -21,14 +21,6 @@
 /* Local Variables
 /* ******************************************************************************** */
 
-typedef enum {
-	WCMD_INTERPRETER_STATE_IDLE,
-	WCMD_INTERPRETER_STATE_CHECK_CMD,
-	WCMD_INTERPRETER_STATE_PROCESS_CMD,
-	WCMD_INTERPRETER_STATE_SEND_RESP,
-	WCMD_INTERPRETER_STATE_SEND_NACK
-} WCMD_INTERPRETER_STATE;
-
 static WCMD_INTERPRETER_STATE GL_CurrentState_E = WCMD_INTERPRETER_STATE_IDLE;
 
 

@@ -85,10 +85,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp" />
-    <ClCompile Include="WCommandInterpreter.cpp" />
+    <ClCompile Include="WCommandInterpreter.cpp">
+      <EnforceTypeConversionRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </EnforceTypeConversionRules>
+    </ClCompile>
     <ClCompile Include="WCommandMedium.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties VM_AUTOGEN_PROTOTYPES="" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>
