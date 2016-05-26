@@ -112,6 +112,7 @@ extern "C" void __cxa_pure_virtual() {;}
 #include <WCommand.h>
 #include <WCommandInterpreter.cpp>
 #include <WCommandInterpreter.h>
+#include <WCommandMedium.cpp>
 #include <WCommandMedium.h>
 #include <WLink.h>
 #endif
