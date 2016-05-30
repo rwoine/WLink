@@ -34,6 +34,16 @@ static WCMD_INTERPRETER_STATE GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_I
 static const WCMD_FCT_DESCR * GL_pWCmdFctDescr_X;
 static unsigned long GL_WCmdFctNb_UL;
 
+typedef struct {
+	unsigned char CmdId_UB;
+	boolean HasParam_B;
+	unsigned long ParamNb_UL;
+	unsigned long AnsNb_UL;
+	unsigned char pParamBuffer_UB[WCMD_MAX_PARAM_NB];
+	unsigned char pAnsBuffer_UB[WCMD_MAX_ANS_NB];
+} WCMD_PARAM_STRUCT;
+
+static WCMD_PARAM_STRUCT GL_WCmdParam_X;
 
 /* ******************************************************************************** */
 /* Prototypes for Internal Functions
@@ -98,6 +108,38 @@ void ProcessIdle(void) {
 }
 
 void ProcessCheckCmd(void) {
+	boolean FoundStx_B = false;
+	unsigned char Temp_UB = 0x00;
+
+	while (WCmdMedium_DataAvailable()) {
+		// Look for the Start Of Transmit byte
+		if (WCmdMedium_ReadByte() == WCMD_STX) {
+			FoundStx_B = true;
+			break;
+		}
+	}
+
+	if (FoundStx_B && (WCmdMedium_DataAvailable() > 0)) {
+
+		// Get Command ID and Parameters bit
+		Temp_UB = WCmdMedium_ReadByte();
+		GL_WCmdParam_X.CmdId_UB = Temp_UB & WCMD_CMD_ID_MASK;
+		GL_WCmdParam_X.HasParam_B = ((Temp_UB & WCMD_PARAM_BIT_MASK) == WCMD_PARAM_BIT_MASK) ? true : false;
+
+		// Get Parameters if any
+		if (GL_WCmdParam_X.HasParam_B) {
+			GL_WCmdParam_X.ParamNb_UL = WCmdMedium_ReadByte();
+			for (int i = 0; i < GL_WCmdParam_X.ParamNb_UL; i++)
+				GL_WCmdParam_X.pParamBuffer_UB[i] = WCmdMedium_ReadByte();
+		}
+
+		// Check for End Of Transmit byte
+		if (WCmdMedium_ReadByte() == WCMD_ETX)
+			TransitionToProcessCmd();
+		else
+			TransitionToSendNack();
+
+	}
 
 }
 
@@ -108,8 +150,8 @@ void ProcessProcessCmd(void) {
 
 	// Look for the command ID in the table of fonction handler
 	for (i = 0; i < GL_WCmdFctNb_UL; i++) {
-		if (GL_pWCmdFctDescr_X[i].CmdID_UB == 0x00) {	// TODO : Compare with gathered ID instead of 0x00
-			//FctSts_E = GL_pWCmdFctDescr_X[i].FctHandler();
+		if (GL_pWCmdFctDescr_X[i].CmdID_UB == GL_WCmdParam_X.CmdId_UB) {
+			FctSts_E = GL_pWCmdFctDescr_X[i].FctHandler(GL_WCmdParam_X.pParamBuffer_UB, GL_WCmdParam_X.ParamNb_UL, GL_WCmdParam_X.pAnsBuffer_UB, &(GL_WCmdParam_X.AnsNb_UL));
 		}
 		break;
 	}
@@ -125,7 +167,34 @@ void ProcessProcessCmd(void) {
 }
 
 void ProcessSendResp(void) {
+	unsigned char pBuffer_UB[WCMD_MAX_ANS_NB];
+	unsigned long Offset_UL = 0;
 
+	// Start Of Transmit
+	pBuffer_UB[0] = WCMD_STX;
+
+	// Command ID
+	if (GL_WCmdParam_X.AnsNb_UL == 0) {
+		pBuffer_UB[1] = GL_WCmdParam_X.CmdId_UB;
+		Offset_UL = 2;
+	}
+	else { // .. and Data
+		pBuffer_UB[1] = GL_WCmdParam_X.CmdId_UB | WCMD_PARAM_BIT_MASK;
+		pBuffer_UB[2] = (unsigned char)GL_WCmdParam_X.ParamNb_UL;
+		for (int i = 0; i < GL_WCmdParam_X.AnsNb_UL; i++)
+			pBuffer_UB[3 + i] = GL_WCmdParam_X.pAnsBuffer_UB[i];
+		Offset_UL = GL_WCmdParam_X.AnsNb_UL + 3;
+	}
+
+	// Acknowledge
+	pBuffer_UB[Offset_UL++] = WCMD_ACK;
+
+	// End Of Transmit
+	pBuffer_UB[Offset_UL++] = WCMD_ETX;
+
+	// Send Response
+	WCmdMedium_Write(pBuffer_UB, Offset_UL);
+	delay(1);
 
 	WCmdMedium_Flush();
 	WCmdMedium_Stop();
@@ -133,6 +202,24 @@ void ProcessSendResp(void) {
 }
 
 void ProcessSendNack(void) {
+	unsigned char pBuffer_UB[4];
+	unsigned long Offset_UL = 0;
+
+	// Start Of Transmit
+	pBuffer_UB[0] = WCMD_STX;
+
+	// Command ID
+	pBuffer_UB[1] = GL_WCmdParam_X.CmdId_UB;
+
+	// Not Acknowledge
+	pBuffer_UB[2] = WCMD_NACK;
+
+	// End Of Transmit
+	pBuffer_UB[3] = WCMD_ETX;
+
+	// Send Response
+	WCmdMedium_Write(pBuffer_UB, 4);
+	delay(1);
 
 	WCmdMedium_Flush();
 	WCmdMedium_Stop();

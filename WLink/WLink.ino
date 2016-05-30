@@ -17,8 +17,9 @@
 #include "WLink.h"
 #include "Hardware.h"
 
-//#include "WCommand.h"
-//#include "WCommandInterpreter.h"
+#include "WCommand.h"
+#include "WCommandMedium.h"
+#include "WCommandInterpreter.h"
 
 
 /* ******************************************************************************** */
@@ -37,6 +38,18 @@ HardwareSerial* GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
 
 
 /* ******************************************************************************** */
+/* Functions Mapping
+/* ******************************************************************************** */
+
+const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
+{
+	{ WCMD_GET_REVISION_ID, WCmdProcess_GetRevisionId }
+};
+
+#define WCMD_FCT_DESCR_SIZE (sizeof(cGL_pFctDescr_X)/sizeof(WCMD_FCT_DESCR))
+
+
+/* ******************************************************************************** */
 /* Setup
 /* ******************************************************************************** */
 void setup() {
@@ -51,12 +64,16 @@ void setup() {
 		pinMode(GL_GlobalData_X.pGpioOutputIndex_UB[i], OUTPUT);
 		digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], LOW);
 	}
-	
+
+
+	/* Initialiaze W-Link Command Management Modules */
+	WCmdMedium_Init(WCMD_MEDIUM_SERIAL, &Serial3);	// Medium mapped on Serial3
+	WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
 }
 
 /* ******************************************************************************** */
 /* Loop
 /* ******************************************************************************** */
 void loop() {
-  
+	WCommandInterpreter_Process();
 }

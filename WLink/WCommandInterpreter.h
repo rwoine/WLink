@@ -18,9 +18,22 @@
 /* Include
 /* ******************************************************************************** */
 
+#include "WCommand.h"
+
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
+
+#define WCMD_STX            0x02
+#define WCMD_ETX            0x03
+#define WCMD_ACK            0x06
+#define WCMD_NACK           0x15
+
+#define WCMD_PARAM_BIT_MASK	0x80
+#define WCMD_CMD_ID_MASK    0x7F
+
+#define WCMD_MAX_PARAM_NB	256
+#define WCMD_MAX_ANS_NB		256
 
 /* ******************************************************************************** */
 /* Structure & Enumeration

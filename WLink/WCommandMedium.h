@@ -37,7 +37,7 @@ typedef enum {
 /* ******************************************************************************** */
 /* Functions Prototypes - Configuration
 /* ******************************************************************************** */
-void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_X);
+void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H);
 
 
 /* ******************************************************************************** */
@@ -47,6 +47,7 @@ boolean WCmdMedium_IsConnected(void);
 int WCmdMedium_DataAvailable(void);
 unsigned char WCmdMedium_ReadByte(void);
 void WCmdMedium_WriteByte(unsigned char Byte_UB);
+void WCmdMedium_Write(unsigned char * pBuffer_UB, unsigned long NbData_UL);
 void WCmdMedium_Flush(void);
 void WCmdMedium_Stop(void);
 

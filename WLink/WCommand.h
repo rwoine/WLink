@@ -43,8 +43,7 @@
 /* Structure & Enumeration
 /* ******************************************************************************** */
 
-typedef enum
-{
+typedef enum {
 	WCMD_FCT_STS_OK,
 	WCMD_FCT_STS_UNKNOWN,
 	WCMD_FCT_STS_BAD_PARAM_NB,
@@ -62,19 +61,6 @@ typedef struct {
 /* ******************************************************************************** */
 
 WCMD_FCT_STS WCmdProcess_GetRevisionId(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
-
-
-
-/* ******************************************************************************** */
-/* Functions Mapping
-/* ******************************************************************************** */
-
-const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
-{
-	{ WCMD_GET_REVISION_ID, WCmdProcess_GetRevisionId }
-};
-
-#define WCMD_FCT_DESCR_SIZE (sizeof(cGL_pFctDescr_X)/sizeof(WCMD_FCT_DESCR))
 
 
 #endif // __WCOMMAND_H__
