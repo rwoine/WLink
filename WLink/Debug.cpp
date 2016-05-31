@@ -1,45 +1,52 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* WCommand.cpp																		*/
+/* Debug.cpp																		*/
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Describes the functions related to each module                              */
+/*		Describes the functions for debugging management                            */
 /*                                                                                  */
-/* History :  	16/02/2015  (RW)	Creation of this file                           */
-/*				14/05/2016	(RW)	Re-mastered version								*/
+/* History :  	31/05/2015  (RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
-
-#define MODULE_NAME		"WCommand"
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-
-#include "WLink.h"
-#include "WCommand.h"
 
 #include "Debug.h"
 
 /* ******************************************************************************** */
 /* Local Variables
 /* ******************************************************************************** */
+HardwareSerial * GL_pSerial_H;
 
-extern GLOBAL_PARAM_STRUCT GL_GlobalData_X;
+static const String pSeverityLut_str[] = {"[-] INFO", "[#] WARNING", "[!] ERROR"};
 
 /* ******************************************************************************** */
 /* Functions
 /* ******************************************************************************** */
+void Debug_Init(HardwareSerial * pSerial_H) {
+	GL_pSerial_H = pSerial_H;
+	GL_pSerial_H->begin(DEBUG_DEFAULT_BAUDRATE);
+}
 
-/* Global ************************************************************************* */
-/* ******************************************************************************** */
+void Debug_Init(HardwareSerial * pSerial_H, unsigned long Baudrate_UL) {
+	GL_pSerial_H = pSerial_H;
+	GL_pSerial_H->begin(Baudrate_UL);
+}
 
-WCMD_FCT_STS WCmdProcess_GetRevisionId(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_GetRevisionId");
-	*pAnsNb_UL = 8;
+HardwareSerial * Debug_GetHandle(void) {
+	return GL_pSerial_H;
+}
 
-	for (int i = 0; i < 8; i++)
-		pAns_UB[i] = GL_GlobalData_X.pRevisionId_UB[i];
-
-	return WCMD_FCT_STS_OK;
+HardwareSerial * Debug_Print(DEBUG_SEVERITY_ENUM Severity_E, const String pModuleName_cstr, unsigned long LineNb_UL, const String pFunctionName_cstr) {
+	GL_pSerial_H->print(pSeverityLut_str[Severity_E]);
+	GL_pSerial_H->print(" > ");
+	GL_pSerial_H->print(pModuleName_cstr);
+	GL_pSerial_H->print(":");
+	GL_pSerial_H->print(pFunctionName_cstr);
+	GL_pSerial_H->print(":");
+	GL_pSerial_H->print(LineNb_UL);
+	GL_pSerial_H->print(" > ");
+	return GL_pSerial_H;
 }

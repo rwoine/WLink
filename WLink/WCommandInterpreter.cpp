@@ -10,6 +10,8 @@
 /*                                                                                  */
 /* ******************************************************************************** */
 
+#define MODULE_NAME		"WCommandInterpreter"
+
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
@@ -17,6 +19,8 @@
 #include "WCommand.h"
 #include "WCommandMedium.h"
 #include "WCommandInterpreter.h"
+
+#include "Debug.h"
 
 /* ******************************************************************************** */
 /* Local Variables
@@ -68,6 +72,7 @@ static void TransitionToSendNack(void);
 void WCommandInterpreter_Init(const WCMD_FCT_DESCR *pFctDescr_X, unsigned long NbFct_UL) {
 	GL_pWCmdFctDescr_X = pFctDescr_X;
 	GL_WCmdFctNb_UL = NbFct_UL;
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "W-Command Interpreter Initialized");
 }
 
 void WCommandInterpreter_Process() {
@@ -115,6 +120,7 @@ void ProcessCheckCmd(void) {
 		// Look for the Start Of Transmit byte
 		if (WCmdMedium_ReadByte() == WCMD_STX) {
 			FoundStx_B = true;
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Found STX");
 			break;
 		}
 	}
@@ -126,18 +132,34 @@ void ProcessCheckCmd(void) {
 		GL_WCmdParam_X.CmdId_UB = Temp_UB & WCMD_CMD_ID_MASK;
 		GL_WCmdParam_X.HasParam_B = ((Temp_UB & WCMD_PARAM_BIT_MASK) == WCMD_PARAM_BIT_MASK) ? true : false;
 
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Command ID = ");
+		DBG_PRINTDATABASE(GL_WCmdParam_X.CmdId_UB, HEX);
+		DBG_ENDSTR();
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Has Param ? = ");
+		DBG_PRINTDATABASE(GL_WCmdParam_X.HasParam_B, BIN);
+		DBG_ENDSTR();
+
 		// Get Parameters if any
 		if (GL_WCmdParam_X.HasParam_B) {
 			GL_WCmdParam_X.ParamNb_UL = WCmdMedium_ReadByte();
+
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "Param Number = ");
+			DBG_PRINTDATA(GL_WCmdParam_X.ParamNb_UL);
+			DBG_ENDSTR();
+
 			for (int i = 0; i < GL_WCmdParam_X.ParamNb_UL; i++)
 				GL_WCmdParam_X.pParamBuffer_UB[i] = WCmdMedium_ReadByte();
 		}
 
 		// Check for End Of Transmit byte
-		if (WCmdMedium_ReadByte() == WCMD_ETX)
+		if (WCmdMedium_ReadByte() == WCMD_ETX) {
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Found ETX");
 			TransitionToProcessCmd();
-		else
+		}
+		else {
+			DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Do NOT Found ETX");
 			TransitionToSendNack();
+		}
 
 	}
 
@@ -151,7 +173,13 @@ void ProcessProcessCmd(void) {
 	// Look for the command ID in the table of fonction handler
 	for (i = 0; i < GL_WCmdFctNb_UL; i++) {
 		if (GL_pWCmdFctDescr_X[i].CmdID_UB == GL_WCmdParam_X.CmdId_UB) {
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Found Command ID. Call Function...");
 			FctSts_E = GL_pWCmdFctDescr_X[i].FctHandler(GL_WCmdParam_X.pParamBuffer_UB, GL_WCmdParam_X.ParamNb_UL, GL_WCmdParam_X.pAnsBuffer_UB, &(GL_WCmdParam_X.AnsNb_UL));
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "Status = ");
+			DBG_PRINTDATA(FctSts_E);
+			DBG_PRINTDATA(" - Number of Bytes in Answer = ");
+			DBG_PRINTDATA(GL_WCmdParam_X.AnsNb_UL);
+			DBG_ENDSTR();
 		}
 		break;
 	}
@@ -159,6 +187,10 @@ void ProcessProcessCmd(void) {
 	// Check if the ID has been found and call the appropriate function
 	if (i == GL_WCmdFctNb_UL) {
 		FctSts_E = WCMD_FCT_STS_UNKNOWN;
+		DBG_PRINT(DEBUG_SEVERITY_WARNING, "Command ID Unknown [0x");
+		DBG_PRINTDATABASE(GL_WCmdParam_X.CmdId_UB, HEX);
+		DBG_PRINTDATA("]");
+		DBG_ENDSTR();
 		TransitionToSendNack();
 	}
 	else {
@@ -228,22 +260,22 @@ void ProcessSendNack(void) {
 
 
 void TransitionToIdle(void) {
-	//DBG_PRINT("Transition To IDLE");
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
 	GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_IDLE;
 }
 
 void TransitionToCheckCmd(void) {
-	//DBG_PRINT("Transition To CHECK CMD");
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CHECK CMD");
 	GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_CHECK_CMD;
 }
 
 void TransitionToProcessCmd(void) {
-	//DBG_PRINT("Transition To PROCESS CMD");
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To PROCESS CMD");
 	GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_PROCESS_CMD;
 }
 
 void TransitionToSendResp(void) {
-	//DBG_PRINT("Transition To SEND RESP");
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To SEND RESP");
 	GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_SEND_RESP;
 }
 

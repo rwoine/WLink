@@ -10,6 +10,10 @@
 /*                                                                                  */
 /* ******************************************************************************** */
 
+#define MODULE_NAME		"Main"
+
+#define APP_USE_DEBUG
+
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
@@ -17,16 +21,17 @@
 #include "WLink.h"
 #include "Hardware.h"
 
-#include "WCommand.h"
-#include "WCommandMedium.h"
-#include "WCommandInterpreter.h"
-
 
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
 
-const unsigned char cGL_pWLinkRevisionId_UB[] = "16052501";	// YYMMDDVV - Year-Month-Day-Version
+
+/* ******************************************************************************** */
+/* Constant
+/* ******************************************************************************** */
+
+const unsigned char cGL_pWLinkRevisionId_UB[] = "16053101";	// YYMMDDVV - Year-Month-Day-Version
 
 
 /* ******************************************************************************** */
@@ -54,6 +59,9 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 /* ******************************************************************************** */
 void setup() {
 
+	/* Initialize Debug Module */
+	Debug_Init(GL_PortComMap_X[PORT_COM0]);
+
 	/* Assign Revision ID */
 	for (int i = 0; i < sizeof(cGL_pWLinkRevisionId_UB); i++)
 		GL_GlobalData_X.pRevisionId_UB[i] = cGL_pWLinkRevisionId_UB[i];
@@ -65,9 +73,8 @@ void setup() {
 		digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], LOW);
 	}
 
-
 	/* Initialiaze W-Link Command Management Modules */
-	WCmdMedium_Init(WCMD_MEDIUM_SERIAL, &Serial3);	// Medium mapped on Serial3
+	WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GL_PortComMap_X[PORT_COM3]);	// Medium mapped on COM3
 	WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
 }
 
@@ -76,4 +83,16 @@ void setup() {
 /* ******************************************************************************** */
 void loop() {
 	WCommandInterpreter_Process();
+	
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Loop");
+
+	DBG_PRINT(DEBUG_SEVERITY_WARNING, "Header String");
+	DBG_PRINTDATA("yop");
+	DBG_PRINTDATABASE(45, HEX);
+	DBG_ENDSTR();
 }
+
+/* ******************************************************************************** */
+/* Events
+/* ******************************************************************************** */
+// TODO : SerialEvent Management

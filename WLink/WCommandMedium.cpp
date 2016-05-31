@@ -10,6 +10,8 @@
 /*                                                                                  */
 /* ******************************************************************************** */
 
+#define MODULE_NAME		"WCommandMedium"
+
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
@@ -18,12 +20,16 @@
 #include "WCommandMedium.h"
 #include "WCommandInterpreter.h"
 
+#include "Debug.h"
+
 /* ******************************************************************************** */
 /* Local Variables
 /* ******************************************************************************** */
 
 static WCMD_MEDIUM_ENUM GL_Medium_E;
 static HardwareSerial * GL_pMediumSerial_H;
+
+static const String GL_pMediumLut_cstr[] = {"Serial", "UDP", "TCP"};
 
 /* ******************************************************************************** */
 /* Functions
@@ -42,6 +48,10 @@ void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H) {
 		case WCMD_MEDIUM_TCP:
 			break;	// TODO : TCP to be implemented
 	}
+
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "W-Command Medium Initialized -> ");
+	DBG_PRINTDATA(GL_pMediumLut_cstr[WCmdMedium_E]);
+	DBG_ENDSTR();
 }
 
 /* ******************************************************************************** */

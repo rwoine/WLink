@@ -10,6 +10,7 @@
 
 #ifndef _VSARDUINO_H_
 #define _VSARDUINO_H_
+#define _VMDEBUG 1
 #define printf iprintf
 #define F_CPU 84000000L
 #define ARDUINO 10609
@@ -107,6 +108,8 @@ extern "C" void __cxa_pure_virtual() {;}
 //
 
 #include <WLink.ino>
+#include <Debug.cpp>
+#include <Debug.h>
 #include <Hardware.h>
 #include <WCommand.cpp>
 #include <WCommand.h>

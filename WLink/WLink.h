@@ -21,6 +21,11 @@
 
 #include "Hardware.h"
 
+#include "WCommand.h"
+#include "WCommandMedium.h"
+#include "WCommandInterpreter.h"
+
+#include "Debug.h"
 
 /* ******************************************************************************** */
 /* Define

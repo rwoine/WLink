@@ -22,6 +22,9 @@
     <Filter Include="Source Files\Network">
       <UniqueIdentifier>{6d3f8f90-a6b3-4b54-a6c0-9ffd9ba773b3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Debug">
+      <UniqueIdentifier>{2e3f4179-bffe-4bdb-bfa8-636eb9636c17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="WLink.ino" />
@@ -45,6 +48,9 @@
     <ClInclude Include="WCommandMedium.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -55,6 +61,9 @@
     </ClCompile>
     <ClCompile Include="WCommandMedium.cpp">
       <Filter>Source Files\WCommand</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug.cpp">
+      <Filter>Source Files\Debug</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
