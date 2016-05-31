@@ -17,10 +17,11 @@
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
+#include <SPI.h>
+#include <Ethernet.h>
 
 #include "WLink.h"
 #include "Hardware.h"
-
 
 /* ******************************************************************************** */
 /* Define
@@ -59,12 +60,23 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 /* ******************************************************************************** */
 void setup() {
 
+	/* Enable All UARTs by Default */
+	pinMode(PIN_EN_SERIAL01, OUTPUT);
+	digitalWrite(PIN_EN_SERIAL01, LOW);
+	pinMode(PIN_EN_SERIAL23, OUTPUT);
+	digitalWrite(PIN_EN_SERIAL23, LOW);
+
 	/* Initialize Debug Module */
 	Debug_Init(GL_PortComMap_X[PORT_COM0]);
 
 	/* Assign Revision ID */
 	for (int i = 0; i < sizeof(cGL_pWLinkRevisionId_UB); i++)
 		GL_GlobalData_X.pRevisionId_UB[i] = cGL_pWLinkRevisionId_UB[i];
+
+	/* Initialize LED */
+	pinMode(GL_GlobalData_X.LedPin_UB, OUTPUT);
+	//digitalWrite(GL_GlobalData_X.LedPin_UB, LOW);	// Turn-off by default
+	analogWrite(GL_GlobalData_X.LedPin_UB, 128);	// 50% duty-cycle
 
 	/* Initialize GPIO */
 	for (int i = 0; i < 4; i++) {
@@ -76,6 +88,11 @@ void setup() {
 	/* Initialiaze W-Link Command Management Modules */
 	WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GL_PortComMap_X[PORT_COM3]);	// Medium mapped on COM3
 	WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
+
+
+
+	// TODO : Add Output Management for Bug in SPI (additional output to maintain low ?)
+
 }
 
 /* ******************************************************************************** */

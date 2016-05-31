@@ -20,6 +20,8 @@
 #include "WCommandMedium.h"
 #include "WCommandInterpreter.h"
 
+#include "TCPServer.h"
+
 #include "Debug.h"
 
 /* ******************************************************************************** */
@@ -28,6 +30,7 @@
 
 static WCMD_MEDIUM_ENUM GL_Medium_E;
 static HardwareSerial * GL_pMediumSerial_H;
+static TCPServer * GL_MediumTcpServer_H;
 
 static const String GL_pMediumLut_cstr[] = {"Serial", "UDP", "TCP"};
 
@@ -46,7 +49,8 @@ void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H) {
 			break;	// TODO : UDP to be implemented
 
 		case WCMD_MEDIUM_TCP:
-			break;	// TODO : TCP to be implemented
+			GL_MediumTcpServer_H = (TCPServer *)pMedium_H;
+			break;
 	}
 
 	DBG_PRINT(DEBUG_SEVERITY_INFO, "W-Command Medium Initialized -> ");
@@ -69,28 +73,30 @@ boolean WCmdMedium_IsConnected(void) {
 		break;	// TODO : UDP to be implemented
 
 	case WCMD_MEDIUM_TCP:
-		break;	// TODO : TCP to be implemented
+		RetVal_B = GL_MediumTcpServer_H->isInitialized();
+		break;
 	}
 
 	return RetVal_B;
 }
 
 int WCmdMedium_DataAvailable(void) {
-	int RetVal_SW = 0;
+	int RetVal_SI = 0;
 
 	switch (GL_Medium_E) {
 	case WCMD_MEDIUM_SERIAL:
-		RetVal_SW = GL_pMediumSerial_H->available();
+		RetVal_SI = GL_pMediumSerial_H->available();
 		break;
 
 	case WCMD_MEDIUM_UDP:
 		break;	// TODO : UDP to be implemented
 
 	case WCMD_MEDIUM_TCP:
-		break;	// TODO : TCP to be implemented
+		RetVal_SI = GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.available();
+		break;
 	}
 
-	return RetVal_SW;
+	return RetVal_SI;
 }
 
 unsigned char WCmdMedium_ReadByte(void) {
@@ -105,7 +111,8 @@ unsigned char WCmdMedium_ReadByte(void) {
 		break;	// TODO : UDP to be implemented
 
 	case WCMD_MEDIUM_TCP:
-		break;	// TODO : TCP to be implemented
+		RetVal_UB = GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.read();
+		break;
 	}
 
 	return RetVal_UB;
@@ -121,7 +128,8 @@ void WCmdMedium_WriteByte(unsigned char Byte_UB) {
 		break;	// TODO : UDP to be implemented
 
 	case WCMD_MEDIUM_TCP:
-		break;	// TODO : TCP to be implemented
+		GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.write(Byte_UB);
+		break;
 	}
 }
 
@@ -135,7 +143,8 @@ void WCmdMedium_Write(unsigned char * pBuffer_UB, unsigned long NbData_UL) {
 		break;	// TODO : UDP to be implemented
 
 	case WCMD_MEDIUM_TCP:
-		break;	// TODO : TCP to be implemented
+		GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.write(pBuffer_UB, NbData_UL);
+		break;
 	}
 }
 
@@ -149,7 +158,8 @@ void WCmdMedium_Flush(void) {
 		break;	// TODO : UDP to be implemented
 
 	case WCMD_MEDIUM_TCP:
-		break;	// TODO : TCP to be implemented
+		GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.flush();
+		break;
 	}
 }
 
@@ -162,6 +172,7 @@ void WCmdMedium_Stop(void) {
 		break;	// TODO : UDP to be implemented
 
 	case WCMD_MEDIUM_TCP:
-		break;	// TODO : TCP to be implemented
+		GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.stop();
+		break;
 	}
 }
