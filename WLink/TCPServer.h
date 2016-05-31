@@ -25,7 +25,7 @@
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define TCP_SERVER_DEFAULT_PORT		23
+#define TCP_SERVER_DEFAULT_PORT			23
 
 #define TCP_SERVER_DEFAULT_MAC_ADDR0	0x02  // Unicast - Locally Administered
 #define TCP_SERVER_DEFAULT_MAC_ADDR1	0x00  // 0x00
