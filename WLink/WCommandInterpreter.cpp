@@ -280,6 +280,6 @@ void TransitionToSendResp(void) {
 }
 
 void TransitionToSendNack(void) {
-	//DBG_PRINT("Transition To SEND NACK");
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To SEND NACK");
 	GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_SEND_NACK;
 }

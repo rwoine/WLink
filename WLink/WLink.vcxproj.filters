@@ -54,6 +54,9 @@
     <ClInclude Include="TCPServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TCPServerManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -69,6 +72,9 @@
       <Filter>Source Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="TCPServer.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="TCPServerManager.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
   </ItemGroup>

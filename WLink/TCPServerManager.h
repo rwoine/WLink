@@ -1,34 +1,22 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* WLink.h																			*/
+/* TCPServerManager.h																*/
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for W-Link project												*/
-/*		Gathers global variables and definitions for the application				*/
+/*		Header file for TCPServerManager.cpp										*/
+/*		Process functions to manager to TCP Server object							*/
 /*                                                                                  */
-/* History :	14/05/2016	(RW)	Creation of this file                           */
+/* History :	02/06/2016	(RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __WLINK_H__
-#define __WLINK_H__
+#ifndef __TCP_SERVER_MANAGER_H__
+#define __TCP_SERVER_MANAGER_H__
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-
-#include <Arduino.h>
-
-#include "Hardware.h"
-
 #include "TCPServer.h"
-#include "TCPServerManager.h"
-
-#include "WCommand.h"
-#include "WCommandMedium.h"
-#include "WCommandInterpreter.h"
-
-#include "Debug.h"
 
 /* ******************************************************************************** */
 /* Define
@@ -38,12 +26,12 @@
 /* Structure & Enumeration
 /* ******************************************************************************** */
 
-typedef struct {
-	unsigned char pRevisionId_UB[8];
-	unsigned char LedPin_UB = PIN_BLINK_LED;
-	const unsigned char pGpioInputIndex_UB[4] = { PIN_GPIO_INPUT0, PIN_GPIO_INPUT1, PIN_GPIO_INPUT2, PIN_GPIO_INPUT3 };
-	const unsigned char pGpioOutputIndex_UB[4] = { PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1, PIN_GPIO_OUTPUT2, PIN_GPIO_OUTPUT3 };
-} GLOBAL_PARAM_STRUCT;
+/* ******************************************************************************** */
+/* Functions Prototypes
+/* ******************************************************************************** */
+void TCPServerManager_Init(TCPServer * pTCPServer_H);
+void TCPServerManager_Process();
 
 
-#endif // __WLINK_H__
+#endif // __TCP_SERVER_MANAGER_H__
+

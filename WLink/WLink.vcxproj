@@ -79,6 +79,7 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Hardware.h" />
     <ClInclude Include="TCPServer.h" />
+    <ClInclude Include="TCPServerManager.h" />
     <ClInclude Include="WCommand.h" />
     <ClInclude Include="WCommandInterpreter.h" />
     <ClInclude Include="WCommandMedium.h" />
@@ -88,6 +89,7 @@
   <ItemGroup>
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="TCPServer.cpp" />
+    <ClCompile Include="TCPServerManager.cpp" />
     <ClCompile Include="WCommand.cpp" />
     <ClCompile Include="WCommandInterpreter.cpp">
       <EnforceTypeConversionRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
