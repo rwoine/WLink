@@ -38,7 +38,7 @@ enum TCP_SERVER_MANAGER_STATE {
 	TCP_SERVER_MANAGER_RUNNING
 };
 
-static TCP_SERVER_MANAGER_STATE GL_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_IDLE;
+static TCP_SERVER_MANAGER_STATE GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_IDLE;
 
 static TCPServer * GL_pServer_H;
 
@@ -72,7 +72,7 @@ void TCPServerManager_Init(TCPServer * pTCPServer_H) {
 }
 
 void TCPServerManager_Process() {
-	switch (GL_CurrentState_E) {
+	switch (GL_TCPServerManager_CurrentState_E) {
 	case TCP_SERVER_MANAGER_IDLE:
 		ProcessIdle();
 		break;
@@ -142,27 +142,27 @@ void TransitionToIdle(void) {
 	GL_pServer_H->GL_TcpServerParam_X.Client_H.flush();
 	GL_pServer_H->GL_TcpServerParam_X.Client_H.stop();
 	GL_pServer_H->GL_TcpServerParam_X.Status_E = TCP_SERVER_IDLE;
-	GL_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_IDLE;
+	GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_IDLE;
 }
 
 void TransitionToConnecting(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CONNECTING");
 	GL_pServer_H->begin();
 	GL_pServer_H->GL_TcpServerParam_X.Status_E = TCP_SERVER_AWAKE;
-	GL_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_CONNECTING;
+	GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_CONNECTING;
 }
 
 void TransitionToWaitClient(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT CLIENT");
 	GL_pServer_H->GL_TcpServerParam_X.Status_E = TCP_SERVER_CONNECTED;
-	GL_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_WAIT_CLIENT;
+	GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_WAIT_CLIENT;
 }
 
 void TransitionToRunning(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To RUNNING");
 	GL_AbsoluteTime_UL = millis();
 	GL_pServer_H->GL_TcpServerParam_X.Status_E = TCP_SERVER_RUNNING;
-	GL_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_RUNNING;
+	GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_RUNNING;
 }
 
 

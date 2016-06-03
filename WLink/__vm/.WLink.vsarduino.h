@@ -113,6 +113,8 @@ extern "C" void __cxa_pure_virtual() {;}
 #include <Hardware.h>
 #include <TCPServer.cpp>
 #include <TCPServer.h>
+#include <TCPServerManager.cpp>
+#include <TCPServerManager.h>
 #include <WCommand.cpp>
 #include <WCommand.h>
 #include <WCommandInterpreter.cpp>

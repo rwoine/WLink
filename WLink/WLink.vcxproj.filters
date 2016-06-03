@@ -33,29 +33,29 @@
     <ClInclude Include="__vm\.WLink.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Hardware.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WLink.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WCommandInterpreter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WCommandMedium.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\WCommand</Filter>
     </ClInclude>
-    <ClInclude Include="Debug.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="WCommandInterpreter.h">
+      <Filter>Source Files\WCommand</Filter>
+    </ClInclude>
+    <ClInclude Include="WCommand.h">
+      <Filter>Source Files\WCommand</Filter>
     </ClInclude>
     <ClInclude Include="TCPServer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Network</Filter>
     </ClInclude>
     <ClInclude Include="TCPServerManager.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>Source Files\Debug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

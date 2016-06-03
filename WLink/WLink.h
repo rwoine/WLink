@@ -37,12 +37,17 @@
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
+typedef struct {
+	//UDPServer UdpServer_H;
+	TCPServer TcpServer_H;
+} NETWORK_INTERFACE_STRUCT;
 
 typedef struct {
 	unsigned char pRevisionId_UB[8];
 	unsigned char LedPin_UB = PIN_BLINK_LED;
 	const unsigned char pGpioInputIndex_UB[4] = { PIN_GPIO_INPUT0, PIN_GPIO_INPUT1, PIN_GPIO_INPUT2, PIN_GPIO_INPUT3 };
 	const unsigned char pGpioOutputIndex_UB[4] = { PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1, PIN_GPIO_OUTPUT2, PIN_GPIO_OUTPUT3 };
+	NETWORK_INTERFACE_STRUCT NetworkIf_X;
 } GLOBAL_PARAM_STRUCT;
 
 

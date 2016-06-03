@@ -33,7 +33,7 @@ enum WCMD_INTERPRETER_STATE {
 	WCMD_INTERPRETER_STATE_SEND_NACK
 };
 
-static WCMD_INTERPRETER_STATE GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_IDLE;
+static WCMD_INTERPRETER_STATE GL_WCommandInterpreter_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_IDLE;
 
 static const WCMD_FCT_DESCR * GL_pWCmdFctDescr_X;
 static unsigned long GL_WCmdFctNb_UL;
@@ -76,7 +76,7 @@ void WCommandInterpreter_Init(const WCMD_FCT_DESCR *pFctDescr_X, unsigned long N
 }
 
 void WCommandInterpreter_Process() {
-	switch (GL_CurrentState_E) {
+	switch (GL_WCommandInterpreter_CurrentState_E) {
 		case WCMD_INTERPRETER_STATE_IDLE :
 			ProcessIdle();
 			break;
@@ -261,25 +261,25 @@ void ProcessSendNack(void) {
 
 void TransitionToIdle(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
-	GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_IDLE;
+	GL_WCommandInterpreter_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_IDLE;
 }
 
 void TransitionToCheckCmd(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CHECK CMD");
-	GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_CHECK_CMD;
+	GL_WCommandInterpreter_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_CHECK_CMD;
 }
 
 void TransitionToProcessCmd(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To PROCESS CMD");
-	GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_PROCESS_CMD;
+	GL_WCommandInterpreter_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_PROCESS_CMD;
 }
 
 void TransitionToSendResp(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To SEND RESP");
-	GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_SEND_RESP;
+	GL_WCommandInterpreter_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_SEND_RESP;
 }
 
 void TransitionToSendNack(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To SEND NACK");
-	GL_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_SEND_NACK;
+	GL_WCommandInterpreter_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_SEND_NACK;
 }

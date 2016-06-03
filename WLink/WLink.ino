@@ -46,10 +46,13 @@ HardwareSerial* GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
 /* ******************************************************************************** */
 /* Functions Mapping
 /* ******************************************************************************** */
-
 const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 {
-	{ WCMD_GET_REVISION_ID, WCmdProcess_GetRevisionId }
+	{ WCMD_GET_REVISION_ID, WCmdProcess_GetRevisionId },
+	{ WCMD_GPIO_READ, WCmdProcess_GpioRead },
+	{ WCMD_GPIO_WRITE, WCmdProcess_GpioWrite },
+	{ WCMD_GPIO_SET_BIT, WCmdProcess_GpioSetBit },
+	{ WCMD_GPIO_CLR_BIT, WCmdProcess_GpioClrBit }
 };
 
 #define WCMD_FCT_DESCR_SIZE (sizeof(cGL_pFctDescr_X)/sizeof(WCMD_FCT_DESCR))
@@ -85,6 +88,10 @@ void setup() {
 		digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], LOW);
 	}
 
+	/* Initialize TCP Server Modules */
+	GL_GlobalData_X.NetworkIf_X.TcpServer_H.init();
+	TCPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.TcpServer_H));
+
 	/* Initialiaze W-Link Command Management Modules */
 	WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GL_PortComMap_X[PORT_COM3]);	// Medium mapped on COM3
 	WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
@@ -99,15 +106,10 @@ void setup() {
 /* Loop
 /* ******************************************************************************** */
 void loop() {
-	WCommandInterpreter_Process();
-	
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Loop");
 
-	DBG_PRINT(DEBUG_SEVERITY_WARNING, "Header String");
-	DBG_PRINTDATA("yop");
-	DBG_PRINTDATABASE(45, HEX);
-	DBG_ENDSTR();
-}
+	TCPServerManager_Process();
+
+} 
 
 /* ******************************************************************************** */
 /* Events
