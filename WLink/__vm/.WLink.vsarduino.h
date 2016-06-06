@@ -111,6 +111,8 @@ extern "C" void __cxa_pure_virtual() {;}
 #include <Debug.cpp>
 #include <Debug.h>
 #include <Hardware.h>
+#include <Indicator.cpp>
+#include <Indicator.h>
 #include <TCPServer.cpp>
 #include <TCPServer.h>
 #include <TCPServerManager.cpp>

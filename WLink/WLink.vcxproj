@@ -78,6 +78,7 @@
   <ItemGroup>
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Hardware.h" />
+    <ClInclude Include="Indicator.h" />
     <ClInclude Include="TCPServer.h" />
     <ClInclude Include="TCPServerManager.h" />
     <ClInclude Include="WCommand.h" />
@@ -88,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="Indicator.cpp" />
     <ClCompile Include="TCPServer.cpp" />
     <ClCompile Include="TCPServerManager.cpp" />
     <ClCompile Include="WCommand.cpp" />
