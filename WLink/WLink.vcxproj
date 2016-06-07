@@ -79,6 +79,8 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Hardware.h" />
     <ClInclude Include="Indicator.h" />
+    <ClInclude Include="IndicatorInterface.h" />
+    <ClInclude Include="LD5218.h" />
     <ClInclude Include="TCPServer.h" />
     <ClInclude Include="TCPServerManager.h" />
     <ClInclude Include="WCommand.h" />
@@ -90,6 +92,8 @@
   <ItemGroup>
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Indicator.cpp" />
+    <ClCompile Include="IndicatorInterface.cpp" />
+    <ClCompile Include="LD5218.cpp" />
     <ClCompile Include="TCPServer.cpp" />
     <ClCompile Include="TCPServerManager.cpp" />
     <ClCompile Include="WCommand.cpp" />

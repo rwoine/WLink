@@ -66,6 +66,12 @@
     <ClInclude Include="Indicator.h">
       <Filter>Source Files\Indicator</Filter>
     </ClInclude>
+    <ClInclude Include="IndicatorInterface.h">
+      <Filter>Source Files\Indicator</Filter>
+    </ClInclude>
+    <ClInclude Include="LD5218.h">
+      <Filter>Source Files\Indicator\Devices</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -88,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="Indicator.cpp">
       <Filter>Source Files\Indicator</Filter>
+    </ClCompile>
+    <ClCompile Include="IndicatorInterface.cpp">
+      <Filter>Source Files\Indicator</Filter>
+    </ClCompile>
+    <ClCompile Include="LD5218.cpp">
+      <Filter>Source Files\Indicator\Devices</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
