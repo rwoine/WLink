@@ -10,7 +10,6 @@
 
 #ifndef _VSARDUINO_H_
 #define _VSARDUINO_H_
-#define _VMDEBUG 1
 #define printf iprintf
 #define F_CPU 84000000L
 #define ARDUINO 10609
@@ -103,10 +102,6 @@ extern "C" void __cxa_pure_virtual() {;}
 #define portOutputRegister(P)
 #define portInputRegister(P)
 #define portModeRegister(P)
-
-//
-//
-
 #include <WLink.ino>
 #include <Debug.cpp>
 #include <Debug.h>

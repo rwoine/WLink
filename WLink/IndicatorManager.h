@@ -1,45 +1,43 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* IndicatorInterface.cpp															*/
+/* IndicatorManager.h																*/
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Manages the interface through the several indicator			                */
+/*		Header file for IndicatorManager.cpp										*/
+/*		Process functions to manager to Indicator object							*/
 /*                                                                                  */
-/* History :  	07/06/2016  (RW)	Creation of this file                           */
+/* History :  	22/12/2014  (RW)	Creation of this file                           */
+/*				12/01/2015  (RW)	Add disable() function                          */
+/*				07/06/2016	(RW)	Re-mastered version								*/	
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#define MODULE_NAME		"IndicatorInterface"
+#ifndef __INDICATOR_MANAGER_H__
+#define __INDICATOR_MANAGER_H__
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
+#include <Arduino.h>
 
-#include "IndicatorInterface.h"
-
-#include "LD5218.h"
-
-#include "Debug.h"
+#include "Indicator.h"
 
 /* ******************************************************************************** */
-/* Local Variables
+/* Define
 /* ******************************************************************************** */
-INDICATOR_INTERFACE_STRUCT GL_pIndicatorInterface_X[INDICATOR_INTERFACE_DEVICES_NUM];
 
 /* ******************************************************************************** */
-/* Functions
+/* Structure & Enumeration
 /* ******************************************************************************** */
-void IndicatorInterface_Init(void) {
 
-	// Fill-Up LD5218 Parameters and Function
-	GL_pIndicatorInterface_X[INDICATOR_LD5218].FctHandler = LD5218_ProcessFrame;
-	for (int i = 0; i < INDICATOR_INTERFACE_FRAME_NUM; i++) {
-		GL_pIndicatorInterface_X[INDICATOR_LD5218].pFrame[i].Size_UB = GL_pLD5218Frames_X[i].Size_UB;
-		GL_pIndicatorInterface_X[INDICATOR_LD5218].pFrame[i].RespSize_UB = GL_pLD5218Frames_X[i].RespSize_UB;
-		for (int j = 0; j < GL_pIndicatorInterface_X[INDICATOR_LD5218].pFrame[i].Size_UB; j++)
-			GL_pIndicatorInterface_X[INDICATOR_LD5218].pFrame[i].pWords_UB[j] = GL_pLD5218Frames_X[i].pWords_UB[j];
-	}
+/* ******************************************************************************** */
+/* Functions Prototypes
+/* ******************************************************************************** */
+void IndicatorManager_Init(Indicator* Indicator_H);
+void IndicatorManager_Enable();
+void IndicatorManager_Disable();
+void IndicatorManager_SetZeroIndicator();
+void IndicatorManager_Process();
 
-	// Do the same for other indicators..
+#endif // __INDICATOR_MANAGER_H__
 
-}

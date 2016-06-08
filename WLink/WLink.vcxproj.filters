@@ -72,6 +72,9 @@
     <ClInclude Include="LD5218.h">
       <Filter>Source Files\Indicator\Devices</Filter>
     </ClInclude>
+    <ClInclude Include="IndicatorManager.h">
+      <Filter>Source Files\Indicator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -100,6 +103,9 @@
     </ClCompile>
     <ClCompile Include="LD5218.cpp">
       <Filter>Source Files\Indicator\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="IndicatorManager.cpp">
+      <Filter>Source Files\Indicator</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

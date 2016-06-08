@@ -146,8 +146,10 @@ void Indicator::processFrame(INDICATOR_INTERFACE_FRAME_ENUM Frame_E) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Process Data with Low-Level Function");
 	GL_pIndicatorInterface_X[GL_IndicatorDevice_E].FctHandler(GL_pIndicatorBuffer_UB, Frame_E, &(GL_IndicatorParam_X.Weight_X));
 
-	DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Reset Alibi Flag");
-	GL_IndicatorParam_X.IsAlibi_B = false;
+	if (GL_IndicatorParam_X.IsAlibi_B) {
+		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Reset Alibi Flag");
+		GL_IndicatorParam_X.IsAlibi_B = false;
+	}
 }
 
 

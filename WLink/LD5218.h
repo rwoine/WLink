@@ -34,6 +34,6 @@ const INDICATOR_INTERFACE_FRAME_STRUCT GL_pLD5218Frames_X[] = {	{ 3, { 0x02,'?',
 /* ******************************************************************************** */
 /* Functions
 /* ******************************************************************************** */
-void LD5218_ProcessWeight(unsigned char * pBuffer_UB, INDICATOR_INTERFACE_FRAME_ENUM Frame_E, INDICATOR_WEIGHT_STRUCT * pWeight_X);
+void LD5218_ProcessFrame(unsigned char * pBuffer_UB, INDICATOR_INTERFACE_FRAME_ENUM Frame_E, INDICATOR_WEIGHT_STRUCT * pWeight_X);
 
 #endif // __LD5218_H__
