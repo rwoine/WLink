@@ -29,33 +29,6 @@
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
-typedef enum {
-	INDICATOR_WEIGHT_STATUS_STABLE,
-	INDICATOR_WEIGHT_STATUS_UNSTABLE,
-	INDICATOR_WEIGHT_STATUS_OVERRANGE,
-	INDICATOR_WEIGHT_STATUS_UNDEFINED
-} INDICATOR_WEIGHT_STATUS_ENUM;
-
-typedef enum {
-	INDICATOR_WEIGHT_SIGN_POS,
-	INDICATOR_WEIGHT_SIGN_NEG,
-	INDICATOR_WEIGHT_SIGN_UNDEFINED
-} INDICATOR_WEIGHT_SIGN_ENUM;
-
-typedef struct {
-	INDICATOR_WEIGHT_STATUS_ENUM Status_E;
-	INDICATOR_WEIGHT_SIGN_ENUM Sign_E;
-	unsigned int Value_UI;
-	unsigned int Alibi_UI;
-} INDICATOR_WEIGHT_STRUCT;
-
-typedef struct {
-	boolean IsInitialized_B;
-	boolean HasEcho_B;
-	boolean IsAlibi_B;
-	boolean IsMsa_B;
-	INDICATOR_WEIGHT_STRUCT Weight_X;
-} INDICATOR_PARAM;
 
 /* ******************************************************************************** */
 /* Class
@@ -78,16 +51,22 @@ public:
 	void enableMsa(boolean Enable_B);
 	void enableAlibi(boolean Enable_B);
 
-	boolean isInitialized();
-	boolean isAlibi();
-	boolean isMsa();
-	boolean hasEcho();
+	boolean isInitialized(void);
+	boolean isAlibi(void);
+	boolean isMsa(void);
+	boolean hasEcho(void);
 
-	//void askWeight();
-	//void askWeightMsa();
-	//void askWeightWithAlibi();
-	//void askLastAlibi();
-	//void setToZero();
+	void sendFrame(INDICATOR_INTERFACE_FRAME_ENUM Frame_E);
+	boolean isResponseAvailable(INDICATOR_INTERFACE_FRAME_ENUM Frame_E);
+	void processFrame(INDICATOR_INTERFACE_FRAME_ENUM Frame_E);
+
+	void flushIndicator(void);
+
+	INDICATOR_WEIGHT_STATUS_ENUM getWeightStatus();
+	INDICATOR_WEIGHT_SIGN_ENUM getWeightSign();
+	signed int getWeightValue();
+	unsigned int getWeightUnsignedValue();
+	unsigned int getAlibiValue();
 
 
 	INDICATOR_PARAM GL_IndicatorParam_X;

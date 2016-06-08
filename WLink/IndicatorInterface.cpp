@@ -35,6 +35,7 @@ void IndicatorInterface_Init(void) {
 	GL_pIndicatorInterface_X[INDICATOR_LD5218].FctHandler = LD5218_ProcessWeight;
 	for (int i = 0; i < INDICATOR_INTERFACE_FRAME_NUM; i++) {
 		GL_pIndicatorInterface_X[INDICATOR_LD5218].pFrame[i].Size_UB = GL_pLD5218Frames_X[i].Size_UB;
+		GL_pIndicatorInterface_X[INDICATOR_LD5218].pFrame[i].RespSize_UB = GL_pLD5218Frames_X[i].RespSize_UB;
 		for (int j = 0; j < GL_pIndicatorInterface_X[INDICATOR_LD5218].pFrame[i].Size_UB; j++)
 			GL_pIndicatorInterface_X[INDICATOR_LD5218].pFrame[i].pWords_UB[j] = GL_pLD5218Frames_X[i].pWords_UB[j];
 	}

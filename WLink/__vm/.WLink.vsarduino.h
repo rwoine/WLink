@@ -113,6 +113,10 @@ extern "C" void __cxa_pure_virtual() {;}
 #include <Hardware.h>
 #include <Indicator.cpp>
 #include <Indicator.h>
+#include <IndicatorInterface.cpp>
+#include <IndicatorInterface.h>
+#include <LD5218.cpp>
+#include <LD5218.h>
 #include <TCPServer.cpp>
 #include <TCPServer.h>
 #include <TCPServerManager.cpp>
