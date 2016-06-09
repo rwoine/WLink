@@ -38,7 +38,7 @@
 #define DBG_PRINTLN(Severity, Message)	/* Do Nothing */
 #endif
 
-#define DEBUG_DEFAULT_BAUDRATE	9600
+#define DEBUG_DEFAULT_BAUDRATE	115200
 
 
 /* ******************************************************************************** */

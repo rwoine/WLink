@@ -25,6 +25,10 @@
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
+#define INDICATOR_MANAGER_DEFAULT_SCAN_PERIOD	    1000
+#define INDICATOR_MANAGER_DEFAULT_RESPONSE_DELAY    100
+#define INDICATOR_MANAGER_DEFAULT_RESET_DELAY	    100
+#define INDICATOR_MANAGER_DEFAULT_MAX_TRY_NUMBER	2
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
@@ -34,7 +38,7 @@
 /* Functions Prototypes
 /* ******************************************************************************** */
 void IndicatorManager_Init(Indicator* Indicator_H);
-void IndicatorManager_Enable();
+void IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ENUM FrameType_E = INDICATOR_INTERFACE_FRAME_ASK_WEIGHT);
 void IndicatorManager_Disable();
 void IndicatorManager_SetZeroIndicator();
 void IndicatorManager_Process();

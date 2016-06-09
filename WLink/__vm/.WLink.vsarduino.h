@@ -10,6 +10,7 @@
 
 #ifndef _VSARDUINO_H_
 #define _VSARDUINO_H_
+#define _VMDEBUG 1
 #define printf iprintf
 #define F_CPU 84000000L
 #define ARDUINO 10609
@@ -102,6 +103,14 @@ extern "C" void __cxa_pure_virtual() {;}
 #define portOutputRegister(P)
 #define portInputRegister(P)
 #define portModeRegister(P)
+
+//
+//
+void serialEvent();
+void serial1Event();
+void serial2Event();
+void serial3Event();
+
 #include <WLink.ino>
 #include <Debug.cpp>
 #include <Debug.h>
@@ -110,6 +119,8 @@ extern "C" void __cxa_pure_virtual() {;}
 #include <Indicator.h>
 #include <IndicatorInterface.cpp>
 #include <IndicatorInterface.h>
+#include <IndicatorManager.cpp>
+#include <IndicatorManager.h>
 #include <LD5218.cpp>
 #include <LD5218.h>
 #include <TCPServer.cpp>

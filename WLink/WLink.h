@@ -28,6 +28,10 @@
 #include "WCommandMedium.h"
 #include "WCommandInterpreter.h"
 
+#include "Indicator.h"
+#include "IndicatorInterface.h"
+#include "IndicatorManager.h"
+
 #include "Debug.h"
 
 /* ******************************************************************************** */
@@ -48,6 +52,7 @@ typedef struct {
 	const unsigned char pGpioInputIndex_UB[4] = { PIN_GPIO_INPUT0, PIN_GPIO_INPUT1, PIN_GPIO_INPUT2, PIN_GPIO_INPUT3 };
 	const unsigned char pGpioOutputIndex_UB[4] = { PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1, PIN_GPIO_OUTPUT2, PIN_GPIO_OUTPUT3 };
 	NETWORK_INTERFACE_STRUCT NetworkIf_X;
+	Indicator Indicator_H;
 } GLOBAL_PARAM_STRUCT;
 
 

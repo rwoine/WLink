@@ -40,7 +40,8 @@ const unsigned char cGL_pWLinkRevisionId_UB[] = "16053101";	// YYMMDDVV - Year-M
 /* ******************************************************************************** */
 
 GLOBAL_PARAM_STRUCT GL_GlobalData_X;
-HardwareSerial* GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
+HardwareSerial * GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
+//void * GL_PortComEventMap_X[] = { (void *), (void *), (void *), (void *) };
 
 
 /* ******************************************************************************** */
@@ -97,7 +98,17 @@ void setup() {
 	WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.NetworkIf_X.TcpServer_H));	// Medium mapped on TCP Server
 	WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
 
+	/* Initialize Indicator Management Modules */
+	IndicatorInterface_Init();
+	IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
+	IndicatorManager_Enable();	// Normal frame by default
+	GL_GlobalData_X.Indicator_H.attachEcho(GL_PortComMap_X[PORT_COM2], 9600);
 
+	/* Initialize Badge Reader Management Modules */
+
+	cli();
+
+	
 
 	// TODO : Add Output Management for Bug in SPI (additional output to maintain low ?)
 
@@ -109,10 +120,27 @@ void setup() {
 void loop() {
 
 	TCPServerManager_Process();
+	IndicatorManager_Process();
 
 } 
 
 /* ******************************************************************************** */
 /* Events
 /* ******************************************************************************** */
-// TODO : SerialEvent Management
+void serialEvent() {
+	//GL_PortComEventMap_X[PORT_COM0];
+}
+
+void serial1Event() {
+
+}
+
+
+void serial2Event() {
+
+}
+
+
+void serial3Event() {
+
+}
