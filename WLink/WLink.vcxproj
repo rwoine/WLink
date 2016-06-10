@@ -76,6 +76,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BadgeReader.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Hardware.h" />
     <ClInclude Include="Indicator.h" />
@@ -91,6 +92,7 @@
     <ClInclude Include="__vm\.WLink.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BadgeReader.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Indicator.cpp" />
     <ClCompile Include="IndicatorInterface.cpp" />

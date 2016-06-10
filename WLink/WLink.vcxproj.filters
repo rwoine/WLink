@@ -31,6 +31,9 @@
     <Filter Include="Source Files\Indicator\Devices">
       <UniqueIdentifier>{afd466b8-3e31-4109-a41f-40290609f531}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\BadgeReader">
+      <UniqueIdentifier>{561f179a-80ec-4f07-9528-ed62839c7f3f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="WLink.ino" />
@@ -75,6 +78,9 @@
     <ClInclude Include="IndicatorManager.h">
       <Filter>Source Files\Indicator</Filter>
     </ClInclude>
+    <ClInclude Include="BadgeReader.h">
+      <Filter>Source Files\BadgeReader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -106,6 +112,9 @@
     </ClCompile>
     <ClCompile Include="IndicatorManager.cpp">
       <Filter>Source Files\Indicator</Filter>
+    </ClCompile>
+    <ClCompile Include="BadgeReader.cpp">
+      <Filter>Source Files\BadgeReader</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

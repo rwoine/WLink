@@ -1,67 +1,60 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* WLink.h																			*/
+/* BadgeReader.h			                                                        */
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for W-Link project												*/
-/*		Gathers global variables and definitions for the application				*/
+/*		Header file for BadgeReader.cpp												*/
 /*                                                                                  */
-/* History :	14/05/2016	(RW)	Creation of this file                           */
+/* History :  	02/03/2015  (RW)	Creation of this file							*/
+/*				10/06/2016	(RW)	Re-mastered version								*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __WLINK_H__
-#define __WLINK_H__
+#ifndef __BADGE_READER_H__
+#define __BADGE_READER_H__
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-
 #include <Arduino.h>
-
-#include "Hardware.h"
-
-#include "TCPServer.h"
-#include "TCPServerManager.h"
-
-#include "WCommand.h"
-#include "WCommandMedium.h"
-#include "WCommandInterpreter.h"
-
-#include "Indicator.h"
-#include "IndicatorInterface.h"
-#include "IndicatorManager.h"
-
-#include "BadgeReader.h"
-
-#include "Debug.h"
+#include <HardwareSerial.h>
 
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define NOP	(void (*)());
+#define BADGE_READER_DEFAULT_BAUDRATE	9600
+#define BADGE_READER_PACKET_ID_SIZE     13
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
 typedef struct {
-	void(*FctHandler)(void);
-} COM_EVENT_FCT_STRUCT;
+	boolean IsInitialized_B;
+	unsigned long PacketIdSize_UL;
+	boolean PacketIdCompleted_B;
+} BADGE_READER_PARAM;
 
-typedef struct {
-	//UDPServer UdpServer_H;
-	TCPServer TcpServer_H;
-} NETWORK_INTERFACE_STRUCT;
+/* ******************************************************************************** */
+/* Class
+/* ******************************************************************************** */
+class BadgeReader {
+public:
+	// Constructor
+	BadgeReader();
 
-typedef struct {
-	unsigned char pRevisionId_UB[8];
-	unsigned char LedPin_UB = PIN_BLINK_LED;
-	const unsigned char pGpioInputIndex_UB[4] = { PIN_GPIO_INPUT0, PIN_GPIO_INPUT1, PIN_GPIO_INPUT2, PIN_GPIO_INPUT3 };
-	const unsigned char pGpioOutputIndex_UB[4] = { PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1, PIN_GPIO_OUTPUT2, PIN_GPIO_OUTPUT3 };
-	NETWORK_INTERFACE_STRUCT NetworkIf_X;
-	Indicator Indicator_H;
-	BadgeReader BadgeReader_H;
-} GLOBAL_PARAM_STRUCT;
+	// Functions
+	void init(HardwareSerial * pSerial_H);
+	void init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL);
 
+	boolean isInitialized(void);
 
-#endif // __WLINK_H__
+	void sendAck(void);
+	unsigned char getPacketChar(unsigned long Index_UL);
+	void flushBadgeReader(void);
+
+	void commEvent(void);
+
+	BADGE_READER_PARAM GL_BadgeReaderParam_X;
+};
+
+#endif // __BADGE_READER_H__

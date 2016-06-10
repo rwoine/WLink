@@ -112,6 +112,8 @@ void serial2Event();
 void serial3Event();
 
 #include <WLink.ino>
+#include <BadgeReader.cpp>
+#include <BadgeReader.h>
 #include <Debug.cpp>
 #include <Debug.h>
 #include <Hardware.h>

@@ -38,10 +38,9 @@ const unsigned char cGL_pWLinkRevisionId_UB[] = "16053101";	// YYMMDDVV - Year-M
 /* ******************************************************************************** */
 /* Global
 /* ******************************************************************************** */
-
 GLOBAL_PARAM_STRUCT GL_GlobalData_X;
 HardwareSerial * GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
-//void * GL_PortComEventMap_X[] = { (void *), (void *), (void *), (void *) };
+COM_EVENT_FCT_STRUCT GL_PortComEventMap_X[4];
 
 
 /* ******************************************************************************** */
@@ -98,17 +97,18 @@ void setup() {
 	WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.NetworkIf_X.TcpServer_H));	// Medium mapped on TCP Server
 	WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
 
-	/* Initialize Indicator Management Modules */
+	/* Initialize Indicator Modules */
+	GL_GlobalData_X.Indicator_H.init(GL_PortComMap_X[PORT_COM2], 2400);
 	IndicatorInterface_Init();
 	IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
 	IndicatorManager_Enable();	// Normal frame by default
-	GL_GlobalData_X.Indicator_H.attachEcho(GL_PortComMap_X[PORT_COM2], 9600);
+	GL_GlobalData_X.Indicator_H.attachEcho(GL_PortComMap_X[PORT_COM3], 9600);
 
-	/* Initialize Badge Reader Management Modules */
+	/* Initialize Badge Reader Modules */
+	GL_GlobalData_X.BadgeReader_H.init(GL_PortComMap_X[PORT_COM1], 9600);
 
-	cli();
+	GL_PortComEventMap_X[PORT_COM1].FctHandler = GL_GlobalData_X.BadgeReader_H.commEvent;	
 
-	
 
 	// TODO : Add Output Management for Bug in SPI (additional output to maintain low ?)
 
@@ -127,20 +127,7 @@ void loop() {
 /* ******************************************************************************** */
 /* Events
 /* ******************************************************************************** */
-void serialEvent() {
-	//GL_PortComEventMap_X[PORT_COM0];
-}
-
-void serial1Event() {
-
-}
-
-
-void serial2Event() {
-
-}
-
-
-void serial3Event() {
-
-}
+void serialEvent() { GL_PortComEventMap_X[PORT_COM0].FctHandler(); }
+void serial1Event() { GL_PortComEventMap_X[PORT_COM1].FctHandler(); }
+void serial2Event() { GL_PortComEventMap_X[PORT_COM2].FctHandler(); }
+void serial3Event() { GL_PortComEventMap_X[PORT_COM3].FctHandler(); }
