@@ -1,59 +1,81 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* BadgeReader.h			                                                        */
+/* BadgeReaderManager.cpp															*/
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for BadgeReader.cpp												*/
+/*		Describes the state machine to manage the Badge Reader object				*/
 /*                                                                                  */
-/* History :  	02/03/2015  (RW)	Creation of this file							*/
-/*				10/06/2016	(RW)	Re-mastered version								*/
+/* History :  	11/06/2015  (RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __BADGE_READER_H__
+#define MODULE_NAME		"BadgeReaderManager"
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-#include <Arduino.h>
-#include <HardwareSerial.h>
+
+#include "BadgeReaderManager.h"
+
+#include "Debug.h"
+
 
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define BADGE_READER_DEFAULT_BAUDRATE	9600
-#define BADGE_READER_PACKET_ID_SIZE     13
+
+
 
 /* ******************************************************************************** */
-/* Structure & Enumeration
+/* Local Variables
 /* ******************************************************************************** */
-typedef struct {
-	boolean IsInitialized_B;
-	unsigned long PacketIdSize_UL;
-	boolean PacketIdCompleted_B;
-} BADGE_READER_PARAM;
-
-/* ******************************************************************************** */
-/* Class
-/* ******************************************************************************** */
-class BadgeReader {
-public:
-	// Constructor
-	BadgeReader();
-
-	// Functions
-	void init(HardwareSerial * pSerial_H);
-	void init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL);
-
-	boolean isInitialized(void);
-
-	void sendAck(void);
-	unsigned char getPacketChar(unsigned long Index_UL);
-	void flushBadgeReader(void);
-
-	void commEvent(void);
-
-	BADGE_READER_PARAM GL_BadgeReaderParam_X;
+enum BADGE_READER_MANAGER_STATE {
+	BADGE_READER_MANAGER_IDLE
 };
 
-#endif // __BADGE_READER_H__
+static BADGE_READER_MANAGER_STATE GL_BadgeReaderManager_CurrentState_E = BADGE_READER_MANAGER_STATE::BADGE_READER_MANAGER_IDLE;
+
+static BadgeReader * GL_pBadgeReader_H;
+
+
+
+
+/* ******************************************************************************** */
+/* Prototypes for Internal Functions
+/* ******************************************************************************** */
+
+
+
+/* ******************************************************************************** */
+/* Functions
+/* ******************************************************************************** */
+void BadgeReaderManager_Init(BadgeReader * pBadgeReader_H) {
+
+}
+
+void BadgeReaderManager_Enable() {
+
+}
+
+void BadgeReaderManager_Disable() {
+
+}
+
+void BadgeReaderManager_Process() {
+
+}
+
+
+boolean BadgeReaderManager_IsBadgeAvailable(unsigned long * pPacketIdSize_UL) {
+
+}
+
+unsigned char BadgeReaderManager_GetBadgeChar(unsigned long Index_UL) {
+
+}
+
+
+/* ******************************************************************************** */
+/* Internal Functions
+/* ******************************************************************************** */
+

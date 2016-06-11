@@ -81,6 +81,12 @@
     <ClInclude Include="BadgeReader.h">
       <Filter>Source Files\BadgeReader</Filter>
     </ClInclude>
+    <ClInclude Include="CommEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BadgeReaderManager.h">
+      <Filter>Source Files\BadgeReader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -114,6 +120,9 @@
       <Filter>Source Files\Indicator</Filter>
     </ClCompile>
     <ClCompile Include="BadgeReader.cpp">
+      <Filter>Source Files\BadgeReader</Filter>
+    </ClCompile>
+    <ClCompile Include="BadgeReaderManager.cpp">
       <Filter>Source Files\BadgeReader</Filter>
     </ClCompile>
   </ItemGroup>

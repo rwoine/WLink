@@ -1,6 +1,6 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* WCommandIntepreter.cpp															*/
+/* TCPServerManager.cpp																*/
 /*                                                                                  */
 /* Description :                                                                    */
 /*		Describes the state machine to manage the TCP Server object					*/
@@ -16,7 +16,6 @@
 /* ******************************************************************************** */
 
 #include "TCPServerManager.h"
-#include "WCommandInterpreter.h"
 
 #include "Debug.h"
 

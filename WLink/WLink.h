@@ -33,21 +33,17 @@
 #include "IndicatorManager.h"
 
 #include "BadgeReader.h"
+#include "BadgeReaderManager.h"
 
 #include "Debug.h"
 
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define NOP	(void (*)());
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
-typedef struct {
-	void(*FctHandler)(void);
-} COM_EVENT_FCT_STRUCT;
-
 typedef struct {
 	//UDPServer UdpServer_H;
 	TCPServer TcpServer_H;

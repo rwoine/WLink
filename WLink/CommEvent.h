@@ -1,59 +1,38 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* BadgeReader.h			                                                        */
+/* CommEvent.h																		*/
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for BadgeReader.cpp												*/
+/*		Gathers CommEvent functions to be mapped to SerialEvent interrupt.			*/
 /*                                                                                  */
-/* History :  	02/03/2015  (RW)	Creation of this file							*/
-/*				10/06/2016	(RW)	Re-mastered version								*/
+/* History :	11/06/2016	(RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
-
-#ifndef __BADGE_READER_H__
+#ifndef __COMM_EVENT_H__
+#define __COMM_EVENT_H__
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-#include <Arduino.h>
-#include <HardwareSerial.h>
-
-/* ******************************************************************************** */
-/* Define
-/* ******************************************************************************** */
-#define BADGE_READER_DEFAULT_BAUDRATE	9600
-#define BADGE_READER_PACKET_ID_SIZE     13
+#include "WLink.h"
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
 typedef struct {
-	boolean IsInitialized_B;
-	unsigned long PacketIdSize_UL;
-	boolean PacketIdCompleted_B;
-} BADGE_READER_PARAM;
+	void(*EventHandler)(void);
+} COM_EVENT_FCT_STRUCT;
 
 /* ******************************************************************************** */
-/* Class
+/* Local Variables
 /* ******************************************************************************** */
-class BadgeReader {
-public:
-	// Constructor
-	BadgeReader();
+extern GLOBAL_PARAM_STRUCT GL_GlobalData_X;
 
-	// Functions
-	void init(HardwareSerial * pSerial_H);
-	void init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL);
+/* ******************************************************************************** */
+/* Functions
+/* ******************************************************************************** */
+static void CommEvent_BadgeReader(void) {
+	return (GL_GlobalData_X.BadgeReader_H.commEvent());
+}
 
-	boolean isInitialized(void);
-
-	void sendAck(void);
-	unsigned char getPacketChar(unsigned long Index_UL);
-	void flushBadgeReader(void);
-
-	void commEvent(void);
-
-	BADGE_READER_PARAM GL_BadgeReaderParam_X;
-};
-
-#endif // __BADGE_READER_H__
+#endif // __COMM_EVENT_H__

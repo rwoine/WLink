@@ -10,7 +10,6 @@
 
 #ifndef _VSARDUINO_H_
 #define _VSARDUINO_H_
-#define _VMDEBUG 1
 #define printf iprintf
 #define F_CPU 84000000L
 #define ARDUINO 10609
@@ -103,17 +102,11 @@ extern "C" void __cxa_pure_virtual() {;}
 #define portOutputRegister(P)
 #define portInputRegister(P)
 #define portModeRegister(P)
-
-//
-//
-void serialEvent();
-void serial1Event();
-void serial2Event();
-void serial3Event();
-
 #include <WLink.ino>
 #include <BadgeReader.cpp>
 #include <BadgeReader.h>
+#include <BadgeReaderManager.h>
+#include <CommEvent.h>
 #include <Debug.cpp>
 #include <Debug.h>
 #include <Hardware.h>

@@ -12,7 +12,7 @@
 
 #define MODULE_NAME		"Main"
 
-#define APP_USE_DEBUG
+#define APP_USE_DEBUG	// Comment to disbale Debug functionalitiy
 
 /* ******************************************************************************** */
 /* Include
@@ -22,26 +22,24 @@
 
 #include "WLink.h"
 #include "Hardware.h"
+#include "CommEvent.h"
 
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
 
-
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-
 const unsigned char cGL_pWLinkRevisionId_UB[] = "16053101";	// YYMMDDVV - Year-Month-Day-Version
-
 
 /* ******************************************************************************** */
 /* Global
 /* ******************************************************************************** */
 GLOBAL_PARAM_STRUCT GL_GlobalData_X;
-HardwareSerial * GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
-COM_EVENT_FCT_STRUCT GL_PortComEventMap_X[4];
 
+HardwareSerial * GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
+COM_EVENT_FCT_STRUCT GL_PortComEventMap_X[] = { NULL, NULL, NULL, NULL };
 
 /* ******************************************************************************** */
 /* Functions Mapping
@@ -106,11 +104,17 @@ void setup() {
 
 	/* Initialize Badge Reader Modules */
 	GL_GlobalData_X.BadgeReader_H.init(GL_PortComMap_X[PORT_COM1], 9600);
-
-	GL_PortComEventMap_X[PORT_COM1].FctHandler = GL_GlobalData_X.BadgeReader_H.commEvent;	
+	BadgeReaderManager_Init(&(GL_GlobalData_X.BadgeReader_H));
+	BadgeReaderManager_Enable();
 
 
 	// TODO : Add Output Management for Bug in SPI (additional output to maintain low ?)
+
+
+
+
+	/* Map Specific Functions on CommEvent Handler */
+	GL_PortComEventMap_X[PORT_COM1].EventHandler = CommEvent_BadgeReader;
 
 }
 
@@ -121,13 +125,14 @@ void loop() {
 
 	TCPServerManager_Process();
 	IndicatorManager_Process();
+	BadgeReaderManager_Process();
 
 } 
 
 /* ******************************************************************************** */
 /* Events
 /* ******************************************************************************** */
-void serialEvent() { GL_PortComEventMap_X[PORT_COM0].FctHandler(); }
-void serial1Event() { GL_PortComEventMap_X[PORT_COM1].FctHandler(); }
-void serial2Event() { GL_PortComEventMap_X[PORT_COM2].FctHandler(); }
-void serial3Event() { GL_PortComEventMap_X[PORT_COM3].FctHandler(); }
+void serialEvent() { GL_PortComEventMap_X[PORT_COM0].EventHandler(); }
+void serial1Event() { GL_PortComEventMap_X[PORT_COM1].EventHandler(); }
+void serial2Event() { GL_PortComEventMap_X[PORT_COM2].EventHandler(); }
+void serial3Event() { GL_PortComEventMap_X[PORT_COM3].EventHandler(); }
