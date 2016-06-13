@@ -1,62 +1,47 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* BadgeReader.h			                                                        */
+/* LcdDisplay.h			                                                            */
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for BadgeReader.cpp												*/
+/*		Header file for LcdDisplay.cpp												*/
 /*                                                                                  */
-/* History :  	02/03/2015  (RW)	Creation of this file							*/
-/*				10/06/2016	(RW)	Re-mastered version								*/
+/* History :  	13/06/2016  (RW)	Creation of this file							*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __BADGE_READER_H__
-#define __BADGE_READER_H__
+#ifndef __LCD_DISPLAY_H__
+#define __LCD_DISPLAY_H__
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
 #include <Arduino.h>
-#include <HardwareSerial.h>
+#include <LiquidCrystal.h>
 
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define BADGE_READER_DEFAULT_BAUDRATE	9600
-#define BADGE_READER_PACKET_ID_SIZE     13
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
 typedef struct {
 	boolean IsInitialized_B;
-	unsigned long PacketIdSize_UL;
-	boolean PacketIdCompleted_B;
-} BADGE_READER_PARAM;
+} LCD_DISPLAY_PARAM;
 
 /* ******************************************************************************** */
 /* Class
 /* ******************************************************************************** */
-class BadgeReader {
+class LcdDisplay {
 public:
 	// Constructor
-	BadgeReader();
+	LcdDisplay();
 
 	// Functions
-	void init(HardwareSerial * pSerial_H);
-	void init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL);
-
+	void init(LiquidCrystal * pLcd_H, unsigned char PinBacklight_UB);
 	boolean isInitialized(void);
-	boolean isPacketIdCompleted(void);
-	void resetPacketIdCompleted(void);
 
-	void sendAck(void);
-	unsigned char getPacketChar(unsigned long Index_UL);
-	void flushBadgeReader(void);
-
-	void commEvent(void);
-
-	BADGE_READER_PARAM GL_BadgeReaderParam_X;
+	LCD_DISPLAY_PARAM GL_LcdDisplayParam_X;
 };
 
-#endif // __BADGE_READER_H__
+#endif // __LCD_DISPLAY_H__

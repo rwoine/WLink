@@ -67,5 +67,17 @@ WCMD_FCT_STS WCmdProcess_GpioWrite(const unsigned char * pParam_UB, unsigned lon
 WCMD_FCT_STS WCmdProcess_GpioSetBit(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_GpioClrBit(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 
+WCMD_FCT_STS WCmdProcess_IndicatorGetWeight(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_IndicatorGetWeightAlibi(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_IndicatorSetZero(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_IndicatorGetWeightAscii(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+
+WCMD_FCT_STS WCmdProcess_BadgeReaderGetBadgeId(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+
+WCMD_FCT_STS WCmdProcess_LcdWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_LcdRead(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_LcdClear(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_LcdSetBacklight(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+
 
 #endif // __WCOMMAND_H__

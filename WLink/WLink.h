@@ -38,6 +38,8 @@
 #include "BadgeReader.h"
 #include "BadgeReaderManager.h"
 
+#include "LcdDisplay.h"
+
 #include "Debug.h"
 
 /* ******************************************************************************** */
@@ -57,10 +59,10 @@ typedef struct {
 	unsigned char LedPin_UB = PIN_BLINK_LED;
 	const unsigned char pGpioInputIndex_UB[4] = { PIN_GPIO_INPUT0, PIN_GPIO_INPUT1, PIN_GPIO_INPUT2, PIN_GPIO_INPUT3 };
 	const unsigned char pGpioOutputIndex_UB[4] = { PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1, PIN_GPIO_OUTPUT2, PIN_GPIO_OUTPUT3 };
+	LcdDisplay Lcd_H;
 	NETWORK_INTERFACE_STRUCT NetworkIf_X;
 	Indicator Indicator_H;
 	BadgeReader BadgeReader_H;
 } GLOBAL_PARAM_STRUCT;
-
 
 #endif // __WLINK_H__

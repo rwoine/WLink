@@ -16,6 +16,7 @@
 /* ******************************************************************************** */
 
 #include "TCPServerManager.h"
+#include "WCommandInterpreter.h"
 
 #include "Debug.h"
 

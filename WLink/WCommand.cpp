@@ -137,12 +137,120 @@ WCMD_FCT_STS WCmdProcess_GpioClrBit(const unsigned char * pParam_UB, unsigned lo
 
 /* Indicator ********************************************************************** */
 /* ******************************************************************************** */
+WCMD_FCT_STS WCmdProcess_IndicatorGetWeight(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_IndicatorGetWeight");
+	*pAnsNb_UL = 4;
+
+	pAns_UB[0] = (unsigned char)(GL_GlobalData_X.Indicator_H.getWeightStatus());
+	pAns_UB[1] = (unsigned char)(GL_GlobalData_X.Indicator_H.getWeightSign());
+	pAns_UB[2] = (unsigned char)(GL_GlobalData_X.Indicator_H.getWeightUnsignedValue());
+	pAns_UB[3] = (unsigned char)(GL_GlobalData_X.Indicator_H.getWeightUnsignedValue() >> 8);
+
+	return WCMD_FCT_STS_OK;
+}
+
+WCMD_FCT_STS WCmdProcess_IndicatorGetWeightAlibi(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_IndicatorGetWeightAlibi");
+	*pAnsNb_UL = 0;
+
+	return WCMD_FCT_STS_ERROR;
+}
+
+WCMD_FCT_STS WCmdProcess_IndicatorSetZero(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_IndicatorSetZero");
+	*pAnsNb_UL = 0;
+
+	IndicatorManager_SetZeroIndicator();
+
+	return WCMD_FCT_STS_OK;
+}
+
+WCMD_FCT_STS WCmdProcess_IndicatorGetWeightAscii(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_IndicatorGetWeightAscii");
+	*pAnsNb_UL = 8;
+
+	unsigned long Remaining1_UL = GL_GlobalData_X.Indicator_H.getWeightUnsignedValue();  // 987.654
+	unsigned long Remaining2_UL = 0;
+
+	pAns_UB[0] = (unsigned char)(GL_GlobalData_X.Indicator_H.getWeightStatus());
+	pAns_UB[1] = (unsigned char)(GL_GlobalData_X.Indicator_H.getWeightSign());
+
+	Remaining2_UL = (Remaining1_UL - Remaining1_UL % 100000);       // 900.000 = 987.654 - 87.654
+	pAns_UB[2] = (unsigned char)(0x30 + (Remaining2_UL / 100000));  // 0x30 + 9
+
+	Remaining1_UL = Remaining1_UL - Remaining2_UL;                // 87.654 = 987.654 - 900.000
+	Remaining2_UL = (Remaining1_UL - Remaining1_UL % 10000);        // 80.000 = 87.854 - 7.854 
+	pAns_UB[3] = (unsigned char)(0x30 + (Remaining2_UL / 10000));   // 0x30 + 8
+
+	Remaining1_UL = Remaining1_UL - Remaining2_UL;
+	Remaining2_UL = (Remaining1_UL - Remaining1_UL % 1000);
+	pAns_UB[4] = (unsigned char)(0x30 + (Remaining2_UL / 1000));
+
+	Remaining1_UL = Remaining1_UL - Remaining2_UL;
+	Remaining2_UL = (Remaining1_UL - Remaining1_UL % 100);
+	pAns_UB[5] = (unsigned char)(0x30 + (Remaining2_UL / 100));
+
+	Remaining1_UL = Remaining1_UL - Remaining2_UL;
+	Remaining2_UL = (Remaining1_UL - Remaining1_UL % 10);
+	pAns_UB[6] = (unsigned char)(0x30 + (Remaining2_UL / 10));
+
+	Remaining1_UL = Remaining1_UL - Remaining2_UL;
+	Remaining2_UL = (Remaining1_UL - Remaining1_UL % 1);
+	pAns_UB[7] = (unsigned char)(0x30 + (Remaining2_UL / 1));
+
+	return WCMD_FCT_STS_OK;
+}
 
 /* Badge Reader ******************************************************************* */
 /* ******************************************************************************** */
+WCMD_FCT_STS WCmdProcess_BadgeReaderGetBadgeId(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_BadgeReaderGetBadgeId");
+	*pAnsNb_UL = 0;
+
+	if (!BadgeReaderManager_IsBadgeAvailable()) {
+		*pAnsNb_UL = 0;
+	}
+	else {
+		*pAnsNb_UL = 10;
+		for (int i = 0; i < 10; i++)
+			pAns_UB[i] = BadgeReaderManager_GetBadgeChar(i);
+	}
+
+	return WCMD_FCT_STS_OK;
+}
+
 
 /* LCD  *************************************************************************** */
 /* ******************************************************************************** */
+WCMD_FCT_STS WCmdProcess_LcdWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdWrite");
+	*pAnsNb_UL = 0;
 
 
+	return WCMD_FCT_STS_OK;
+}
+
+WCMD_FCT_STS WCmdProcess_LcdRead(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdRead");
+	*pAnsNb_UL = 0;
+
+
+	return WCMD_FCT_STS_OK;
+}
+
+WCMD_FCT_STS WCmdProcess_LcdClear(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdClear");
+	*pAnsNb_UL = 0;
+
+
+	return WCMD_FCT_STS_OK;
+}
+
+WCMD_FCT_STS WCmdProcess_LcdSetBacklight(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdSetBacklight");
+	*pAnsNb_UL = 0;
+
+
+	return WCMD_FCT_STS_OK;
+}
 

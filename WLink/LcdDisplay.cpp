@@ -1,62 +1,52 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* BadgeReader.h			                                                        */
+/* LcdDisplay.cpp																	*/
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for BadgeReader.cpp												*/
+/*		Describes the LCD utilities functions										*/
 /*                                                                                  */
-/* History :  	02/03/2015  (RW)	Creation of this file							*/
-/*				10/06/2016	(RW)	Re-mastered version								*/
+/* History :  	13/06/2016  (RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __BADGE_READER_H__
-#define __BADGE_READER_H__
+#define MODULE_NAME		"LcdDisplay"
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-#include <Arduino.h>
-#include <HardwareSerial.h>
+
+#include "LcdDisplay.h"
+
+#include "Debug.h"
 
 /* ******************************************************************************** */
-/* Define
+/* Local Variables
 /* ******************************************************************************** */
-#define BADGE_READER_DEFAULT_BAUDRATE	9600
-#define BADGE_READER_PACKET_ID_SIZE     13
 
-/* ******************************************************************************** */
-/* Structure & Enumeration
-/* ******************************************************************************** */
-typedef struct {
-	boolean IsInitialized_B;
-	unsigned long PacketIdSize_UL;
-	boolean PacketIdCompleted_B;
-} BADGE_READER_PARAM;
+static LiquidCrystal * GL_pLcdDevice_H;
+static unsigned char GL_PinBacklight_UB;
 
 /* ******************************************************************************** */
-/* Class
+/* Constructor
 /* ******************************************************************************** */
-class BadgeReader {
-public:
-	// Constructor
-	BadgeReader();
+LcdDisplay::LcdDisplay() {
+	GL_LcdDisplayParam_X.IsInitialized_B = false;
+}
 
-	// Functions
-	void init(HardwareSerial * pSerial_H);
-	void init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL);
+/* ******************************************************************************** */
+/* Functions
+/* ******************************************************************************** */
+void LcdDisplay::init(LiquidCrystal * pLcd_H, unsigned char PinBacklight_UB) {
+	GL_pLcdDevice_H = pLcd_H;
+	GL_pLcdDevice_H->begin(20, 2);
+	GL_PinBacklight_UB = PinBacklight_UB;
+	pinMode(GL_PinBacklight_UB, OUTPUT);
+	digitalWrite(GL_PinBacklight_UB, LOW);
+	GL_LcdDisplayParam_X.IsInitialized_B = true;
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "LCD Display Module Initialized");
+}
 
-	boolean isInitialized(void);
-	boolean isPacketIdCompleted(void);
-	void resetPacketIdCompleted(void);
+boolean LcdDisplay::isInitialized(void) {
+	return GL_LcdDisplayParam_X.IsInitialized_B;
+}
 
-	void sendAck(void);
-	unsigned char getPacketChar(unsigned long Index_UL);
-	void flushBadgeReader(void);
-
-	void commEvent(void);
-
-	BADGE_READER_PARAM GL_BadgeReaderParam_X;
-};
-
-#endif // __BADGE_READER_H__

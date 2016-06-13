@@ -64,6 +64,14 @@ boolean BadgeReader::isInitialized(void) {
 	return GL_BadgeReaderParam_X.IsInitialized_B;
 }
 
+boolean BadgeReader::isPacketIdCompleted(void) {
+	return GL_BadgeReaderParam_X.PacketIdCompleted_B;
+}
+
+void BadgeReader::resetPacketIdCompleted(void) {
+	GL_BadgeReaderParam_X.PacketIdCompleted_B = false;
+}
+
 void BadgeReader::sendAck(void) {
 	GL_pBadgeReaderSerial_H->write(BADGE_READER_CHAR_ACK);
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Send ACK");

@@ -108,7 +108,42 @@ static void ProcessIdle(void) {
 }
 
 static void ProcessWaitBadge(void) {
-	// TODO : Fill-up function
+	String Temp_Str = "";
+	unsigned char pTemp_UB[BADGE_READER_PACKET_ID_SIZE] = "";
+
+	// Wait for Packet ID Completed
+	if (GL_pBadgeReader_H->isPacketIdCompleted()) {
+		GL_pBadgeReader_H->flushBadgeReader();
+		GL_pBadgeReader_H->sendAck();
+		GL_pBadgeReader_H->resetPacketIdCompleted();
+		GL_BadgeReaderManagerParam_X.Timer_UL = millis();	// Save timestamp
+		Temp_Str = "";
+		for (int i = 0; i < BADGE_READER_PACKET_ID_SIZE - 3; i++) {  // Skip STX, ETX and CR characters
+			pTemp_UB[i] = GL_pBadgeReader_H->getPacketChar(i + 1);
+			Temp_Str += pTemp_UB[i];
+		}
+
+		// Compare if new badge ..
+		if (!(Temp_Str.equals(GL_BadgeReaderManagerParam_X.CurrentPacketId_Str))) {
+			GL_BadgeReaderManagerParam_X.IsPacketAvaible_B = true;
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "New Badge ID = ");
+			DBG_PRINTDATA(Temp_Str);
+			DBG_ENDSTR();
+			// Copy to Parameters
+			GL_BadgeReaderManagerParam_X.CurrentPacketId_Str = Temp_Str;
+			for (int j = 0; j < BADGE_READER_PACKET_ID_SIZE - 3; j++)
+				GL_BadgeReaderManagerParam_X.pCurrentPacketId_UB[j] = pTemp_UB[j];
+		}
+	}
+
+	// Reset Current Packet ID after Residence Time has elapsed
+	if ((millis() - GL_BadgeReaderManagerParam_X.Timer_UL) >= GL_BadgeReaderManagerParam_X.ResidenceTime_UL) {
+		GL_BadgeReaderManagerParam_X.IsPacketAvaible_B = false;
+		GL_BadgeReaderManagerParam_X.CurrentPacketId_Str = "";
+	}
+
+	if (!GL_BadgeReaderManagerParam_X.IsEnabled_B)
+		TransitionToIdle();
 }
 
 

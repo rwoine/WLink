@@ -9,7 +9,6 @@
 /*				14/05/2016	(RW)	Re-mastered version								*/
 /*                                                                                  */
 /* ******************************************************************************** */
-
 #define MODULE_NAME		"Main"
 
 #define APP_USE_DEBUG	// Comment line to disbale Debug functionalitiy
@@ -19,6 +18,7 @@
 /* ******************************************************************************** */
 #include <SPI.h>
 #include <Ethernet.h>
+#include <LiquidCrystal.h>
 
 #include "WLink.h"
 #include "Hardware.h"
@@ -41,16 +41,32 @@ GLOBAL_PARAM_STRUCT GL_GlobalData_X;
 HardwareSerial * GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
 COM_EVENT_FCT_STRUCT GL_PortComEventMap_X[] = { NULL, NULL, NULL, NULL };
 
+LiquidCrystal GL_LcdObject_X(PIN_LCD_RS, PIN_LCD_RW, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
+
 /* ******************************************************************************** */
 /* Functions Mapping
 /* ******************************************************************************** */
 const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 {
 	{ WCMD_GET_REVISION_ID, WCmdProcess_GetRevisionId },
+
 	{ WCMD_GPIO_READ, WCmdProcess_GpioRead },
 	{ WCMD_GPIO_WRITE, WCmdProcess_GpioWrite },
 	{ WCMD_GPIO_SET_BIT, WCmdProcess_GpioSetBit },
-	{ WCMD_GPIO_CLR_BIT, WCmdProcess_GpioClrBit }
+	{ WCMD_GPIO_CLR_BIT, WCmdProcess_GpioClrBit },
+
+	{ WCMD_INDICATOR_GET_WEIGHT, WCmdProcess_IndicatorGetWeight },
+	{ WCMD_INDICATOR_GET_WEIGHT_ALIBI, WCmdProcess_IndicatorGetWeightAlibi },
+	{ WCMD_INDICATOR_SET_ZERO, WCmdProcess_IndicatorSetZero },
+	{ WCMD_INDICATOR_GET_WEIGHT_ASCII, WCmdProcess_IndicatorGetWeightAscii },
+
+	{ WCMD_BADGE_READER_GET_ID, WCmdProcess_BadgeReaderGetBadgeId },
+
+	{ WCMD_LCD_WRITE, WCmdProcess_LcdWrite },
+	{ WCMD_LCD_READ, WCmdProcess_LcdRead },
+	{ WCMD_LCD_CLEAR, WCmdProcess_LcdClear },
+	{ WCMD_LCD_SET_BACKLIGHT, WCmdProcess_LcdSetBacklight }
+
 };
 
 #define WCMD_FCT_DESCR_SIZE (sizeof(cGL_pFctDescr_X)/sizeof(WCMD_FCT_DESCR))
@@ -70,16 +86,23 @@ void setup() {
 	/* Initialize Debug Module */
 	Debug_Init(GL_PortComMap_X[PORT_COM0]);
 
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "---------- W-LINK ----------");
+
 	/* Assign Revision ID */
-	for (int i = 0; i < sizeof(cGL_pWLinkRevisionId_UB); i++)
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "Revision ID = ");
+	for (int i = 0; i < sizeof(cGL_pWLinkRevisionId_UB); i++) {
 		GL_GlobalData_X.pRevisionId_UB[i] = cGL_pWLinkRevisionId_UB[i];
+		DBG_PRINTDATA(cGL_pWLinkRevisionId_UB[i]);
+	}
 
 	/* Initialize LED */
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize LED");
 	pinMode(GL_GlobalData_X.LedPin_UB, OUTPUT);
 	//digitalWrite(GL_GlobalData_X.LedPin_UB, LOW);	// Turn-off by default
 	analogWrite(GL_GlobalData_X.LedPin_UB, 128);	// 50% duty-cycle
 
 	/* Initialize GPIO */
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize GPIOs");
 	for (int i = 0; i < 4; i++) {
 		pinMode(GL_GlobalData_X.pGpioInputIndex_UB[i], INPUT);
 		pinMode(GL_GlobalData_X.pGpioOutputIndex_UB[i], OUTPUT);
@@ -87,15 +110,18 @@ void setup() {
 	}
 
 	/* Initialize TCP Server Modules */
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize TCP Server Modules");
 	GL_GlobalData_X.NetworkIf_X.TcpServer_H.init();
 	TCPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.TcpServer_H));
 
 	/* Initialiaze W-Link Command Management Modules */
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize W-Link Command Management Modules");
 	//WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GL_PortComMap_X[PORT_COM3]);	// Medium mapped on COM3
 	WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.NetworkIf_X.TcpServer_H));	// Medium mapped on TCP Server
 	WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
 
 	/* Initialize Indicator Modules */
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Indicator Modules");
 	GL_GlobalData_X.Indicator_H.init(GL_PortComMap_X[PORT_COM2], 2400);
 	IndicatorInterface_Init();
 	IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
@@ -103,17 +129,23 @@ void setup() {
 	GL_GlobalData_X.Indicator_H.attachEcho(GL_PortComMap_X[PORT_COM3], 9600);
 
 	/* Initialize Badge Reader Modules */
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Badge Reader Modules");
 	GL_GlobalData_X.BadgeReader_H.init(GL_PortComMap_X[PORT_COM1], 9600);
 	BadgeReaderManager_Init(&(GL_GlobalData_X.BadgeReader_H));
 	BadgeReaderManager_Enable();
 
+	/* Initialize LCD Modules */
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize LCD Modules");
+	GL_GlobalData_X.Lcd_H.init(&GL_LcdObject_X, PIN_LCD_BACKLIGHT);
+
+
 
 	// TODO : Add Output Management for Bug in SPI (additional output to maintain low ?)
 
-
-
+	
 
 	/* Map Specific Functions on CommEvent Handler */
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Map Specific CommEvent Handler");
 	GL_PortComEventMap_X[PORT_COM1].EventHandler = CommEvent_BadgeReader;
 
 }

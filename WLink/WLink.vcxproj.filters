@@ -34,6 +34,9 @@
     <Filter Include="Source Files\BadgeReader">
       <UniqueIdentifier>{561f179a-80ec-4f07-9528-ed62839c7f3f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\LCD">
+      <UniqueIdentifier>{b4225526-1368-4708-89f4-d12b1e2d8b70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="WLink.ino" />
@@ -87,6 +90,9 @@
     <ClInclude Include="BadgeReaderManager.h">
       <Filter>Source Files\BadgeReader</Filter>
     </ClInclude>
+    <ClInclude Include="LcdDisplay.h">
+      <Filter>Source Files\LCD</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -124,6 +130,9 @@
     </ClCompile>
     <ClCompile Include="BadgeReaderManager.cpp">
       <Filter>Source Files\BadgeReader</Filter>
+    </ClCompile>
+    <ClCompile Include="LcdDisplay.cpp">
+      <Filter>Source Files\LCD</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
