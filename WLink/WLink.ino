@@ -12,7 +12,7 @@
 
 #define MODULE_NAME		"Main"
 
-#define APP_USE_DEBUG	// Comment to disbale Debug functionalitiy
+#define APP_USE_DEBUG	// Comment line to disbale Debug functionalitiy
 
 /* ******************************************************************************** */
 /* Include
@@ -31,7 +31,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const unsigned char cGL_pWLinkRevisionId_UB[] = "16053101";	// YYMMDDVV - Year-Month-Day-Version
+const unsigned char cGL_pWLinkRevisionId_UB[] = "16061301";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global

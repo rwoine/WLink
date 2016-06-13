@@ -35,7 +35,7 @@ void BadgeReaderManager_Enable();
 void BadgeReaderManager_Disable();
 void BadgeReaderManager_Process();
 
-boolean BadgeReaderManager_IsBadgeAvailable(unsigned long * pPacketIdSize_UL);
+boolean BadgeReaderManager_IsBadgeAvailable(void);
 unsigned char BadgeReaderManager_GetBadgeChar(unsigned long Index_UL);
 
 
