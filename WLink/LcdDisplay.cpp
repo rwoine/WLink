@@ -50,3 +50,35 @@ boolean LcdDisplay::isInitialized(void) {
 	return GL_LcdDisplayParam_X.IsInitialized_B;
 }
 
+
+void LcdDisplay::clearDisplay(void) {
+	GL_pLcdDevice_H->clear();
+}
+
+void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL) {
+	unsigned long Index_UL = 0;
+
+	if (LineIndex_E == LCD_DISPLAY_LINE2)
+		GL_pLcdDevice_H->setCursor(0, 1); // start at line 2
+	else
+		GL_pLcdDevice_H->setCursor(0, 0); // start at line 1
+
+	while (Index_UL < ArraySize_UL) {
+		if (Index_UL == 20) {
+			if (LineIndex_E == LCD_DISPLAY_LINE2)
+				break;
+			else
+				GL_pLcdDevice_H->setCursor(0, 1);
+		}
+
+		if (Index_UL == 40)
+			break;
+
+		GL_pLcdDevice_H->write(pTextStr_UB[Index_UL]);
+		Index_UL++;
+	}
+}
+
+void LcdDisplay::setBacklight(unsigned char Value_UB) {
+	analogWrite(GL_PinBacklight_UB, Value_UB);
+}

@@ -102,6 +102,14 @@ extern "C" void __cxa_pure_virtual() {;}
 #define portOutputRegister(P)
 #define portInputRegister(P)
 #define portModeRegister(P)
+
+//
+//
+void serialEvent();
+void serial1Event();
+void serial2Event();
+void serial3Event();
+
 #include <WLink.ino>
 #include <BadgeReader.cpp>
 #include <BadgeReader.h>
