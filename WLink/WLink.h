@@ -57,8 +57,8 @@ typedef struct {
 typedef struct {
 	unsigned char pRevisionId_UB[8];
 	unsigned char LedPin_UB = PIN_BLINK_LED;
-	const unsigned char pGpioInputIndex_UB[4] = { PIN_GPIO_INPUT0, PIN_GPIO_INPUT1, PIN_GPIO_INPUT2, PIN_GPIO_INPUT3 };
-	const unsigned char pGpioOutputIndex_UB[4] = { PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1, PIN_GPIO_OUTPUT2, PIN_GPIO_OUTPUT3 };
+	unsigned char pGpioInputIndex_UB[4] = { PIN_GPIO_INPUT0, PIN_GPIO_INPUT1, PIN_GPIO_INPUT2, PIN_GPIO_INPUT3 };
+	unsigned char pGpioOutputIndex_UB[4] = { PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1, PIN_GPIO_OUTPUT2, PIN_GPIO_OUTPUT3 };
 	LcdDisplay Lcd_H;
 	NETWORK_INTERFACE_STRUCT NetworkIf_X;
 	Indicator Indicator_H;

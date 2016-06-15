@@ -11,8 +11,6 @@
 /* ******************************************************************************** */
 #define MODULE_NAME		"Main"
 
-#define APP_USE_DEBUG	// Comment line to disbale Debug functionalitiy
-
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
@@ -31,7 +29,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const unsigned char cGL_pWLinkRevisionId_UB[] = "16061301";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16061501";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -84,25 +82,35 @@ void setup() {
 	digitalWrite(PIN_EN_SERIAL23, LOW);
 
 	/* Initialize Debug Module */
-	Debug_Init(GL_PortComMap_X[PORT_COM0]);
+	Debug_Init(GL_PortComMap_X[PORT_COM0], 115200);
 
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "---------- W-LINK ----------");
 
 	/* Assign Revision ID */
 	DBG_PRINT(DEBUG_SEVERITY_INFO, "Revision ID = ");
-	for (int i = 0; i < sizeof(cGL_pWLinkRevisionId_UB); i++) {
-		GL_GlobalData_X.pRevisionId_UB[i] = cGL_pWLinkRevisionId_UB[i];
-		DBG_PRINTDATA(cGL_pWLinkRevisionId_UB[i]);
-	}
+	for (int i = 0; i < 8; i++)
+		GL_GlobalData_X.pRevisionId_UB[i] = cGL_pWLinkRevisionId_Str.charAt(i);
+	DBG_PRINTDATA(cGL_pWLinkRevisionId_Str);
+	DBG_ENDSTR();
 
 	/* Initialize LED */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize LED");
+	GL_GlobalData_X.LedPin_UB = PIN_BLINK_LED;
 	pinMode(GL_GlobalData_X.LedPin_UB, OUTPUT);
+	//digitalWrite(GL_GlobalData_X.LedPin_UB, HIGH);	// Turn-on by default
 	//digitalWrite(GL_GlobalData_X.LedPin_UB, LOW);	// Turn-off by default
 	analogWrite(GL_GlobalData_X.LedPin_UB, 128);	// 50% duty-cycle
 
 	/* Initialize GPIO */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize GPIOs");
+	GL_GlobalData_X.pGpioInputIndex_UB[0] = PIN_GPIO_INPUT0;
+	GL_GlobalData_X.pGpioInputIndex_UB[1] = PIN_GPIO_INPUT1;
+	GL_GlobalData_X.pGpioInputIndex_UB[2] = PIN_GPIO_INPUT2;
+	GL_GlobalData_X.pGpioInputIndex_UB[3] = PIN_GPIO_INPUT3;
+	GL_GlobalData_X.pGpioOutputIndex_UB[0] = PIN_GPIO_OUTPUT0;
+	GL_GlobalData_X.pGpioOutputIndex_UB[1] = PIN_GPIO_OUTPUT1;
+	GL_GlobalData_X.pGpioOutputIndex_UB[2] = PIN_GPIO_OUTPUT2;
+	GL_GlobalData_X.pGpioOutputIndex_UB[3] = PIN_GPIO_OUTPUT3;
 	for (int i = 0; i < 4; i++) {
 		pinMode(GL_GlobalData_X.pGpioInputIndex_UB[i], INPUT);
 		pinMode(GL_GlobalData_X.pGpioOutputIndex_UB[i], OUTPUT);

@@ -24,6 +24,13 @@
 /* Define
 /* ******************************************************************************** */
 
+#define APP_USE_DEBUG	// Comment line to disbale Debug functionalitiy
+
+#define DEBUG_DEFAULT_BAUDRATE	115200
+
+/* ******************************************************************************** */
+/* Macro Mapping
+/* ******************************************************************************** */
 #ifdef APP_USE_DEBUG
 #define DBG_PRINT(Severity, Message)	(Debug_Print(Severity,MODULE_NAME,__LINE__,__FUNCTION__))->print(Message)
 #define DBG_PRINTDATA(Data) 			(Debug_GetHandle())->print(Data)
@@ -37,9 +44,6 @@
 #define DBG_ENDSTR()					/* Do Nothing */
 #define DBG_PRINTLN(Severity, Message)	/* Do Nothing */
 #endif
-
-#define DEBUG_DEFAULT_BAUDRATE	115200
-
 
 /* ******************************************************************************** */
 /* Structure & Enumeration

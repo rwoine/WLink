@@ -162,6 +162,7 @@ void ProcessWaitResponseDelay(void) {
 				DBG_PRINT(DEBUG_SEVERITY_WARNING, "Max Try Number Reached [");
 				DBG_PRINTDATA(GL_IndicatorManagerParam_X.MaxTryNumber_UB);
 				DBG_PRINTDATA("] -> Flush Indicator");
+				DBG_ENDSTR();
 				GL_pIndicator_H->flushIndicator();
 				TransitionToWaitScanPeriod();
 			} else {
