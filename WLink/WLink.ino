@@ -17,6 +17,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <LiquidCrystal.h>
+#include <Keypad.h>
 
 #include "WLink.h"
 #include "Hardware.h"
@@ -36,9 +37,27 @@ const String cGL_pWLinkRevisionId_Str = "16061501";	// YYMMDDVV - Year-Month-Day
 /* ******************************************************************************** */
 GLOBAL_PARAM_STRUCT GL_GlobalData_X;
 
+/* ******************************************************************************** */
+/* Flat Panel Configuration
+/* ******************************************************************************** */
+const char cGL_ppFlatPanel_KeyConfig_UB[4][4] = {	{ 'A','1','2','3' },
+													{ 'B','4','5','6' },
+													{ 'C','7','8','9' },
+													{ 'X','V','0','.' }
+													};
+
+const byte cGL_pFlatPanel_RowPin_UB[4] = { PIN_FP7, PIN_FP6, PIN_FP5, PIN_FP4 };
+const byte cGL_pFlatPanel_ColPin_UB[4] = { PIN_FP0, PIN_FP1, PIN_FP2, PIN_FP3 };
+
+/* ******************************************************************************** */
+/* Serial Related
+/* ******************************************************************************** */
 HardwareSerial * GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
 COM_EVENT_FCT_STRUCT GL_PortComEventMap_X[] = { NULL, NULL, NULL, NULL };
 
+/* ******************************************************************************** */
+/* Pre-Built Objects
+/* ******************************************************************************** */
 LiquidCrystal GL_LcdObject_X(PIN_LCD_RS, PIN_LCD_RW, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
 
 /* ******************************************************************************** */

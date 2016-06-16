@@ -1,47 +1,22 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* WLink.h																			*/
+/* FlatPanel.h			                                                            */
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for W-Link project												*/
-/*		Gathers global variables and definitions for the application				*/
+/*		Header file for FlatPanel.cpp												*/
 /*                                                                                  */
-/* History :	14/05/2016	(RW)	Creation of this file                           */
+/* History :  	16/06/2016  (RW)	Creation of this file							*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __WLINK_H__
-#define __WLINK_H__
+#ifndef __FLAT_PANEL_H__
+#define __FLAT_PANEL_H__
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-
 #include <Arduino.h>
-
-#include "Hardware.h"
-
-#include "TCPServer.h"
-#include "TCPServerManager.h"
-
-//#include "UDPServer.h"
-//#include "UDPServerManager.h"
-
-#include "WCommand.h"
-#include "WCommandMedium.h"
-#include "WCommandInterpreter.h"
-
-#include "Indicator.h"
-#include "IndicatorInterface.h"
-#include "IndicatorManager.h"
-
-#include "BadgeReader.h"
-#include "BadgeReaderManager.h"
-
-#include "LcdDisplay.h"
-#include "FlatPanel.h"
-
-#include "Debug.h"
+#include <Keypad.h>
 
 /* ******************************************************************************** */
 /* Define
@@ -51,20 +26,22 @@
 /* Structure & Enumeration
 /* ******************************************************************************** */
 typedef struct {
-	//UDPServer UdpServer_H;
-	TCPServer TcpServer_H;
-} NETWORK_INTERFACE_STRUCT;
+	boolean IsInitialized_B;
+} FLAT_PANEL_PARAM;
 
-typedef struct {
-	unsigned char pRevisionId_UB[8];
-	unsigned char LedPin_UB;
-	unsigned char pGpioInputIndex_UB[4];
-	unsigned char pGpioOutputIndex_UB[4];
-	LcdDisplay Lcd_H;
-	FlatPanel FlatPanel_H;
-	NETWORK_INTERFACE_STRUCT NetworkIf_X;
-	Indicator Indicator_H;
-	BadgeReader BadgeReader_H;
-} GLOBAL_PARAM_STRUCT;
+/* ******************************************************************************** */
+/* Class
+/* ******************************************************************************** */
+class FlatPanel {
+public:
+	// Constructor
+	FlatPanel();
 
-#endif // __WLINK_H__
+	// Functions
+	void init();
+	boolean isInitialized(void);
+
+
+};
+
+#endif // __FLAT_PANEL_H__

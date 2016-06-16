@@ -37,6 +37,9 @@
     <Filter Include="Source Files\LCD">
       <UniqueIdentifier>{b4225526-1368-4708-89f4-d12b1e2d8b70}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\FlatPanel">
+      <UniqueIdentifier>{2c3679f8-c51d-419b-af0f-efceda5d8d82}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="WLink.ino" />
@@ -92,6 +95,9 @@
     </ClInclude>
     <ClInclude Include="LcdDisplay.h">
       <Filter>Source Files\LCD</Filter>
+    </ClInclude>
+    <ClInclude Include="FlatPanel.h">
+      <Filter>Source Files\FlatPanel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
