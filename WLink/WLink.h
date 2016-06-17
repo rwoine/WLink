@@ -39,7 +39,7 @@
 #include "BadgeReaderManager.h"
 
 #include "LcdDisplay.h"
-#include "FlatPanel.h"
+//#include "FlatPanel.h"
 
 #include "Debug.h"
 
@@ -61,7 +61,7 @@ typedef struct {
 	unsigned char pGpioInputIndex_UB[4];
 	unsigned char pGpioOutputIndex_UB[4];
 	LcdDisplay Lcd_H;
-	FlatPanel FlatPanel_H;
+	//FlatPanel FlatPanel_H;
 	NETWORK_INTERFACE_STRUCT NetworkIf_X;
 	Indicator Indicator_H;
 	BadgeReader BadgeReader_H;
