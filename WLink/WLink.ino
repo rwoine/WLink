@@ -30,7 +30,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16061702";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16061801";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -94,6 +94,16 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 /* ******************************************************************************** */
 void setup() {
 
+	/* Network Configuration */
+	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[0] = 0x02;
+	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[1] = 0x00;
+	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[2] = 0x00;
+	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[3] = 0x01;
+	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[4] = 0x00;
+	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[5] = 0x0C;
+	GL_GlobalData_X.NetworkIf_X.IpAddr_X = IPAddress(192, 168, 1, 16);
+	GL_GlobalData_X.NetworkIf_X.LocalPort_UI = 23;
+
 	/* Enable All UARTs by Default */
 	pinMode(PIN_EN_SERIAL01, OUTPUT);
 	digitalWrite(PIN_EN_SERIAL01, LOW);
@@ -138,9 +148,9 @@ void setup() {
 
 	/* Initialize TCP Server Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize TCP Server Modules");
-	GL_GlobalData_X.NetworkIf_X.TcpServer_H.init();
+	GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
 	TCPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.TcpServer_H));
-
+	
 	/* Initialiaze W-Link Command Management Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize W-Link Command Management Modules");
 	//WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GL_PortComMap_X[PORT_COM3]);	// Medium mapped on COM3
@@ -152,7 +162,7 @@ void setup() {
 	GL_GlobalData_X.Indicator_H.init(GL_PortComMap_X[PORT_COM2], 2400);
 	IndicatorInterface_Init();
 	IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
-	IndicatorManager_Enable();	// Normal frame by default
+	//IndicatorManager_Enable();	// Normal frame by default
 	GL_GlobalData_X.Indicator_H.attachEcho(GL_PortComMap_X[PORT_COM3], 9600);
 
 	/* Initialize Badge Reader Modules */
@@ -164,6 +174,9 @@ void setup() {
 	/* Initialize LCD Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize LCD Modules");
 	GL_GlobalData_X.Lcd_H.init(&GL_LcdObject_X, PIN_LCD_BACKLIGHT);
+	GL_GlobalData_X.Lcd_H.setBacklight(255);	// Max value for Backlight by default
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "-  Pesage Warnier  -");
 
 
 

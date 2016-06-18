@@ -133,7 +133,7 @@ void ProcessRunning(void) {
 	}
 
 	if (EnableCmd_B)
-		WCommandInterpreter_Restart();
+		WCommandInterpreter_Process();
 }
 
 

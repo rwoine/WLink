@@ -48,6 +48,7 @@ public:
 	boolean isInitialized(void);
 
 	void clearDisplay(void);
+	void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str);
 	void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
 	void setBacklight(unsigned char Value_UB);
 

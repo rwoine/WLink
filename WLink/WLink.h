@@ -39,7 +39,7 @@
 #include "BadgeReaderManager.h"
 
 #include "LcdDisplay.h"
-#include "FlatPanel.h"
+//#include "FlatPanel.h"
 
 #include "Debug.h"
 
@@ -51,6 +51,9 @@
 /* Structure & Enumeration
 /* ******************************************************************************** */
 typedef struct {
+	unsigned char pMacAddr_UB[6];
+	IPAddress IpAddr_X;
+	unsigned int LocalPort_UI;
 	//UDPServer UdpServer_H;
 	TCPServer TcpServer_H;
 } NETWORK_INTERFACE_STRUCT;
@@ -61,7 +64,7 @@ typedef struct {
 	unsigned char pGpioInputIndex_UB[4];
 	unsigned char pGpioOutputIndex_UB[4];
 	LcdDisplay Lcd_H;
-	FlatPanel FlatPanel_H;
+	//FlatPanel FlatPanel_H;
 	NETWORK_INTERFACE_STRUCT NetworkIf_X;
 	Indicator Indicator_H;
 	BadgeReader BadgeReader_H;

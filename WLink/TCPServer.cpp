@@ -154,7 +154,7 @@ void TCPServer::begin() {
 	GL_TcpServerParam_X.Server_H.begin();
 	GL_TcpServerParam_X.IsConnected_B = true;
 
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "TCP Server Started @ ");
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "TCP Server Started @ ");
 	DBG_PRINTDATA(GL_TcpServerParam_X.IpAddr_X);
 	DBG_PRINTDATA(":");
 	DBG_PRINTDATA(GL_TcpServerParam_X.LocalPort_UI);

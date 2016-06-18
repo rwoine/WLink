@@ -55,6 +55,15 @@ void LcdDisplay::clearDisplay(void) {
 	GL_pLcdDevice_H->clear();
 }
 
+void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str) {
+	if (LineIndex_E == LCD_DISPLAY_LINE2)
+		GL_pLcdDevice_H->setCursor(0, 1); // start at line 2
+	else
+		GL_pLcdDevice_H->setCursor(0, 0); // start at line 1
+
+	GL_pLcdDevice_H->print(TextStr_Str);
+}
+
 void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL) {
 	unsigned long Index_UL = 0;
 

@@ -108,7 +108,7 @@ void WCommandInterpreter_Restart() {
 /* ******************************************************************************** */
 
 void ProcessIdle(void) {
-	if (WCmdMedium_IsConnected)
+	if (WCmdMedium_IsConnected())
 		TransitionToCheckCmd();
 }
 
@@ -180,8 +180,8 @@ void ProcessProcessCmd(void) {
 			DBG_PRINTDATA(" - Number of Bytes in Answer = ");
 			DBG_PRINTDATA(GL_WCmdParam_X.AnsNb_UL);
 			DBG_ENDSTR();
+			break;
 		}
-		break;
 	}
 
 	// Check if the ID has been found and call the appropriate function
