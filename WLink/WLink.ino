@@ -30,7 +30,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16061801";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16062001";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -177,6 +177,9 @@ void setup() {
 	GL_GlobalData_X.Lcd_H.setBacklight(255);	// Max value for Backlight by default
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "-  Pesage Warnier  -");
+
+	/* Initialize FlatPanel Modules*/
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Flat Panel Modules");
 
 
 
