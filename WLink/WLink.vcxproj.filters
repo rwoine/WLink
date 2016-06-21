@@ -140,5 +140,8 @@
     <ClCompile Include="LcdDisplay.cpp">
       <Filter>Source Files\LCD</Filter>
     </ClCompile>
+    <ClCompile Include="FlatPanel.cpp">
+      <Filter>Source Files\FlatPanel</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -40,14 +40,14 @@ GLOBAL_PARAM_STRUCT GL_GlobalData_X;
 /* ******************************************************************************** */
 /* Flat Panel Configuration
 /* ******************************************************************************** */
-const char cGL_ppFlatPanel_KeyConfig_UB[4][4] = {	{ 'A','1','2','3' },
-													{ 'B','4','5','6' },
-													{ 'C','7','8','9' },
-													{ 'X','V','0','.' }
-													};
+char GL_ppFlatPanel_KeyConfig_UB[4][4] = {	{ 'A','1','2','3' },
+											{ 'B','4','5','6' },
+											{ 'C','7','8','9' },
+											{ 'X','V','0','.' }
+											};
 
-const byte cGL_pFlatPanel_RowPin_UB[4] = { PIN_FP7, PIN_FP6, PIN_FP5, PIN_FP4 };
-const byte cGL_pFlatPanel_ColPin_UB[4] = { PIN_FP0, PIN_FP1, PIN_FP2, PIN_FP3 };
+byte GL_pFlatPanel_RowPin_UB[4] = { PIN_FP7, PIN_FP6, PIN_FP5, PIN_FP4 };
+byte GL_pFlatPanel_ColPin_UB[4] = { PIN_FP0, PIN_FP1, PIN_FP2, PIN_FP3 };
 
 /* ******************************************************************************** */
 /* Serial Related
@@ -58,6 +58,7 @@ COM_EVENT_FCT_STRUCT GL_PortComEventMap_X[] = { NULL, NULL, NULL, NULL };
 /* ******************************************************************************** */
 /* Pre-Built Objects
 /* ******************************************************************************** */
+Keypad GL_Keypad_X = Keypad(makeKeymap(GL_ppFlatPanel_KeyConfig_UB), GL_pFlatPanel_RowPin_UB, GL_pFlatPanel_ColPin_UB, sizeof(GL_pFlatPanel_RowPin_UB), sizeof(GL_pFlatPanel_ColPin_UB));
 LiquidCrystal GL_LcdObject_X(PIN_LCD_RS, PIN_LCD_RW, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
 
 /* ******************************************************************************** */
@@ -180,7 +181,7 @@ void setup() {
 
 	/* Initialize FlatPanel Modules*/
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Flat Panel Modules");
-
+	GL_GlobalData_X.FlatPanel_H.init(&GL_Keypad_X);
 
 
 	// TODO : Add Output Management for Bug in SPI (additional output to maintain low ?)

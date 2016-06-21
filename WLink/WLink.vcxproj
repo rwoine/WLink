@@ -100,6 +100,7 @@
     <ClCompile Include="BadgeReader.cpp" />
     <ClCompile Include="BadgeReaderManager.cpp" />
     <ClCompile Include="Debug.cpp" />
+    <ClCompile Include="FlatPanel.cpp" />
     <ClCompile Include="Indicator.cpp" />
     <ClCompile Include="IndicatorInterface.cpp" />
     <ClCompile Include="IndicatorManager.cpp" />

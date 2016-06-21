@@ -1,47 +1,45 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* FlatPanel.h			                                                            */
+/* FlatPanel.cpp																	*/
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for FlatPanel.cpp												*/
+/*		Describes the Flat Panel utilities functions								*/
 /*                                                                                  */
-/* History :  	16/06/2016  (RW)	Creation of this file							*/
+/* History :  	21/06/2016  (RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __FLAT_PANEL_H__
-#define __FLAT_PANEL_H__
+#define MODULE_NAME		"FlatPanel"
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-#include <Arduino.h>
-#include <Keypad.h>
+
+#include "FlatPanel.h"
+
+#include "Debug.h"
 
 /* ******************************************************************************** */
-/* Define
+/* Local Variables
 /* ******************************************************************************** */
+static Keypad * GL_pKeypad_H;
 
 /* ******************************************************************************** */
-/* Structure & Enumeration
+/* Constructor
 /* ******************************************************************************** */
-typedef struct {
-	boolean IsInitialized_B;
-} FLAT_PANEL_PARAM;
+FlatPanel::FlatPanel() {
+	GL_FlatPanelParam_X.IsInitialized_B = false;
+}
 
 /* ******************************************************************************** */
-/* Class
+/* Functions
 /* ******************************************************************************** */
-class FlatPanel {
-public:
-	// Constructor
-	FlatPanel();
+void FlatPanel::init(Keypad * pKeypad_H) {
+	GL_pKeypad_H = pKeypad_H;
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Flat Panel Module Initialized");
+}
 
-	// Functions
-	void init(Keypad * pKeypad_H);
-	boolean isInitialized(void);
+boolean FlatPanel::isInitialized(void) {
+	return GL_FlatPanelParam_X.IsInitialized_B;
+}
 
-	FLAT_PANEL_PARAM GL_FlatPanelParam_X;
-};
-
-#endif // __FLAT_PANEL_H__

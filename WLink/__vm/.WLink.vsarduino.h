@@ -118,6 +118,7 @@ void serial3Event();
 #include <CommEvent.h>
 #include <Debug.cpp>
 #include <Debug.h>
+#include <FlatPanel.cpp>
 #include <FlatPanel.h>
 #include <Hardware.h>
 #include <Indicator.cpp>
