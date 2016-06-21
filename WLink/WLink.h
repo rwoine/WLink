@@ -24,8 +24,8 @@
 #include "TCPServer.h"
 #include "TCPServerManager.h"
 
-//#include "UDPServer.h"
-//#include "UDPServerManager.h"
+#include "UDPServer.h"
+#include "UDPServerManager.h"
 
 #include "WCommand.h"
 #include "WCommandMedium.h"
@@ -50,11 +50,17 @@
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
+typedef enum {
+	NETWORK_PROTOCOL_UDP,
+	NETWORK_PROTOCOL_TCP
+} NETWORK_PROTOCOL_ENUM;
+
 typedef struct {
+	NETWORK_PROTOCOL_ENUM NetworkProtocol_E;
 	unsigned char pMacAddr_UB[6];
 	IPAddress IpAddr_X;
 	unsigned int LocalPort_UI;
-	//UDPServer UdpServer_H;
+	UDPServer UdpServer_H;
 	TCPServer TcpServer_H;
 } NETWORK_INTERFACE_STRUCT;
 

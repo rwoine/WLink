@@ -1,22 +1,22 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* TCPServerManager.h																*/
+/* UDPServerManager.h																*/
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for TCPServerManager.cpp										*/
-/*		Process functions to manage the TCP Server object							*/
+/*		Header file for UDPServerManager.cpp										*/
+/*		Process functions to manage the UDP Server object							*/
 /*                                                                                  */
-/* History :	02/06/2016	(RW)	Creation of this file                           */
+/* History :	21/06/2016	(RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __TCP_SERVER_MANAGER_H__
-#define __TCP_SERVER_MANAGER_H__
+#ifndef __UDP_SERVER_MANAGER_H__
+#define __UDP_SERVER_MANAGER_H__
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-#include "TCPServer.h"
+#include "UDPServer.h"
 
 /* ******************************************************************************** */
 /* Define
@@ -29,9 +29,9 @@
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
-void TCPServerManager_Init(TCPServer * pTCPServer_H);
-void TCPServerManager_Process();
+void UDPServerManager_Init(UDPServer * pUDPServer_H);
+void UDPServerManager_Process();
 
 
-#endif // __TCP_SERVER_MANAGER_H__
+#endif // __UDP_SERVER_MANAGER_H__
 

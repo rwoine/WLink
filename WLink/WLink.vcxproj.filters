@@ -99,6 +99,12 @@
     <ClInclude Include="FlatPanel.h">
       <Filter>Source Files\FlatPanel</Filter>
     </ClInclude>
+    <ClInclude Include="UDPServer.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="UDPServerManager.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -142,6 +148,12 @@
     </ClCompile>
     <ClCompile Include="FlatPanel.cpp">
       <Filter>Source Files\FlatPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="UDPServer.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="UDPServerManager.cpp">
+      <Filter>Source Files\Network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

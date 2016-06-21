@@ -16,6 +16,7 @@
 /* ******************************************************************************** */
 #include <SPI.h>
 #include <Ethernet.h>
+#include <EthernetUdp.h>
 #include <LiquidCrystal.h>
 #include <Keypad.h>
 
@@ -30,7 +31,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16062001";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16062101";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -96,6 +97,7 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 void setup() {
 
 	/* Network Configuration */
+	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_TCP;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[0] = 0x02;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[1] = 0x00;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[2] = 0x00;
@@ -148,14 +150,24 @@ void setup() {
 	}
 
 	/* Initialize TCP Server Modules */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize TCP Server Modules");
-	GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-	TCPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.TcpServer_H));
+	if (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_TCP) {
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize TCP Server Modules");
+		GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+		TCPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.TcpServer_H));
+	}
+
+	/* Initialize UDP Server Modules */
+	if (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_UDP) {
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize UDP Server Modules");
+		GL_GlobalData_X.NetworkIf_X.UdpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+		UDPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.UdpServer_H));
+	}
 	
 	/* Initialiaze W-Link Command Management Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize W-Link Command Management Modules");
-	//WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GL_PortComMap_X[PORT_COM3]);	// Medium mapped on COM3
-	WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.NetworkIf_X.TcpServer_H));	// Medium mapped on TCP Server
+	//WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GL_PortComMap_X[PORT_COM3]);				// Medium mapped on COM3
+	//WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.NetworkIf_X.TcpServer_H));	// Medium mapped on TCP Server
+	WCmdMedium_Init(WCMD_MEDIUM_UDP, &(GL_GlobalData_X.NetworkIf_X.UdpServer_H));	// Medium mapped on UDP Server
 	WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
 
 	/* Initialize Indicator Modules */
@@ -199,6 +211,7 @@ void setup() {
 /* ******************************************************************************** */
 void loop() {
 
+	UDPServerManager_Process();
 	TCPServerManager_Process();
 	IndicatorManager_Process();
 	BadgeReaderManager_Process();
