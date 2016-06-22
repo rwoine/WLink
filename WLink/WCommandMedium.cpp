@@ -20,6 +20,7 @@
 #include "WCommandMedium.h"
 #include "WCommandInterpreter.h"
 
+#include "UDPServer.h"
 #include "TCPServer.h"
 
 #include "Debug.h"
@@ -30,7 +31,8 @@
 
 static WCMD_MEDIUM_ENUM GL_Medium_E;
 static HardwareSerial * GL_pMediumSerial_H;
-static TCPServer * GL_MediumTcpServer_H;
+static UDPServer * GL_pMediumUdpServer_H;
+static TCPServer * GL_pMediumTcpServer_H;
 
 static const String GL_pMediumLut_cstr[] = {"Serial", "UDP", "TCP"};
 
@@ -46,10 +48,11 @@ void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H) {
 			break;
 
 		case WCMD_MEDIUM_UDP:
-			break;	// TODO : UDP to be implemented
+			GL_pMediumUdpServer_H = (UDPServer *)pMedium_H;
+			break;
 
 		case WCMD_MEDIUM_TCP:
-			GL_MediumTcpServer_H = (TCPServer *)pMedium_H;
+			GL_pMediumTcpServer_H = (TCPServer *)pMedium_H;
 			break;
 	}
 
@@ -70,10 +73,11 @@ boolean WCmdMedium_IsConnected(void) {
 		break;
 
 	case WCMD_MEDIUM_UDP:
-		break;	// TODO : UDP to be implemented
+		RetVal_B = GL_pMediumUdpServer_H->isInitialized();
+		break;
 
 	case WCMD_MEDIUM_TCP:
-		RetVal_B = GL_MediumTcpServer_H->isInitialized();
+		RetVal_B = GL_pMediumTcpServer_H->isInitialized();
 		break;
 	}
 
@@ -89,10 +93,11 @@ int WCmdMedium_DataAvailable(void) {
 		break;
 
 	case WCMD_MEDIUM_UDP:
-		break;	// TODO : UDP to be implemented
+		RetVal_SI = GL_pMediumUdpServer_H->GL_UdpServerParam_X.Server_H.parsePacket();
+		break;
 
 	case WCMD_MEDIUM_TCP:
-		RetVal_SI = GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.available();
+		RetVal_SI = GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.available();
 		break;
 	}
 
@@ -108,10 +113,11 @@ unsigned char WCmdMedium_ReadByte(void) {
 		break;
 
 	case WCMD_MEDIUM_UDP:
-		break;	// TODO : UDP to be implemented
+		RetVal_UB = GL_pMediumUdpServer_H->GL_UdpServerParam_X.Server_H.read();
+		break;
 
 	case WCMD_MEDIUM_TCP:
-		RetVal_UB = GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.read();
+		RetVal_UB = GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.read();
 		break;
 	}
 
@@ -125,10 +131,11 @@ void WCmdMedium_WriteByte(unsigned char Byte_UB) {
 		break;
 
 	case WCMD_MEDIUM_UDP:
-		break;	// TODO : UDP to be implemented
+		GL_pMediumUdpServer_H->GL_UdpServerParam_X.Server_H.write(Byte_UB);
+		break;
 
 	case WCMD_MEDIUM_TCP:
-		GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.write(Byte_UB);
+		GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.write(Byte_UB);
 		break;
 	}
 }
@@ -140,10 +147,11 @@ void WCmdMedium_Write(unsigned char * pBuffer_UB, unsigned long NbData_UL) {
 		break;
 
 	case WCMD_MEDIUM_UDP:
-		break;	// TODO : UDP to be implemented
+		GL_pMediumUdpServer_H->GL_UdpServerParam_X.Server_H.write(pBuffer_UB, NbData_UL);
+		break;
 
 	case WCMD_MEDIUM_TCP:
-		GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.write(pBuffer_UB, NbData_UL);
+		GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.write(pBuffer_UB, NbData_UL);
 		break;
 	}
 }
@@ -155,10 +163,11 @@ void WCmdMedium_Flush(void) {
 		break;
 
 	case WCMD_MEDIUM_UDP:
-		break;	// TODO : UDP to be implemented
+		GL_pMediumUdpServer_H->GL_UdpServerParam_X.Server_H.flush();
+		break;
 
 	case WCMD_MEDIUM_TCP:
-		GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.flush();
+		GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.flush();
 		break;
 	}
 }
@@ -169,10 +178,39 @@ void WCmdMedium_Stop(void) {
 		break;
 
 	case WCMD_MEDIUM_UDP:
-		break;	// TODO : UDP to be implemented
+		GL_pMediumUdpServer_H->GL_UdpServerParam_X.Server_H.stop();
+		break;
 
 	case WCMD_MEDIUM_TCP:
-		GL_MediumTcpServer_H->GL_TcpServerParam_X.Client_H.stop();
+		GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.stop();
+		break;
+	}
+}
+
+void WCmdMedium_BeginPacket(void) {
+	switch (GL_Medium_E) {
+	case WCMD_MEDIUM_SERIAL:	// Do nothing for Serial
+		break;
+
+	case WCMD_MEDIUM_UDP:
+		GL_pMediumUdpServer_H->GL_UdpServerParam_X.Server_H.beginPacket(GL_pMediumUdpServer_H->GL_UdpServerParam_X.RemoteIp_X, GL_pMediumUdpServer_H->GL_UdpServerParam_X.RemotePort_UI);
+			break;
+
+	case WCMD_MEDIUM_TCP:		// Do nothing for TCP
+		break;
+	}
+}
+
+void WCmdMedium_EndPacket(void) {
+	switch (GL_Medium_E) {
+	case WCMD_MEDIUM_SERIAL:	// Do nothing for Serial
+		break;
+
+	case WCMD_MEDIUM_UDP:
+		GL_pMediumUdpServer_H->GL_UdpServerParam_X.Server_H.endPacket();
+		break;
+
+	case WCMD_MEDIUM_TCP:		// Do nothing for TCP
 		break;
 	}
 }

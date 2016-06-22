@@ -31,7 +31,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16062101";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16062201";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -97,7 +97,8 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 void setup() {
 
 	/* Network Configuration */
-	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_TCP;
+	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_UDP;
+	GL_GlobalData_X.NetworkIf_X.isDhcp_B = false;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[0] = 0x02;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[1] = 0x00;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[2] = 0x00;
@@ -105,7 +106,7 @@ void setup() {
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[4] = 0x00;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[5] = 0x0C;
 	GL_GlobalData_X.NetworkIf_X.IpAddr_X = IPAddress(192, 168, 1, 16);
-	GL_GlobalData_X.NetworkIf_X.LocalPort_UI = 23;
+	GL_GlobalData_X.NetworkIf_X.LocalPort_UI = (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_TCP)?TCP_SERVER_DEFAULT_PORT:UDP_SERVER_DEFAULT_PORT;
 
 	/* Enable All UARTs by Default */
 	pinMode(PIN_EN_SERIAL01, OUTPUT);
@@ -152,14 +153,20 @@ void setup() {
 	/* Initialize TCP Server Modules */
 	if (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_TCP) {
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize TCP Server Modules");
-		GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+		if(GL_GlobalData_X.NetworkIf_X.isDhcp_B)
+			GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+		else
+			GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
 		TCPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.TcpServer_H));
 	}
 
 	/* Initialize UDP Server Modules */
 	if (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_UDP) {
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize UDP Server Modules");
-		GL_GlobalData_X.NetworkIf_X.UdpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+		if (GL_GlobalData_X.NetworkIf_X.isDhcp_B)
+			GL_GlobalData_X.NetworkIf_X.UdpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+		else
+			GL_GlobalData_X.NetworkIf_X.UdpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
 		UDPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.UdpServer_H));
 	}
 	

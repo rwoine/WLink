@@ -53,6 +53,8 @@ typedef struct {
 	IPAddress IpAddr_X;
 	unsigned int LocalPort_UI;
 	EthernetUDP Server_H;
+	IPAddress RemoteIp_X;
+	unsigned int RemotePort_UI;
 	UDP_SERVER_STATUS Status_E;
 } UDP_SERVER_PARAM;
 

@@ -225,7 +225,9 @@ void ProcessSendResp(void) {
 	pBuffer_UB[Offset_UL++] = WCMD_ETX;
 
 	// Send Response
+	WCmdMedium_BeginPacket();
 	WCmdMedium_Write(pBuffer_UB, Offset_UL);
+	WCmdMedium_EndPacket();
 	delay(1);
 
 	WCmdMedium_Flush();
@@ -250,7 +252,9 @@ void ProcessSendNack(void) {
 	pBuffer_UB[3] = WCMD_ETX;
 
 	// Send Response
+	WCmdMedium_BeginPacket();
 	WCmdMedium_Write(pBuffer_UB, 4);
+	WCmdMedium_EndPacket();
 	delay(1);
 
 	WCmdMedium_Flush();

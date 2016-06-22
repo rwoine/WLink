@@ -50,6 +50,8 @@ void WCmdMedium_WriteByte(unsigned char Byte_UB);
 void WCmdMedium_Write(unsigned char * pBuffer_UB, unsigned long NbData_UL);
 void WCmdMedium_Flush(void);
 void WCmdMedium_Stop(void);
+void WCmdMedium_BeginPacket(void);
+void WCmdMedium_EndPacket(void);
 
 
 #endif // __WCOMMAND_MEDIUM_H__

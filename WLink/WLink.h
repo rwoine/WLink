@@ -57,6 +57,7 @@ typedef enum {
 
 typedef struct {
 	NETWORK_PROTOCOL_ENUM NetworkProtocol_E;
+	boolean isDhcp_B;
 	unsigned char pMacAddr_UB[6];
 	IPAddress IpAddr_X;
 	unsigned int LocalPort_UI;
