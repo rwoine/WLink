@@ -42,8 +42,8 @@ static TCP_SERVER_MANAGER_STATE GL_TCPServerManager_CurrentState_E = TCP_SERVER_
 
 static TCPServer * GL_pTcpServer_H;
 
-static unsigned char GL_IsCableConnectedTryCnt_UB = 0;
-static unsigned long GL_AbsoluteTime_UL = 0;
+static unsigned char GL_TcpIsCableConnectedTryCnt_UB = 0;
+static unsigned long GL_TcpAbsoluteTime_UL = 0;
 
 
 /* ******************************************************************************** */
@@ -160,7 +160,7 @@ void TransitionToWaitClient(void) {
 
 void TransitionToRunning(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To RUNNING");
-	GL_AbsoluteTime_UL = millis();
+	GL_TcpAbsoluteTime_UL = millis();
 	GL_pTcpServer_H->GL_TcpServerParam_X.Status_E = TCP_SERVER_RUNNING;
 	GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_RUNNING;
 }
@@ -168,20 +168,21 @@ void TransitionToRunning(void) {
 
 boolean IsEthernetStillLinked(void) {
 	if (!GL_pTcpServer_H->isEthernetLinked()) {
-		if ((millis() - GL_AbsoluteTime_UL) >= TCP_SERVER_MANAGER_IS_ETHERNET_LINKED_DELAY_MS) {
-			GL_AbsoluteTime_UL = millis();
-			GL_IsCableConnectedTryCnt_UB++;
-			//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Cable Disconnected. Number = ");
-			//DBG_PRINTLN(DEBUG_SEVERITY_INFO, GL_IsCableConnectedTryCnt_UB);    
+		if ((millis() - GL_TcpAbsoluteTime_UL) >= TCP_SERVER_MANAGER_IS_ETHERNET_LINKED_DELAY_MS) {
+			GL_TcpAbsoluteTime_UL = millis();
+			GL_TcpIsCableConnectedTryCnt_UB++;
+			//DBG_PRINT(DEBUG_SEVERITY_WARNING, "Cable Disconnected. Try Number = ");
+			//DBG_PRINTDATA(GL_TcpIsCableConnectedTryCnt_UB);
+			//DBG_ENDSTR();
 		}
-		if (GL_IsCableConnectedTryCnt_UB == TCP_SERVER_MANAGER_IS_ETHERNET_LINKED_TRY_NB) {
-			GL_IsCableConnectedTryCnt_UB = 0;
+		if (GL_TcpIsCableConnectedTryCnt_UB == TCP_SERVER_MANAGER_IS_ETHERNET_LINKED_TRY_NB) {
+			GL_TcpIsCableConnectedTryCnt_UB = 0;
 			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Cable Disconnected");
 			return false;
 		}
 	}
 	else {
-		GL_IsCableConnectedTryCnt_UB = 0;
+		GL_TcpIsCableConnectedTryCnt_UB = 0;
 	}
 
 	return true;

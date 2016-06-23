@@ -162,7 +162,7 @@ void UDPServer::begin() {
 
 void UDPServer::renew() {
 	GL_UdpServerParam_X.IsConnected_B = false;
-	// TODO : flush buffer ?
+	GL_UdpServerParam_X.Server_H.flush();	// Flush buffer
 	GL_UdpServerParam_X.Server_H.stop(); 	// Close connection if any
 	begin();
 }
