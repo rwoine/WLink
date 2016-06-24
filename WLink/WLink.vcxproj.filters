@@ -40,6 +40,9 @@
     <Filter Include="Source Files\FlatPanel">
       <UniqueIdentifier>{2c3679f8-c51d-419b-af0f-efceda5d8d82}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\RealTimeClock">
+      <UniqueIdentifier>{7c9ab55f-2db7-4c00-89cb-a7b2d1fc5ff2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="WLink.ino" />

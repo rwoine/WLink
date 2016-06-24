@@ -59,6 +59,7 @@
 #define PIN_SD_WP           42
 #define PIN_SD_CD           43
 #define PIN_SD_CS           4
+#define PIN_SPI_CS			10	// Additional SPI pin to prevent bug from SPI Library
 
 /* Ethernet */
 #define PIN_ETH_LINKED		35

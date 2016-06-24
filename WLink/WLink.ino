@@ -31,7 +31,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16062301";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16062401";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -198,12 +198,12 @@ void setup() {
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "-  Pesage Warnier  -");
 
-	/* Initialize FlatPanel Modules*/
+	/* Initialize FlatPanel Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Flat Panel Modules");
 	GL_GlobalData_X.FlatPanel_H.init(&GL_Keypad_X);
 
 
-	// TODO : Add Output Management for Bug in SPI (additional output to maintain low ?)
+
 
 	
 
@@ -211,6 +211,8 @@ void setup() {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Map Specific CommEvent Handler");
 	GL_PortComEventMap_X[PORT_COM1].EventHandler = CommEvent_BadgeReader;
 
+	/* Add Output Management for Bug in SPI ¨*/
+	pinMode(PIN_SPI_CS, OUTPUT);
 }
 
 /* ******************************************************************************** */
