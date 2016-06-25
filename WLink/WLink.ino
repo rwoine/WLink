@@ -31,7 +31,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16062501";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16062502";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -98,10 +98,10 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 void setup() {
 
 	/* WCommand Interface Selection */
-	GL_GlobalWCmdMedium_E = WCMD_MEDIUM_TCP;
+	GL_GlobalWCmdMedium_E = WCMD_MEDIUM_UDP;
 
 	/* Network Configuration */
-	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_TCP;
+	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_UDP;
 	GL_GlobalData_X.NetworkIf_X.isDhcp_B = true;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[0] = 0x02;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[1] = 0x00;
