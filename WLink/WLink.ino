@@ -31,12 +31,13 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16062401";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16062501";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
 /* ******************************************************************************** */
 GLOBAL_PARAM_STRUCT GL_GlobalData_X;
+WCMD_MEDIUM_ENUM GL_GlobalWCmdMedium_E;
 
 /* ******************************************************************************** */
 /* Flat Panel Configuration
@@ -96,9 +97,12 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 /* ******************************************************************************** */
 void setup() {
 
+	/* WCommand Interface Selection */
+	GL_GlobalWCmdMedium_E = WCMD_MEDIUM_TCP;
+
 	/* Network Configuration */
-	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_UDP;
-	GL_GlobalData_X.NetworkIf_X.isDhcp_B = false;
+	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_TCP;
+	GL_GlobalData_X.NetworkIf_X.isDhcp_B = true;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[0] = 0x02;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[1] = 0x00;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[2] = 0x00;
@@ -172,9 +176,11 @@ void setup() {
 	
 	/* Initialiaze W-Link Command Management Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize W-Link Command Management Modules");
-	//WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GL_PortComMap_X[PORT_COM3]);				// Medium mapped on COM3
-	//WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.NetworkIf_X.TcpServer_H));	// Medium mapped on TCP Server
-	WCmdMedium_Init(WCMD_MEDIUM_UDP, &(GL_GlobalData_X.NetworkIf_X.UdpServer_H));	// Medium mapped on UDP Server
+	switch (GL_GlobalWCmdMedium_E) {
+		case WCMD_MEDIUM_SERIAL:	WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GL_PortComMap_X[PORT_COM3]);				break;	// Medium mapped on COM3
+		case WCMD_MEDIUM_UDP:		WCmdMedium_Init(WCMD_MEDIUM_UDP, &(GL_GlobalData_X.NetworkIf_X.UdpServer_H));	break;	// Medium mapped on UDP Server	
+		case WCMD_MEDIUM_TCP:		WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.NetworkIf_X.TcpServer_H));	break;	// Medium mapped on TCP Server
+	}
 	WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
 
 	/* Initialize Indicator Modules */
@@ -182,7 +188,7 @@ void setup() {
 	GL_GlobalData_X.Indicator_H.init(GL_PortComMap_X[PORT_COM2], 2400);
 	IndicatorInterface_Init();
 	IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
-	//IndicatorManager_Enable();	// Normal frame by default
+	IndicatorManager_Enable();	// Normal frame by default
 	GL_GlobalData_X.Indicator_H.attachEcho(GL_PortComMap_X[PORT_COM3], 9600);
 
 	/* Initialize Badge Reader Modules */
