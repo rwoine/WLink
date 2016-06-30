@@ -31,7 +31,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16062502";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16062801";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -85,7 +85,9 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 	{ WCMD_LCD_WRITE, WCmdProcess_LcdWrite },
 	{ WCMD_LCD_READ, WCmdProcess_LcdRead },
 	{ WCMD_LCD_CLEAR, WCmdProcess_LcdClear },
-	{ WCMD_LCD_SET_BACKLIGHT, WCmdProcess_LcdSetBacklight }
+	{ WCMD_LCD_SET_BACKLIGHT, WCmdProcess_LcdSetBacklight },
+
+	{ WCMD_COM_PORT_WRITE, WCmdProcess_ComPortWrite }
 
 };
 
@@ -201,8 +203,6 @@ void setup() {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize LCD Modules");
 	GL_GlobalData_X.Lcd_H.init(&GL_LcdObject_X, PIN_LCD_BACKLIGHT);
 	GL_GlobalData_X.Lcd_H.setBacklight(255);	// Max value for Backlight by default
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "-  Pesage Warnier  -");
 
 	/* Initialize FlatPanel Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Flat Panel Modules");
@@ -214,11 +214,19 @@ void setup() {
 	
 
 	/* Map Specific Functions on CommEvent Handler */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Map Specific CommEvent Handler");
-	GL_PortComEventMap_X[PORT_COM1].EventHandler = CommEvent_BadgeReader;
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Map Specific CommEvent Handler");
+	//GL_PortComEventMap_X[PORT_COM1].EventHandler = CommEvent_BadgeReader;
 
 	/* Add Output Management for Bug in SPI ¨*/
 	pinMode(PIN_SPI_CS, OUTPUT);
+
+	/* End of Initialization */
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Initialization!");
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enter Process Management in Loop Code..");
+
+	/* Display Welcome Message */
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "-  Pesage Warnier  -");
 }
 
 /* ******************************************************************************** */
@@ -236,7 +244,7 @@ void loop() {
 /* ******************************************************************************** */
 /* Events
 /* ******************************************************************************** */
-void serialEvent() { GL_PortComEventMap_X[PORT_COM0].EventHandler(); }
-void serial1Event() { GL_PortComEventMap_X[PORT_COM1].EventHandler(); }
-void serial2Event() { GL_PortComEventMap_X[PORT_COM2].EventHandler(); }
-void serial3Event() { GL_PortComEventMap_X[PORT_COM3].EventHandler(); }
+//void serialEvent() { GL_PortComEventMap_X[PORT_COM0].EventHandler(); }
+//void serial1Event() { GL_PortComEventMap_X[PORT_COM1].EventHandler(); }
+//void serial2Event() { GL_PortComEventMap_X[PORT_COM2].EventHandler(); }
+//void serial3Event() { GL_PortComEventMap_X[PORT_COM3].EventHandler(); }

@@ -26,6 +26,7 @@
 /* ******************************************************************************** */
 
 extern GLOBAL_PARAM_STRUCT GL_GlobalData_X;
+extern HardwareSerial * GL_PortComMap_X[4];
 
 /* ******************************************************************************** */
 /* Functions
@@ -220,12 +221,13 @@ WCMD_FCT_STS WCmdProcess_BadgeReaderGetBadgeId(const unsigned char * pParam_UB, 
 }
 
 
-/* LCD  *************************************************************************** */
+/* LCD **************************************************************************** */
 /* ******************************************************************************** */
 WCMD_FCT_STS WCmdProcess_LcdWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdWrite");
 	*pAnsNb_UL = 0;
 
+	GL_GlobalData_X.Lcd_H.writeDisplay((LCD_DISPLAY_LINE_ENUM) pParam_UB[0], (unsigned char *) &(pParam_UB[1]), (ParamNb_UL-1));
 
 	return WCMD_FCT_STS_OK;
 }
@@ -234,6 +236,7 @@ WCMD_FCT_STS WCmdProcess_LcdRead(const unsigned char * pParam_UB, unsigned long 
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdRead");
 	*pAnsNb_UL = 0;
 
+	GL_GlobalData_X.Lcd_H.readDisplayShadowContent((LCD_DISPLAY_LINE_ENUM)pParam_UB[0], pAns_UB, pAnsNb_UL);
 
 	return WCMD_FCT_STS_OK;
 }
@@ -242,6 +245,7 @@ WCMD_FCT_STS WCmdProcess_LcdClear(const unsigned char * pParam_UB, unsigned long
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdClear");
 	*pAnsNb_UL = 0;
 
+	GL_GlobalData_X.Lcd_H.clearDisplay((LCD_DISPLAY_LINE_ENUM)pParam_UB[0]);
 
 	return WCMD_FCT_STS_OK;
 }
@@ -250,7 +254,25 @@ WCMD_FCT_STS WCmdProcess_LcdSetBacklight(const unsigned char * pParam_UB, unsign
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdSetBacklight");
 	*pAnsNb_UL = 0;
 
+	GL_GlobalData_X.Lcd_H.setBacklight(pParam_UB[0]);
 
 	return WCMD_FCT_STS_OK;
 }
 
+
+/* COM Port *********************************************************************** */
+/* ******************************************************************************** */
+WCMD_FCT_STS WCmdProcess_ComPortWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_ComPortWrite");
+	*pAnsNb_UL = 0;
+
+	// At least 3 parameters: Port COM Number, Number of Bytes to Send, Byte(s) to Send
+	if (ParamNb_UL < 3)
+		return WCMD_FCT_STS_BAD_PARAM_NB;
+
+	// Send Bytes
+	for (int i = 0; i < pParam_UB[1]; i++)
+		GL_PortComMap_X[pParam_UB[0]]->write(pParam_UB[2+i]);
+
+	return WCMD_FCT_STS_OK;
+}

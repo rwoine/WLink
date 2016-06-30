@@ -22,6 +22,9 @@
 /* Define
 /* ******************************************************************************** */
 
+#define LCD_DISPLAY_COLUMN_NUMBER	20
+#define LCD_DISPLAY_LINE_NUMBER		2
+
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
@@ -47,9 +50,12 @@ public:
 	void init(LiquidCrystal * pLcd_H, unsigned char PinBacklight_UB);
 	boolean isInitialized(void);
 
-	void clearDisplay(void);
+	void clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E = LCD_DISPLAY_BOTH_LINE);
 	void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str);
 	void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
+	void appendDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str);
+	void appendDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
+	void readDisplayShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long * pArraySize_UL);
 	void setBacklight(unsigned char Value_UB);
 
 	LCD_DISPLAY_PARAM GL_LcdDisplayParam_X;
