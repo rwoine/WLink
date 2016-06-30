@@ -33,9 +33,9 @@ typedef struct {
 } LCD_DISPLAY_PARAM;
 
 typedef enum {
-	LCD_DISPLAY_BOTH_LINE,
-	LCD_DISPLAY_LINE1,
-	LCD_DISPLAY_LINE2
+	LCD_DISPLAY_LINE1 = 0,
+	LCD_DISPLAY_LINE2,
+	LCD_DISPLAY_ALL_LINE
 } LCD_DISPLAY_LINE_ENUM;
 
 /* ******************************************************************************** */
@@ -50,7 +50,7 @@ public:
 	void init(LiquidCrystal * pLcd_H, unsigned char PinBacklight_UB);
 	boolean isInitialized(void);
 
-	void clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E = LCD_DISPLAY_BOTH_LINE);
+	void clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E = LCD_DISPLAY_ALL_LINE);
 	void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str);
 	void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
 	void appendDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str);

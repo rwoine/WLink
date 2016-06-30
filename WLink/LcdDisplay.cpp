@@ -62,34 +62,30 @@ boolean LcdDisplay::isInitialized(void) {
 
 
 void LcdDisplay::clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
-	unsigned long LineIdx_UL;
-
-	if (LineIndex_E == LCD_DISPLAY_BOTH_LINE) {
+	if (LineIndex_E == LCD_DISPLAY_ALL_LINE) {
 		GL_pLcdDevice_H->clear();
 		for (int i = 0; i < LCD_DISPLAY_LINE_NUMBER; i++)
 			GL_pLcdLindeIndex_UL[i] = 0;
 	}
 	else {
-		LineIdx_UL = (LineIndex_E == LCD_DISPLAY_LINE2) ? 1 : 0;
-		GL_pLcdLindeIndex_UL[LineIdx_UL] = 0;
-		GL_pLcdDevice_H->setCursor(0, LineIdx_UL);
+		GL_pLcdLindeIndex_UL[LineIndex_E] = 0;
+		GL_pLcdDevice_H->setCursor(0, LineIndex_E);
 		for (int i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
 			GL_pLcdDevice_H->write(' ');
 	}	
 }
 
 void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str) {
-	unsigned long LineIdx_UL = (LineIndex_E == LCD_DISPLAY_LINE2) ? 1 : 0;
 
 	// Erase Content of Shadow Line
 	EraseLineShadowContent(LineIndex_E);
 
 	// Set Cursor Properly
-	GL_pLcdDevice_H->setCursor(0, LineIdx_UL);
+	GL_pLcdDevice_H->setCursor(0, LineIndex_E);
 
 	// Copy Content in Shadow Line
 	for (int i = 0; (i < TextStr_Str.length()) && (i < LCD_DISPLAY_COLUMN_NUMBER) ; i++)
-		GL_ppLcdLineShadow_UB[LineIdx_UL][i] = TextStr_Str.charAt(i);
+		GL_ppLcdLineShadow_UB[LineIndex_E][i] = TextStr_Str.charAt(i);
 
 	// Display on Device
 	GL_pLcdDevice_H->print(TextStr_Str);
@@ -97,7 +93,7 @@ void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_
 
 void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL) {
 	unsigned long Index_UL = 0;
-	unsigned long LineIdx_UL = (LineIndex_E == LCD_DISPLAY_LINE2) ? 1 : 0;
+	unsigned long LineIdx_UL = (unsigned long)LineIndex_E;
 
 	// Erase Content of Shadow Linde
 	EraseLineShadowContent(LineIndex_E);
@@ -106,15 +102,12 @@ void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char *
 	GL_pLcdDevice_H->setCursor(0, LineIdx_UL);
 
 	while (Index_UL < ArraySize_UL) {
-		if (Index_UL == LCD_DISPLAY_COLUMN_NUMBER) {
-			if (LineIndex_E == LCD_DISPLAY_LINE2)
+		if ((Index_UL > 0) && ((Index_UL%LCD_DISPLAY_COLUMN_NUMBER) == 0)) {
+			if (LineIndex_E == (LCD_DISPLAY_LINE_NUMBER-1))		// Reach End of LCD
 				break;
 			else
-				GL_pLcdDevice_H->setCursor(0, LineIdx_UL++);
+				GL_pLcdDevice_H->setCursor(0, LineIdx_UL++);	// Change Line
 		}
-
-		if (Index_UL == 2*LCD_DISPLAY_COLUMN_NUMBER)
-			break;
 
 		// Copy Content in Shadow Line
 		GL_ppLcdLineShadow_UB[LineIdx_UL][Index_UL - (LCD_DISPLAY_COLUMN_NUMBER*LineIdx_UL)] = pTextStr_UB[Index_UL];
@@ -174,11 +167,11 @@ void LcdDisplay::appendDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char 
 
 void LcdDisplay::readDisplayShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long * pArraySize_UL) {
 	int i = 0;
-	unsigned long LineIdx_UL;
+	unsigned long LineIdx_UL = (unsigned long)LineIndex_E;
 
 	*pArraySize_UL = 0;
 
-	if (LineIndex_E == LCD_DISPLAY_BOTH_LINE) {
+	if (LineIndex_E == LCD_DISPLAY_ALL_LINE) {
 		for (LineIdx_UL = 0; LineIdx_UL < LCD_DISPLAY_LINE_NUMBER; LineIdx_UL++) {
 			for (i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++) {
 				pTextStr_UB[i + (LCD_DISPLAY_COLUMN_NUMBER*LineIdx_UL)] = GL_ppLcdLineShadow_UB[LineIdx_UL][i];
@@ -187,7 +180,6 @@ void LcdDisplay::readDisplayShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E, uns
 		}
 	}
 	else {
-		LineIdx_UL = (LineIndex_E == LCD_DISPLAY_LINE2) ? 1 : 0;
 		for (i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++) {
 			pTextStr_UB[i] = GL_ppLcdLineShadow_UB[LineIdx_UL][i];
 			*pArraySize_UL++;
@@ -206,16 +198,15 @@ void LcdDisplay::setBacklight(unsigned char Value_UB) {
 
 void EraseLineShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
 	int i = 0;
-	unsigned long LineIdx_UL;
+	unsigned long LineIdx_UL = (unsigned long)LineIndex_E;
 
-	if (LineIndex_E == LCD_DISPLAY_BOTH_LINE) {
+	if (LineIndex_E == LCD_DISPLAY_ALL_LINE) {
 		for (LineIdx_UL = 0; LineIdx_UL < LCD_DISPLAY_LINE_NUMBER; LineIdx_UL++) {
 			for (i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
 				GL_ppLcdLineShadow_UB[LineIdx_UL][i] = 0x00;
 		}
 	}
 	else {
-		LineIdx_UL = (LineIndex_E == LCD_DISPLAY_LINE2) ? 1 : 0;
 		for (i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
 			GL_ppLcdLineShadow_UB[LineIdx_UL][i] = 0x00;
 	}

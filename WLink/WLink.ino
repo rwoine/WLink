@@ -31,13 +31,19 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16062801";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16070101";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
 /* ******************************************************************************** */
 GLOBAL_PARAM_STRUCT GL_GlobalData_X;
 WCMD_MEDIUM_ENUM GL_GlobalWCmdMedium_E;
+unsigned long GL_AbsoluteTime_UL;
+
+/* ******************************************************************************** */
+/* Prototypes for Internal Functions
+/* ******************************************************************************** */
+void BlinkingLedManager_Process(void);
 
 /* ******************************************************************************** */
 /* Flat Panel Configuration
@@ -88,7 +94,6 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 	{ WCMD_LCD_SET_BACKLIGHT, WCmdProcess_LcdSetBacklight },
 
 	{ WCMD_COM_PORT_WRITE, WCmdProcess_ComPortWrite }
-
 };
 
 #define WCMD_FCT_DESCR_SIZE (sizeof(cGL_pFctDescr_X)/sizeof(WCMD_FCT_DESCR))
@@ -100,10 +105,10 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 void setup() {
 
 	/* WCommand Interface Selection */
-	GL_GlobalWCmdMedium_E = WCMD_MEDIUM_UDP;
+	GL_GlobalWCmdMedium_E = WCMD_MEDIUM_TCP;
 
 	/* Network Configuration */
-	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_UDP;
+	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_TCP;
 	GL_GlobalData_X.NetworkIf_X.isDhcp_B = true;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[0] = 0x02;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[1] = 0x00;
@@ -137,8 +142,8 @@ void setup() {
 	GL_GlobalData_X.LedPin_UB = PIN_BLINK_LED;
 	pinMode(GL_GlobalData_X.LedPin_UB, OUTPUT);
 	//digitalWrite(GL_GlobalData_X.LedPin_UB, HIGH);	// Turn-on by default
-	//digitalWrite(GL_GlobalData_X.LedPin_UB, LOW);	// Turn-off by default
-	analogWrite(GL_GlobalData_X.LedPin_UB, 128);	// 50% duty-cycle
+	//digitalWrite(GL_GlobalData_X.LedPin_UB, LOW);		// Turn-off by default
+	analogWrite(GL_GlobalData_X.LedPin_UB, 128);		// 50% duty-cycle
 
 	/* Initialize GPIO */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize GPIOs");
@@ -227,6 +232,9 @@ void setup() {
 	/* Display Welcome Message */
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "-  Pesage Warnier  -");
+
+	/* Record Absolute Time */
+	GL_AbsoluteTime_UL = millis();
 }
 
 /* ******************************************************************************** */
@@ -238,8 +246,22 @@ void loop() {
 	TCPServerManager_Process();
 	IndicatorManager_Process();
 	BadgeReaderManager_Process();
+	BlinkingLedManager_Process();
 
 } 
+
+/* ******************************************************************************** */
+/* Internal Functions
+/* ******************************************************************************** */
+void BlinkingLedManager_Process(void) {
+	if ((millis() - GL_AbsoluteTime_UL) >= 500) {
+		if(digitalRead(GL_GlobalData_X.LedPin_UB) == LOW)
+			digitalWrite(GL_GlobalData_X.LedPin_UB, HIGH);
+		else
+			digitalWrite(GL_GlobalData_X.LedPin_UB, LOW);
+		GL_AbsoluteTime_UL = millis();
+	}
+}
 
 /* ******************************************************************************** */
 /* Events
