@@ -30,6 +30,8 @@
 /* Functions Prototypes
 /* ******************************************************************************** */
 void UDPServerManager_Init(UDPServer * pUDPServer_H);
+void UDPServerManager_Enable();
+void UDPServerManager_Disable();
 void UDPServerManager_Process();
 
 

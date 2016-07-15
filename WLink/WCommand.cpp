@@ -227,6 +227,9 @@ WCMD_FCT_STS WCmdProcess_LcdWrite(const unsigned char * pParam_UB, unsigned long
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdWrite");
 	*pAnsNb_UL = 0;
 
+	if (ParamNb_UL < 3)
+		return WCMD_FCT_STS_BAD_PARAM_NB;
+
 	GL_GlobalData_X.Lcd_H.writeDisplay((LCD_DISPLAY_LINE_ENUM) pParam_UB[0], (unsigned char *) &(pParam_UB[1]), (ParamNb_UL-1));
 
 	return WCMD_FCT_STS_OK;
@@ -245,6 +248,9 @@ WCMD_FCT_STS WCmdProcess_LcdClear(const unsigned char * pParam_UB, unsigned long
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdClear");
 	*pAnsNb_UL = 0;
 
+	if (ParamNb_UL != 1)
+		return WCMD_FCT_STS_BAD_PARAM_NB;
+
 	GL_GlobalData_X.Lcd_H.clearDisplay((LCD_DISPLAY_LINE_ENUM)pParam_UB[0]);
 
 	return WCMD_FCT_STS_OK;
@@ -253,6 +259,9 @@ WCMD_FCT_STS WCmdProcess_LcdClear(const unsigned char * pParam_UB, unsigned long
 WCMD_FCT_STS WCmdProcess_LcdSetBacklight(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdSetBacklight");
 	*pAnsNb_UL = 0;
+
+	if (ParamNb_UL != 1)
+		return WCMD_FCT_STS_BAD_PARAM_NB;
 
 	GL_GlobalData_X.Lcd_H.setBacklight(pParam_UB[0]);
 

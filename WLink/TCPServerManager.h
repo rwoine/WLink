@@ -7,6 +7,7 @@
 /*		Process functions to manage the TCP Server object							*/
 /*                                                                                  */
 /* History :	02/06/2016	(RW)	Creation of this file                           */
+/*				15/07/2016	(RW)	Add Enable and Disable functions				*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -30,6 +31,8 @@
 /* Functions Prototypes
 /* ******************************************************************************** */
 void TCPServerManager_Init(TCPServer * pTCPServer_H);
+void TCPServerManager_Enable();
+void TCPServerManager_Disable();
 void TCPServerManager_Process();
 
 

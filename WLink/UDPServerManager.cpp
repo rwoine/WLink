@@ -44,6 +44,7 @@ static UDPServer * GL_pUdpServer_H;
 
 static unsigned char GL_UdpIsCableConnectedTryCnt_UB = 0;
 static unsigned long GL_UdpAbsoluteTime_UL = 0;
+static boolean GL_UdpServerManagerEnabled_B = false;
 
 
 /* ******************************************************************************** */
@@ -66,7 +67,16 @@ static boolean IsEthernetStillLinked(void);
 
 void UDPServerManager_Init(UDPServer * pUDPServer_H) {
 	GL_pUdpServer_H = pUDPServer_H;
+	GL_UdpServerManagerEnabled_B = false;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "UDP Server Manager Initialized");
+}
+
+void UDPServerManager_Enable() {
+	GL_UdpServerManagerEnabled_B = true;
+}
+
+void UDPServerManager_Disable() {
+	GL_UdpServerManagerEnabled_B = false;
 }
 
 void UDPServerManager_Process() {
@@ -91,19 +101,22 @@ void UDPServerManager_Process() {
 /* ******************************************************************************** */
 
 void ProcessIdle(void) {
-	if (GL_pUdpServer_H->isInitialized() && GL_pUdpServer_H->isEthernetLinked())
+	if (GL_pUdpServer_H->isInitialized() && GL_pUdpServer_H->isEthernetLinked() && GL_UdpServerManagerEnabled_B)
 		TransitionToConnecting();
 }
 
 void ProcessConnecting(void) {
 	if (GL_pUdpServer_H->GL_UdpServerParam_X.IsConnected_B)
 		TransitionToRunning();
+
+	if (!GL_UdpServerManagerEnabled_B)
+		TransitionToIdle();
 }
 
 void ProcessRunning(void) {
 	boolean EnableCmd_B = true;
 
-	if (!IsEthernetStillLinked()) {
+	if (!IsEthernetStillLinked() || !GL_UdpServerManagerEnabled_B) {
 		WCommandInterpreter_Restart();
 		TransitionToIdle();
 		EnableCmd_B = false;

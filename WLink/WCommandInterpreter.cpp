@@ -132,7 +132,7 @@ void ProcessCheckCmd(void) {
 		GL_WCmdParam_X.CmdId_UB = Temp_UB & WCMD_CMD_ID_MASK;
 		GL_WCmdParam_X.HasParam_B = ((Temp_UB & WCMD_PARAM_BIT_MASK) == WCMD_PARAM_BIT_MASK) ? true : false;
 
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "Command ID = ");
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Command ID = 0x");
 		DBG_PRINTDATABASE(GL_WCmdParam_X.CmdId_UB, HEX);
 		DBG_ENDSTR();
 		DBG_PRINT(DEBUG_SEVERITY_INFO, "Has Param ? = ");

@@ -6,6 +6,7 @@
 /*		Describes the LCD utilities functions										*/
 /*                                                                                  */
 /* History :  	13/06/2016  (RW)	Creation of this file                           */
+/*				15/07/2016	(RW)	Resolve bug when writing all lines				*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -76,16 +77,20 @@ void LcdDisplay::clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
 }
 
 void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str) {
+	unsigned long LineIdx_UL = (unsigned long)LineIndex_E;
+
+	if (LineIndex_E == LCD_DISPLAY_ALL_LINE)
+		LineIdx_UL = 0;	// Force to start at Zero if all lines selected
 
 	// Erase Content of Shadow Line
 	EraseLineShadowContent(LineIndex_E);
 
 	// Set Cursor Properly
-	GL_pLcdDevice_H->setCursor(0, LineIndex_E);
+	GL_pLcdDevice_H->setCursor(0, LineIdx_UL);
 
 	// Copy Content in Shadow Line
 	for (int i = 0; (i < TextStr_Str.length()) && (i < LCD_DISPLAY_COLUMN_NUMBER) ; i++)
-		GL_ppLcdLineShadow_UB[LineIndex_E][i] = TextStr_Str.charAt(i);
+		GL_ppLcdLineShadow_UB[LineIdx_UL][i] = TextStr_Str.charAt(i);
 
 	// Display on Device
 	GL_pLcdDevice_H->print(TextStr_Str);
@@ -94,6 +99,9 @@ void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_
 void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL) {
 	unsigned long Index_UL = 0;
 	unsigned long LineIdx_UL = (unsigned long)LineIndex_E;
+
+	if (LineIndex_E == LCD_DISPLAY_ALL_LINE)
+		LineIdx_UL = 0;	// Force to start at Zero if all lines selected
 
 	// Erase Content of Shadow Linde
 	EraseLineShadowContent(LineIndex_E);
@@ -106,7 +114,7 @@ void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char *
 			if (LineIndex_E == (LCD_DISPLAY_LINE_NUMBER-1))		// Reach End of LCD
 				break;
 			else
-				GL_pLcdDevice_H->setCursor(0, LineIdx_UL++);	// Change Line
+				GL_pLcdDevice_H->setCursor(0, ++LineIdx_UL);	// Change Line
 		}
 
 		// Copy Content in Shadow Line

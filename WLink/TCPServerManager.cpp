@@ -6,6 +6,7 @@
 /*		Describes the state machine to manage the TCP Server object					*/
 /*                                                                                  */
 /* History :  	02/06/2015  (RW)	Creation of this file                           */
+/*				15/07/2016	(RW)	Add and manage Enable and Disable functions		*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -44,6 +45,7 @@ static TCPServer * GL_pTcpServer_H;
 
 static unsigned char GL_TcpIsCableConnectedTryCnt_UB = 0;
 static unsigned long GL_TcpAbsoluteTime_UL = 0;
+static boolean GL_TcpServerManagerEnabled_B = false;
 
 
 /* ******************************************************************************** */
@@ -68,7 +70,16 @@ static boolean IsEthernetStillLinked(void);
 
 void TCPServerManager_Init(TCPServer * pTCPServer_H) {
 	GL_pTcpServer_H = pTCPServer_H;
+	GL_TcpServerManagerEnabled_B = false;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "TCP Server Manager Initialized");
+}
+
+void TCPServerManager_Enable() {
+	GL_TcpServerManagerEnabled_B = true;
+}
+
+void TCPServerManager_Disable() {
+	GL_TcpServerManagerEnabled_B = false;
 }
 
 void TCPServerManager_Process() {
@@ -97,17 +108,20 @@ void TCPServerManager_Process() {
 /* ******************************************************************************** */
 
 void ProcessIdle(void) {
-	if (GL_pTcpServer_H->GL_TcpServerParam_X.IsInitialized_B && GL_pTcpServer_H->isEthernetLinked())
+	if (GL_pTcpServer_H->GL_TcpServerParam_X.IsInitialized_B && GL_pTcpServer_H->isEthernetLinked() && GL_TcpServerManagerEnabled_B)
 		TransitionToConnecting();
 }
 
 void ProcessConnecting(void) {
 	if (GL_pTcpServer_H->GL_TcpServerParam_X.IsConnected_B)
 		TransitionToWaitClient();
+
+	if (!GL_TcpServerManagerEnabled_B)
+		TransitionToIdle();
 }
 
 void ProcessWaitClient(void) {
-	if (!IsEthernetStillLinked()) {
+	if (!IsEthernetStillLinked() || !GL_TcpServerManagerEnabled_B) {
 		WCommandInterpreter_Restart();
 		TransitionToIdle();
 	}
@@ -120,7 +134,7 @@ void ProcessWaitClient(void) {
 void ProcessRunning(void) {
 	boolean EnableCmd_B = true;
 
-	if (!IsEthernetStillLinked()) {
+	if (!IsEthernetStillLinked() || !GL_TcpServerManagerEnabled_B) {
 		WCommandInterpreter_Restart();
 		TransitionToIdle();
 		EnableCmd_B = false;
