@@ -31,7 +31,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16071502";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16071601";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -126,7 +126,7 @@ void setup() {
 	digitalWrite(PIN_EN_SERIAL23, LOW);
 
 	/* Initialize Debug Module */
-	Debug_Init(GL_PortComMap_X[PORT_COM0], 57600);
+	Debug_Init(GL_PortComMap_X[PORT_COM0], 115200);
 
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "---------- W-LINK ----------");
 
@@ -202,7 +202,8 @@ void setup() {
 	IndicatorInterface_Init();
 	IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
 	IndicatorManager_Enable();	// Normal frame by default
-	GL_GlobalData_X.Indicator_H.attachEcho(GL_PortComMap_X[PORT_COM3], 9600);
+	//IndicatorManager_Disable();
+	//GL_GlobalData_X.Indicator_H.attachEcho(GL_PortComMap_X[PORT_COM3], 9600);
 
 	/* Initialize Badge Reader Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Badge Reader Modules");
@@ -225,8 +226,8 @@ void setup() {
 	
 
 	/* Map Specific Functions on CommEvent Handler */
-	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Map Specific CommEvent Handler");
-	//GL_PortComEventMap_X[PORT_COM1].EventHandler = CommEvent_BadgeReader;
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Map Specific CommEvent Handler");
+	GL_PortComEventMap_X[PORT_COM1].EventHandler = CommEvent_BadgeReader;
 
 	/* Add Output Management for Bug in SPI ¨*/
 	pinMode(PIN_SPI_CS, OUTPUT);
@@ -254,7 +255,7 @@ void loop() {
 	BadgeReaderManager_Process();
 	BlinkingLedManager_Process();
 
-} 
+}
 
 /* ******************************************************************************** */
 /* Internal Functions
@@ -273,6 +274,7 @@ void BlinkingLedManager_Process(void) {
 /* Events
 /* ******************************************************************************** */
 //void serialEvent() { GL_PortComEventMap_X[PORT_COM0].EventHandler(); }
-//void serial1Event() { GL_PortComEventMap_X[PORT_COM1].EventHandler(); }
-//void serial2Event() { GL_PortComEventMap_X[PORT_COM2].EventHandler(); }
-//void serial3Event() { GL_PortComEventMap_X[PORT_COM3].EventHandler(); }
+void serialEvent1() { GL_PortComEventMap_X[PORT_COM1].EventHandler(); }
+//void serialEvent2() { GL_PortComEventMap_X[PORT_COM2].EventHandler(); }
+//void serialEvent3() { GL_PortComEventMap_X[PORT_COM3].EventHandler(); }
+

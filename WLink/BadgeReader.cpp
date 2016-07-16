@@ -8,6 +8,7 @@
 /* History :  	01/12/2014  (RW)	Creation of this file                           */
 /*				12/01/2015  (RW)	Manage indicator with low-level functions       */
 /*				06/06/2016	(RW)	Re-mastered version								*/
+/*				16/07/2016	(RW)	Modify 'flush' function							*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -83,6 +84,8 @@ unsigned char BadgeReader::getPacketChar(unsigned long Index_UL) {
 
 void BadgeReader::flushBadgeReader(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Flush Serial Buffer of Badge Reader");
+	while (GL_pBadgeReaderSerial_H->available())
+		GL_pBadgeReaderSerial_H->read();
 	GL_pBadgeReaderSerial_H->flush();
 }
 
