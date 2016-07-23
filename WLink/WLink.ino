@@ -199,6 +199,7 @@ void setup() {
 	/* Initialize Indicator Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Indicator Modules");
 	GL_GlobalData_X.Indicator_H.init(GL_PortComMap_X[PORT_COM2], 2400);
+	GL_GlobalData_X.Indicator_H.setIndicatorDevice(INDICATOR_LD5218);
 	IndicatorInterface_Init();
 	IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
 	IndicatorManager_Enable();	// Normal frame by default
