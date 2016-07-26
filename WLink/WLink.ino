@@ -31,7 +31,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16071601";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16072601";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -92,6 +92,8 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 	{ WCMD_LCD_READ, WCmdProcess_LcdRead },
 	{ WCMD_LCD_CLEAR, WCmdProcess_LcdClear },
 	{ WCMD_LCD_SET_BACKLIGHT, WCmdProcess_LcdSetBacklight },
+	{ WCMD_LCD_ENABLE_EXT_WRITE, WCmdProcess_LcdEnableExternalWrite },
+	{ WCMD_LCD_DISABLE_EXT_WRITE, WCmdProcess_LcdDisableExternalWrite },
 
 	{ WCMD_COM_PORT_WRITE, WCmdProcess_ComPortWrite }
 };
