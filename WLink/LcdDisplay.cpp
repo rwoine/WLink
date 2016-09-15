@@ -199,6 +199,15 @@ void LcdDisplay::setBacklight(unsigned char Value_UB) {
 	analogWrite(GL_PinBacklight_UB, Value_UB);
 }
 
+void LcdDisplay::enableExternalWrite(unsigned long LineNb_UL, unsigned long ColNb_UL) {
+	// TODO : Manage Coordinates
+	GL_LcdDisplayParam_X.ExternalWriteEnabled_B = true;
+}
+
+void LcdDisplay::disableExternalWrite(void) {
+	GL_LcdDisplayParam_X.ExternalWriteEnabled_B = false;
+}
+
 
 /* ******************************************************************************** */
 /* Internal Functions

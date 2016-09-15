@@ -268,6 +268,27 @@ WCMD_FCT_STS WCmdProcess_LcdSetBacklight(const unsigned char * pParam_UB, unsign
 	return WCMD_FCT_STS_OK;
 }
 
+WCMD_FCT_STS WCmdProcess_LcdEnableExternalWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdEnableExternalWrite");
+	*pAnsNb_UL = 0;
+
+	if (ParamNb_UL != 2)
+		return WCMD_FCT_STS_BAD_PARAM_NB;
+
+	GL_GlobalData_X.Lcd_H.enableExternalWrite(pParam_UB[0], pParam_UB[1]);
+
+	return WCMD_FCT_STS_OK;
+}
+
+WCMD_FCT_STS WCmdProcess_LcdDisableExternalWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdDisableExternalWrite");
+	*pAnsNb_UL = 0;
+
+	GL_GlobalData_X.Lcd_H.disableExternalWrite();
+
+	return WCMD_FCT_STS_OK;
+}
+
 
 /* COM Port *********************************************************************** */
 /* ******************************************************************************** */

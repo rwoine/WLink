@@ -30,6 +30,7 @@
 /* ******************************************************************************** */
 typedef struct {
 	boolean IsInitialized_B;
+	boolean ExternalWriteEnabled_B;
 } LCD_DISPLAY_PARAM;
 
 typedef enum {
@@ -57,6 +58,8 @@ public:
 	void appendDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
 	void readDisplayShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long * pArraySize_UL);
 	void setBacklight(unsigned char Value_UB);
+	void enableExternalWrite(unsigned long LineNb_UL, unsigned long ColNb_UL);
+	void disableExternalWrite(void);
 
 	LCD_DISPLAY_PARAM GL_LcdDisplayParam_X;
 };
