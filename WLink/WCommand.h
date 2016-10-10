@@ -7,6 +7,7 @@
 /*		Gathers the several functions to dialog with the W-Link						*/
 /*                                                                                  */
 /* History :	14/05/2016	(RW)	Creation of this file                           */
+/*				08/10/2016	(RW)	Update WCMD_FCT_STS enumeration					*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -47,10 +48,10 @@
 /* ******************************************************************************** */
 
 typedef enum {
-	WCMD_FCT_STS_OK,
-	WCMD_FCT_STS_UNKNOWN,
-	WCMD_FCT_STS_BAD_PARAM_NB,
-	WCMD_FCT_STS_ERROR
+	WCMD_FCT_STS_OK = 0x00,
+	WCMD_FCT_STS_ERROR = 0x01,
+	WCMD_FCT_STS_BAD_PARAM_NB = 0xFE,
+	WCMD_FCT_STS_UNKNOWN = 0xFF
 } WCMD_FCT_STS;
 
 typedef struct {

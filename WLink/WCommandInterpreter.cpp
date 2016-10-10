@@ -7,6 +7,8 @@
 /*                                                                                  */
 /* History :  	16/02/2015  (RW)	Creation of this file                           */
 /*				14/05/2016	(RW)	Re-mastered version								*/
+/*				08/10/2016	(RW)	Remove SendNack state and functions				*/
+/*									Manage only SendResp and add status byte		*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -29,8 +31,7 @@ enum WCMD_INTERPRETER_STATE {
 	WCMD_INTERPRETER_STATE_IDLE,
 	WCMD_INTERPRETER_STATE_CHECK_CMD,
 	WCMD_INTERPRETER_STATE_PROCESS_CMD,
-	WCMD_INTERPRETER_STATE_SEND_RESP,
-	WCMD_INTERPRETER_STATE_SEND_NACK
+	WCMD_INTERPRETER_STATE_SEND_RESP
 };
 
 static WCMD_INTERPRETER_STATE GL_WCommandInterpreter_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_IDLE;
@@ -56,13 +57,11 @@ static void ProcessIdle(void);
 static void ProcessCheckCmd(void);
 static void ProcessProcessCmd(void);
 static void ProcessSendResp(void);
-static void ProcessSendNack(void);
 
 static void TransitionToIdle(void);
 static void TransitionToCheckCmd(void);
 static void TransitionToProcessCmd(void);
 static void TransitionToSendResp(void);
-static void TransitionToSendNack(void);
 
 
 /* ******************************************************************************** */
@@ -93,9 +92,6 @@ void WCommandInterpreter_Process() {
 			ProcessSendResp();
 			break;
 
-		case WCMD_INTERPRETER_STATE_SEND_NACK :
-			ProcessSendNack();
-			break;
 	}
 }
 
