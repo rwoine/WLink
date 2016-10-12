@@ -31,7 +31,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16100801";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16101201";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -91,9 +91,8 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 	{ WCMD_LCD_WRITE, WCmdProcess_LcdWrite },
 	{ WCMD_LCD_READ, WCmdProcess_LcdRead },
 	{ WCMD_LCD_CLEAR, WCmdProcess_LcdClear },
-	{ WCMD_LCD_SET_BACKLIGHT, WCmdProcess_LcdSetBacklight },
+	{ WCMD_LCD_SET_BACKLIGHT, WCmdProcess_LcdSetBacklight }
 
-	{ WCMD_COM_PORT_WRITE, WCmdProcess_ComPortWrite }
 };
 
 #define WCMD_FCT_DESCR_SIZE (sizeof(cGL_pFctDescr_X)/sizeof(WCMD_FCT_DESCR))
@@ -238,8 +237,9 @@ void setup() {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enter Process Management in Loop Code..");
 
 	/* Display Welcome Message */
+	GL_GlobalData_X.Lcd_H.clearDisplay();
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "-  Pesage Warnier  -");
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, cGL_pWLinkRevisionId_Str);
 
 	/* Record Absolute Time */
 	GL_AbsoluteTime_UL = millis();

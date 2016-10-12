@@ -39,9 +39,8 @@
 #define WCMD_LCD_SET_BACKLIGHT				0x33
 #define WCMD_LCD_ENABLE_EXT_WRITE			0x34
 #define WCMD_LCD_DISABLE_EXT_WRITE			0x35
-#define WCMD_COM_PORT_WRITE					0x41
-#define WCMD_EEPROM_WRITE					0x50
-#define WCMD_EEPROM_READ					0x51
+#define WCMD_EEPROM_WRITE					0x40
+#define WCMD_EEPROM_READ					0x41
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
@@ -50,6 +49,7 @@
 typedef enum {
 	WCMD_FCT_STS_OK = 0x00,
 	WCMD_FCT_STS_ERROR = 0x01,
+	WCMD_FCT_STS_BAD_PACKET = 0xFD,
 	WCMD_FCT_STS_BAD_PARAM_NB = 0xFE,
 	WCMD_FCT_STS_UNKNOWN = 0xFF
 } WCMD_FCT_STS;
@@ -84,6 +84,8 @@ WCMD_FCT_STS WCmdProcess_LcdClear(const unsigned char * pParam_UB, unsigned long
 WCMD_FCT_STS WCmdProcess_LcdSetBacklight(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_LcdEnableExternalWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_LcdDisableExternalWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+
+// EEPROM Write & Read
 
 WCMD_FCT_STS WCmdProcess_ComPortWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 
