@@ -292,6 +292,15 @@ WCMD_FCT_STS WCmdProcess_LcdDisableExternalWrite(const unsigned char * pParam_UB
 
 /* COM Port *********************************************************************** */
 /* ******************************************************************************** */
+WCMD_FCT_STS WCmdProcess_ComPortConfig(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_ComPortConfig");
+	*pAnsNb_UL = 0;
+
+
+
+	return WCMD_FCT_STS_OK;
+}
+
 WCMD_FCT_STS WCmdProcess_ComPortWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_ComPortWrite");
 	*pAnsNb_UL = 0;
@@ -299,6 +308,10 @@ WCMD_FCT_STS WCmdProcess_ComPortWrite(const unsigned char * pParam_UB, unsigned 
 	// At least 3 parameters: Port COM Number, Number of Bytes to Send, Byte(s) to Send
 	if (ParamNb_UL < 3)
 		return WCMD_FCT_STS_BAD_PARAM_NB;
+
+	// Check if number of bytes to send are > 0
+	if (pParam_UB[1] == 0)
+		return WCMD_FCT_STS_BAD_DATA;
 
 	// Send Bytes
 	for (int i = 0; i < pParam_UB[1]; i++)
