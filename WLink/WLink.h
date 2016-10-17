@@ -40,6 +40,7 @@
 
 #include "LcdDisplay.h"
 #include "FlatPanel.h"
+#include "EepromWire.h"
 
 #include "Debug.h"
 
@@ -72,6 +73,7 @@ typedef struct {
 	unsigned char pGpioOutputIndex_UB[4];
 	LcdDisplay Lcd_H;
 	FlatPanel FlatPanel_H;
+	EepromWire Eeprom_H;
 	NETWORK_INTERFACE_STRUCT NetworkIf_X;
 	Indicator Indicator_H;
 	BadgeReader BadgeReader_H;

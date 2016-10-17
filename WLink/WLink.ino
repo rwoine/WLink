@@ -19,6 +19,7 @@
 #include <EthernetUdp.h>
 #include <LiquidCrystal.h>
 #include <Keypad.h>
+#include <Wire.h>
 
 #include "WLink.h"
 #include "Hardware.h"
@@ -31,7 +32,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16101701";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16101702";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -95,7 +96,10 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 
 	{ WCMD_COMPORT_OPEN, WCmdProcess_ComPortOpen },
 	{ WCMD_COMPORT_CLOSE, WCmdProcess_ComPortClose },
-	{ WCMD_COMPORT_WRITE, WCmdProcess_ComPortWrite }
+	{ WCMD_COMPORT_WRITE, WCmdProcess_ComPortWrite },
+
+	{ WCMD_EEPROM_WRITE, WCmdProcess_EepromWrite },
+	{ WCMD_EEPROM_READ, WCmdProcess_EepromRead }
 
 };
 
@@ -224,7 +228,9 @@ void setup() {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Flat Panel Modules");
 	GL_GlobalData_X.FlatPanel_H.init(&GL_Keypad_X);
 
-
+	/* Initialize EEPROM Modules */
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize EEPROM Modules");
+	GL_GlobalData_X.Eeprom_H.init(&Wire1, 0x50);
 
 
 	

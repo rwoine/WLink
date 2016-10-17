@@ -8,6 +8,7 @@
 /* History :  	16/02/2015  (RW)	Creation of this file                           */
 /*				14/05/2016	(RW)	Re-mastered version								*/
 /*				17/10/2016	(RW)	Add port COM functions							*/
+/*									Add EEPROM functions							*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -286,6 +287,35 @@ WCMD_FCT_STS WCmdProcess_LcdDisableExternalWrite(const unsigned char * pParam_UB
 	*pAnsNb_UL = 0;
 
 	GL_GlobalData_X.Lcd_H.disableExternalWrite();
+
+	return WCMD_FCT_STS_OK;
+}
+
+
+/* EEPROM ************************************************************************* */
+/* ******************************************************************************** */
+WCMD_FCT_STS WCmdProcess_EepromWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_EepromWrite");
+	*pAnsNb_UL = 0;
+
+	// At least 4 parameters: Address for write (2 bytes), Length to write and Data
+	if (ParamNb_UL < 4)
+		return WCMD_FCT_STS_BAD_PARAM_NB;
+
+	GL_GlobalData_X.Eeprom_H.write(((pParam_UB[0] << 8) + pParam_UB[1]), (unsigned char *)&pParam_UB[3], (unsigned long)pParam_UB[2]);
+
+	return WCMD_FCT_STS_OK;
+}
+
+WCMD_FCT_STS WCmdProcess_EepromRead(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_EepromRead");
+	*pAnsNb_UL = 0;
+
+	// Must have 3 parameters: Address for read (2 bytes), Length to read
+	if (ParamNb_UL != 3)
+		return WCMD_FCT_STS_BAD_PARAM_NB;
+
+	*pAnsNb_UL = GL_GlobalData_X.Eeprom_H.read(((pParam_UB[0] << 8) + pParam_UB[1]), pAns_UB, (unsigned long)pParam_UB[2]);
 
 	return WCMD_FCT_STS_OK;
 }

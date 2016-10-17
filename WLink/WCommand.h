@@ -89,7 +89,8 @@ WCMD_FCT_STS WCmdProcess_LcdSetBacklight(const unsigned char * pParam_UB, unsign
 WCMD_FCT_STS WCmdProcess_LcdEnableExternalWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_LcdDisableExternalWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 
-// EEPROM Write & Read
+WCMD_FCT_STS WCmdProcess_EepromWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_EepromRead(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 
 WCMD_FCT_STS WCmdProcess_ComPortOpen(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_ComPortClose(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);

@@ -43,6 +43,9 @@
     <Filter Include="Source Files\RealTimeClock">
       <UniqueIdentifier>{7c9ab55f-2db7-4c00-89cb-a7b2d1fc5ff2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\EEPROM">
+      <UniqueIdentifier>{9da55d47-9b64-4f23-91e8-778b780ee4fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="WLink.ino" />
@@ -108,6 +111,9 @@
     <ClInclude Include="UDPServerManager.h">
       <Filter>Source Files\Network</Filter>
     </ClInclude>
+    <ClInclude Include="EepromWire.h">
+      <Filter>Source Files\EEPROM</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -157,6 +163,9 @@
     </ClCompile>
     <ClCompile Include="UDPServerManager.cpp">
       <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="EepromWire.cpp">
+      <Filter>Source Files\EEPROM</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
