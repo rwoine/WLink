@@ -7,6 +7,7 @@
 /*                                                                                  */
 /* History :  	16/02/2015  (RW)	Creation of this file                           */
 /*				14/05/2016	(RW)	Re-mastered version								*/
+/*				17/10/2016	(RW)	Add port COM functions							*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -292,11 +293,48 @@ WCMD_FCT_STS WCmdProcess_LcdDisableExternalWrite(const unsigned char * pParam_UB
 
 /* COM Port *********************************************************************** */
 /* ******************************************************************************** */
-WCMD_FCT_STS WCmdProcess_ComPortConfig(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_ComPortConfig");
+WCMD_FCT_STS WCmdProcess_ComPortOpen(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_ComPortOpen");
 	*pAnsNb_UL = 0;
 
+	unsigned long pPortComSpeedLut_UL[] = { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 };
 
+	// Must have 3 parameters: Port COM Number, Baudrate and Config
+	if (ParamNb_UL != 3)
+		return WCMD_FCT_STS_BAD_PARAM_NB;
+
+	// Port COM from 0x00 to 0x03
+	if (pParam_UB[0] > 0x03)
+		return WCMD_FCT_STS_BAD_DATA;
+
+	// Baudrate from 0x00 (1200[bps]) to 0x07 (115200[bps])
+	if (pParam_UB[1] > 0x07)
+		return WCMD_FCT_STS_BAD_DATA;
+
+	// Config should be 0x06 for now
+	if (pParam_UB[2] != 0x06)
+		return WCMD_FCT_STS_BAD_DATA;
+
+	// Open Serial
+	GL_PortComMap_X[pParam_UB[0]]->begin(pPortComSpeedLut_UL[pParam_UB[1]]);
+
+	return WCMD_FCT_STS_OK;
+}
+
+WCMD_FCT_STS WCmdProcess_ComPortClose(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_ComPortClose");
+	*pAnsNb_UL = 0;
+
+	// Must have 1 parameter: Port COM Number
+	if (ParamNb_UL != 1)
+		return WCMD_FCT_STS_BAD_PARAM_NB;
+
+	// Port COM from 0x00 to 0x03
+	if (pParam_UB[0] > 0x03)
+		return WCMD_FCT_STS_BAD_DATA;
+
+	// Close Serial
+	GL_PortComMap_X[pParam_UB[0]]->end();
 
 	return WCMD_FCT_STS_OK;
 }

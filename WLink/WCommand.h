@@ -41,8 +41,9 @@
 #define WCMD_LCD_DISABLE_EXT_WRITE			0x35
 #define WCMD_EEPROM_WRITE					0x40
 #define WCMD_EEPROM_READ					0x41
-#define WCMD_COMPORT_CFG					0x50
-#define WCMD_COMPORT_WRITE					0x51
+#define WCMD_COMPORT_OPEN					0x50
+#define WCMD_COMPORT_CLOSE					0x51
+#define WCMD_COMPORT_WRITE					0x52
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
@@ -90,7 +91,8 @@ WCMD_FCT_STS WCmdProcess_LcdDisableExternalWrite(const unsigned char * pParam_UB
 
 // EEPROM Write & Read
 
-WCMD_FCT_STS WCmdProcess_ComPortConfig(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_ComPortOpen(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_ComPortClose(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_ComPortWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 
 
