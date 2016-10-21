@@ -41,6 +41,8 @@ public:
 	void init(Keypad * pKeypad_H);
 	boolean isInitialized(void);
 
+	unsigned char getKey(void);
+
 	FLAT_PANEL_PARAM GL_FlatPanelParam_X;
 };
 

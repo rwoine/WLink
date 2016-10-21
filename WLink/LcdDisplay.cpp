@@ -27,7 +27,7 @@
 static LiquidCrystal * GL_pLcdDevice_H;
 static unsigned char GL_PinBacklight_UB;
 
-static unsigned long GL_pLcdLindeIndex_UL[LCD_DISPLAY_LINE_NUMBER];
+static unsigned long GL_pLcdLineIndex_UL[LCD_DISPLAY_LINE_NUMBER];
 static unsigned char GL_ppLcdLineShadow_UB[LCD_DISPLAY_LINE_NUMBER][LCD_DISPLAY_COLUMN_NUMBER];
 
 /* ******************************************************************************** */
@@ -53,7 +53,7 @@ void LcdDisplay::init(LiquidCrystal * pLcd_H, unsigned char PinBacklight_UB) {
 	digitalWrite(GL_PinBacklight_UB, LOW);
 	GL_LcdDisplayParam_X.IsInitialized_B = true;
 	for (int i = 0; i < LCD_DISPLAY_LINE_NUMBER; i++)
-		GL_pLcdLindeIndex_UL[i] = 0;
+		GL_pLcdLineIndex_UL[i] = 0;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "LCD Display Module Initialized");
 }
 
@@ -66,10 +66,10 @@ void LcdDisplay::clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
 	if (LineIndex_E == LCD_DISPLAY_ALL_LINE) {
 		GL_pLcdDevice_H->clear();
 		for (int i = 0; i < LCD_DISPLAY_LINE_NUMBER; i++)
-			GL_pLcdLindeIndex_UL[i] = 0;
+			GL_pLcdLineIndex_UL[i] = 0;
 	}
 	else {
-		GL_pLcdLindeIndex_UL[LineIndex_E] = 0;
+		GL_pLcdLineIndex_UL[LineIndex_E] = 0;
 		GL_pLcdDevice_H->setCursor(0, LineIndex_E);
 		for (int i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
 			GL_pLcdDevice_H->write(' ');
@@ -77,23 +77,14 @@ void LcdDisplay::clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
 }
 
 void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str) {
-	unsigned long LineIdx_UL = (unsigned long)LineIndex_E;
+	unsigned char pBuffer_UB[LCD_DISPLAY_COLUMN_NUMBER * LCD_DISPLAY_LINE_NUMBER + 1];
+	unsigned long BufferSize_UL = (TextStr_Str.length() > (LCD_DISPLAY_COLUMN_NUMBER * LCD_DISPLAY_LINE_NUMBER)) ? (LCD_DISPLAY_COLUMN_NUMBER * LCD_DISPLAY_LINE_NUMBER) : TextStr_Str.length();
 
-	if (LineIndex_E == LCD_DISPLAY_ALL_LINE)
-		LineIdx_UL = 0;	// Force to start at Zero if all lines selected
+	// Convert String to Array of Char 
+	TextStr_Str.toCharArray((char *)pBuffer_UB, BufferSize_UL+1);
 
-	// Erase Content of Shadow Line
-	EraseLineShadowContent(LineIndex_E);
-
-	// Set Cursor Properly
-	GL_pLcdDevice_H->setCursor(0, LineIdx_UL);
-
-	// Copy Content in Shadow Line
-	for (int i = 0; (i < TextStr_Str.length()) && (i < LCD_DISPLAY_COLUMN_NUMBER) ; i++)
-		GL_ppLcdLineShadow_UB[LineIdx_UL][i] = TextStr_Str.charAt(i);
-
-	// Display on Device
-	GL_pLcdDevice_H->print(TextStr_Str);
+	// Call inner function
+	writeDisplay(LineIndex_E, pBuffer_UB, BufferSize_UL);
 }
 
 void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL) {

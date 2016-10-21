@@ -43,3 +43,7 @@ boolean FlatPanel::isInitialized(void) {
 	return GL_FlatPanelParam_X.IsInitialized_B;
 }
 
+unsigned char FlatPanel::getKey(void) {
+
+}
+
