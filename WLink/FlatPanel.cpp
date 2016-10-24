@@ -44,6 +44,9 @@ boolean FlatPanel::isInitialized(void) {
 }
 
 unsigned char FlatPanel::getKey(void) {
-
+	return GL_pKeypad_H->getKey();
 }
 
+void FlatPanel::attachEvent(void(*pEventHandler_H)(char)) {
+	GL_pKeypad_H->addEventListener(pEventHandler_H);
+}

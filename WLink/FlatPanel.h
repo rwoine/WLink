@@ -42,6 +42,7 @@ public:
 	boolean isInitialized(void);
 
 	unsigned char getKey(void);
+	void attachEvent(void(*EventHandler)(char));
 
 	FLAT_PANEL_PARAM GL_FlatPanelParam_X;
 };

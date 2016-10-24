@@ -32,7 +32,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16102101";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16102401";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -266,9 +266,6 @@ void loop() {
 	BadgeReaderManager_Process();
 	BlinkingLedManager_Process();
 
-	char key = GL_Keypad_X.getKey();
-	if (key)
-		GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, (unsigned char *)&key, 1);
 }
 
 /* ******************************************************************************** */
