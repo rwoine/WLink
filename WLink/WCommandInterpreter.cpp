@@ -9,6 +9,8 @@
 /*				14/05/2016	(RW)	Re-mastered version								*/
 /*				08/10/2016	(RW)	Remove SendNack state and functions				*/
 /*									Manage only SendResp and add status byte		*/
+/*				01/01/2016	(RW)	Fix bug : number of bytes in response was not	*/
+/*									sent											*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -216,7 +218,7 @@ void ProcessSendResp(void) {
 			// Status Byte
 			pBuffer_UB[Offset_UL++] = GL_WCmdParam_X.FctSts_E;
 			// Data
-			pBuffer_UB[Offset_UL++] = (unsigned char)GL_WCmdParam_X.ParamNb_UL;
+			pBuffer_UB[Offset_UL++] = (unsigned char)GL_WCmdParam_X.AnsNb_UL;
 			for (int i = 0; i < GL_WCmdParam_X.AnsNb_UL; i++)
 				pBuffer_UB[Offset_UL++] = GL_WCmdParam_X.pAnsBuffer_UB[i];
 		}

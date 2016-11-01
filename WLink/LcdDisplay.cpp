@@ -7,6 +7,7 @@
 /*                                                                                  */
 /* History :  	13/06/2016  (RW)	Creation of this file                           */
 /*				15/07/2016	(RW)	Resolve bug when writing all lines				*/
+/*				01/01/2016	(RW)	Fix LCD write and read functions				*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -41,6 +42,7 @@ LcdDisplay::LcdDisplay() {
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
 static void EraseLineShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E);
+static void PrintLineShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E);
 
 /* ******************************************************************************** */
 /* Functions
@@ -109,7 +111,7 @@ void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char *
 		}
 
 		// Copy Content in Shadow Line
-		GL_ppLcdLineShadow_UB[LineIdx_UL][Index_UL - (LCD_DISPLAY_COLUMN_NUMBER*LineIdx_UL)] = pTextStr_UB[Index_UL];
+		GL_ppLcdLineShadow_UB[LineIdx_UL][Index_UL%LCD_DISPLAY_COLUMN_NUMBER] = pTextStr_UB[Index_UL];
 
 		// Display on Device
 		GL_pLcdDevice_H->write(pTextStr_UB[Index_UL]);
@@ -118,72 +120,52 @@ void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char *
 }
 
 void LcdDisplay::appendDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str) {
-	//unsigned long LineIdx_UL = (LineIndex_E == LCD_DISPLAY_LINE2) ? 1 : 0;
 
-	//// Erase Content of Shadow Linde
-	//EraseLineShadowContent(LineIndex_E);
-
-	//// Set Cursor Properly
-	//GL_pLcdDevice_H->setCursor(0, LineIdx_UL);
-
-	//// Copy Content in Shadow Line
-	//for (int i = 0; (i < TextStr_Str.length()) && (i < LCD_DISPLAY_COLUMN_NUMBER); i++)
-	//	GL_ppLcdLineShadow_UB[LineIdx_UL][i] = TextStr_Str.charAt(i);
-
-	//// Display on Device
-	//GL_pLcdDevice_H->print(TextStr_Str);
 }
 
 void LcdDisplay::appendDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL) {
-	//unsigned long Index_UL = 0;
-	//unsigned long LineIdx_UL = (LineIndex_E == LCD_DISPLAY_LINE2) ? 1 : 0;
 
-	//// Erase Content of Shadow Linde
-	//EraseLineShadowContent(LineIndex_E);
-
-	//// Set Cursor Properly
-	//GL_pLcdDevice_H->setCursor(0, LineIdx_UL);
-
-	//while (Index_UL < ArraySize_UL) {
-	//	if (Index_UL == LCD_DISPLAY_COLUMN_NUMBER) {
-	//		if (LineIndex_E == LCD_DISPLAY_LINE2)
-	//			break;
-	//		else
-	//			GL_pLcdDevice_H->setCursor(0, LineIdx_UL++);
-	//	}
-
-	//	if (Index_UL == 2 * LCD_DISPLAY_COLUMN_NUMBER)
-	//		break;
-
-	//	// Copy Content in Shadow Line
-	//	GL_ppLcdLineShadow_UB[LineIdx_UL][Index_UL - (LCD_DISPLAY_COLUMN_NUMBER*LineIdx_UL)] = pTextStr_UB[Index_UL];
-
-	//	// Display on Device
-	//	GL_pLcdDevice_H->write(pTextStr_UB[Index_UL]);
-	//	Index_UL++;
-	//}
 }
 
 void LcdDisplay::readDisplayShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long * pArraySize_UL) {
 	int i = 0;
+	unsigned long Offset_UL = 0;
 	unsigned long LineIdx_UL = (unsigned long)LineIndex_E;
 
 	*pArraySize_UL = 0;
 
 	if (LineIndex_E == LCD_DISPLAY_ALL_LINE) {
 		for (LineIdx_UL = 0; LineIdx_UL < LCD_DISPLAY_LINE_NUMBER; LineIdx_UL++) {
+			// Copy content of one line
 			for (i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++) {
-				pTextStr_UB[i + (LCD_DISPLAY_COLUMN_NUMBER*LineIdx_UL)] = GL_ppLcdLineShadow_UB[LineIdx_UL][i];
-				*pArraySize_UL++;
+//				if (GL_ppLcdLineShadow_UB[LineIdx_UL][i] == 0x00) {
+//					break;
+//				}
+//				else {
+					pTextStr_UB[i + (LCD_DISPLAY_COLUMN_NUMBER*LineIdx_UL) + Offset_UL] = GL_ppLcdLineShadow_UB[LineIdx_UL][i];
+					(*pArraySize_UL)++;
+//				}
+			}
+			// Add Carriage Return + Line Feed between two lines
+			if (LineIdx_UL < LCD_DISPLAY_LINE_NUMBER - 1) {
+				pTextStr_UB[i + (LCD_DISPLAY_COLUMN_NUMBER*LineIdx_UL) + Offset_UL++] = 0x0D;
+				pTextStr_UB[i + (LCD_DISPLAY_COLUMN_NUMBER*LineIdx_UL) + Offset_UL++] = 0x0A;
+				(*pArraySize_UL) += 2;
 			}
 		}
 	}
 	else {
 		for (i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++) {
-			pTextStr_UB[i] = GL_ppLcdLineShadow_UB[LineIdx_UL][i];
-			*pArraySize_UL++;
+//			if (GL_ppLcdLineShadow_UB[LineIdx_UL][i] == 0x00) {
+//				break;
+//			}
+//			else {
+				pTextStr_UB[i] = GL_ppLcdLineShadow_UB[LineIdx_UL][i];
+				(*pArraySize_UL)++;
+//			}
 		}
 	}
+
 }
 
 void LcdDisplay::setBacklight(unsigned char Value_UB) {
@@ -218,4 +200,22 @@ void EraseLineShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
 		for (i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
 			GL_ppLcdLineShadow_UB[LineIdx_UL][i] = 0x00;
 	}
+}
+
+void PrintLineShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
+	int i = 0;
+	unsigned long LineIdx_UL = (unsigned long)LineIndex_E;
+
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "Print LCD Shadow Content = ");
+	if (LineIndex_E == LCD_DISPLAY_ALL_LINE) {
+		for (LineIdx_UL = 0; LineIdx_UL < LCD_DISPLAY_LINE_NUMBER; LineIdx_UL++) {
+			for (i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
+				DBG_PRINTDATABASE(GL_ppLcdLineShadow_UB[LineIdx_UL][i], HEX);
+		}
+	}
+	else {
+		for (i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
+			DBG_PRINTDATABASE(GL_ppLcdLineShadow_UB[LineIdx_UL][i], HEX);
+	}
+	DBG_ENDSTR();
 }

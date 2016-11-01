@@ -241,6 +241,9 @@ WCMD_FCT_STS WCmdProcess_LcdRead(const unsigned char * pParam_UB, unsigned long 
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdRead");
 	*pAnsNb_UL = 0;
 
+	if (ParamNb_UL != 1)
+		return WCMD_FCT_STS_BAD_PARAM_NB;
+
 	GL_GlobalData_X.Lcd_H.readDisplayShadowContent((LCD_DISPLAY_LINE_ENUM)pParam_UB[0], pAns_UB, pAnsNb_UL);
 
 	return WCMD_FCT_STS_OK;

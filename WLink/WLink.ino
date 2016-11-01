@@ -32,7 +32,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16102401";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16110101";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -248,7 +248,7 @@ void setup() {
 
 	/* Display Welcome Message */
 	GL_GlobalData_X.Lcd_H.clearDisplay();
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  ---");
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, cGL_pWLinkRevisionId_Str);
 
 	/* Record Absolute Time */
