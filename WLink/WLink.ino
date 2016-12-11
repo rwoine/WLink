@@ -32,7 +32,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16110801";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16121001";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -93,6 +93,9 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 	{ WCMD_LCD_READ, WCmdProcess_LcdRead },
 	{ WCMD_LCD_CLEAR, WCmdProcess_LcdClear },
 	{ WCMD_LCD_SET_BACKLIGHT, WCmdProcess_LcdSetBacklight },
+	{ WCMD_LCD_ENABLE_EXT_WRITE, WCmdProcess_LcdEnableExternalWrite },
+	{ WCMD_LCD_DISABLE_EXT_WRITE, WCmdProcess_LcdDisableExternalWrite },
+	{ WCMD_LCD_GET_EXT_WRITE_STATUS, WCmdProcess_LcdGetExternalWriteStatus },
 
 	{ WCMD_COMPORT_OPEN, WCmdProcess_ComPortOpen },
 	{ WCMD_COMPORT_CLOSE, WCmdProcess_ComPortClose },
@@ -227,6 +230,7 @@ void setup() {
 	/* Initialize FlatPanel Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Flat Panel Modules");
 	GL_GlobalData_X.FlatPanel_H.init(&GL_Keypad_X);
+	GL_GlobalData_X.FlatPanel_H.attachEvent(ManageKeyToLcd);
 
 	/* Initialize EEPROM Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize EEPROM Modules");
@@ -262,8 +266,8 @@ void loop() {
 
 	UDPServerManager_Process();
 	TCPServerManager_Process();
-	IndicatorManager_Process();
-	BadgeReaderManager_Process();
+	//IndicatorManager_Process();
+	//BadgeReaderManager_Process();
 	BlinkingLedManager_Process();
 
 }
@@ -279,6 +283,11 @@ void BlinkingLedManager_Process(void) {
 			digitalWrite(GL_GlobalData_X.LedPin_UB, LOW);
 		GL_AbsoluteTime_UL = millis();
 	}
+}
+
+void ManageKeyToLcd(char Key_UB) {
+	DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Event from Keypad");
+	GL_GlobalData_X.FlatPanel_H.manageKeytoLcd(Key_UB);
 }
 
 /* ******************************************************************************** */

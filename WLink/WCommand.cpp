@@ -294,6 +294,15 @@ WCMD_FCT_STS WCmdProcess_LcdDisableExternalWrite(const unsigned char * pParam_UB
 	return WCMD_FCT_STS_OK;
 }
 
+WCMD_FCT_STS WCmdProcess_LcdGetExternalWriteStatus(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdGetExternalWriteStatus");
+	*pAnsNb_UL = 1;
+
+	pAns_UB[0] = (GL_GlobalData_X.Lcd_H.isExternalWriteEnabled()) ? 0x01 : 0x00;
+
+	return WCMD_FCT_STS_OK;
+}
+
 
 /* EEPROM ************************************************************************* */
 /* ******************************************************************************** */

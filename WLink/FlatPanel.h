@@ -22,6 +22,12 @@
 /* Define
 /* ******************************************************************************** */
 
+#define FLAT_PANEL_KEY_VALIDATE		'V'
+#define FLAT_PANEL_KEY_CLEAR		'X'
+#define FLAT_PANEL_KEY_F1			'A'
+#define FLAT_PANEL_KEY_F2			'B'
+#define FLAT_PANEL_KEY_F3			'C'
+
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
@@ -43,6 +49,8 @@ public:
 
 	unsigned char getKey(void);
 	void attachEvent(void(*EventHandler)(char));
+
+	void manageKeytoLcd(char Key_UB);
 
 	FLAT_PANEL_PARAM GL_FlatPanelParam_X;
 };

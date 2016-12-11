@@ -28,7 +28,6 @@
 static LiquidCrystal * GL_pLcdDevice_H;
 static unsigned char GL_PinBacklight_UB;
 
-static unsigned long GL_pLcdLineIndex_UL[LCD_DISPLAY_LINE_NUMBER];
 static unsigned char GL_ppLcdLineShadow_UB[LCD_DISPLAY_LINE_NUMBER][LCD_DISPLAY_COLUMN_NUMBER];
 
 /* ******************************************************************************** */
@@ -36,6 +35,9 @@ static unsigned char GL_ppLcdLineShadow_UB[LCD_DISPLAY_LINE_NUMBER][LCD_DISPLAY_
 /* ******************************************************************************** */
 LcdDisplay::LcdDisplay() {
 	GL_LcdDisplayParam_X.IsInitialized_B = false;
+	GL_LcdDisplayParam_X.ExternalWriteEnabled_B = false;
+	GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL = 0;
+	GL_LcdDisplayParam_X.ExternalWriteColIdx_UL = 0;
 }
 
 /* ******************************************************************************** */
@@ -54,8 +56,6 @@ void LcdDisplay::init(LiquidCrystal * pLcd_H, unsigned char PinBacklight_UB) {
 	pinMode(GL_PinBacklight_UB, OUTPUT);
 	digitalWrite(GL_PinBacklight_UB, LOW);
 	GL_LcdDisplayParam_X.IsInitialized_B = true;
-	for (int i = 0; i < LCD_DISPLAY_LINE_NUMBER; i++)
-		GL_pLcdLineIndex_UL[i] = 0;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "LCD Display Module Initialized");
 }
 
@@ -67,11 +67,8 @@ boolean LcdDisplay::isInitialized(void) {
 void LcdDisplay::clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
 	if (LineIndex_E == LCD_DISPLAY_ALL_LINE) {
 		GL_pLcdDevice_H->clear();
-		for (int i = 0; i < LCD_DISPLAY_LINE_NUMBER; i++)
-			GL_pLcdLineIndex_UL[i] = 0;
 	}
 	else {
-		GL_pLcdLineIndex_UL[LineIndex_E] = 0;
 		GL_pLcdDevice_H->setCursor(0, LineIndex_E);
 		for (int i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
 			GL_pLcdDevice_H->write(' ');
@@ -119,11 +116,27 @@ void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char *
 	}
 }
 
-void LcdDisplay::appendDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str) {
+void LcdDisplay::appendDisplay(String TextStr_Str) {
+	unsigned char pBuffer_UB[LCD_DISPLAY_COLUMN_NUMBER * LCD_DISPLAY_LINE_NUMBER + 1];
+	unsigned long BufferSize_UL = (TextStr_Str.length() > (LCD_DISPLAY_COLUMN_NUMBER * LCD_DISPLAY_LINE_NUMBER)) ? (LCD_DISPLAY_COLUMN_NUMBER * LCD_DISPLAY_LINE_NUMBER) : TextStr_Str.length();
 
+	// Convert String to Array of Char 
+	TextStr_Str.toCharArray((char *)pBuffer_UB, BufferSize_UL + 1);
+
+	// Call inner function
+	appendDisplay(pBuffer_UB, BufferSize_UL);
 }
 
-void LcdDisplay::appendDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL) {
+void LcdDisplay::appendDisplay(unsigned char * pTextStr_UB, unsigned long ArraySize_UL) {
+
+	// Copy the whole buffer or until the end of the line
+	for (int i = 0; (i < ArraySize_UL) || (GL_LcdDisplayParam_X.ExternalWriteColIdx_UL < LCD_DISPLAY_COLUMN_NUMBER); i++) {
+		// Copy Content in Shadow Line
+		GL_ppLcdLineShadow_UB[GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL][GL_LcdDisplayParam_X.ExternalWriteColIdx_UL++] = pTextStr_UB[i];
+
+		// Display on Device
+		GL_pLcdDevice_H->write(pTextStr_UB[i]);
+	}
 
 }
 
@@ -172,13 +185,29 @@ void LcdDisplay::setBacklight(unsigned char Value_UB) {
 	analogWrite(GL_PinBacklight_UB, Value_UB);
 }
 
-void LcdDisplay::enableExternalWrite(unsigned long LineNb_UL, unsigned long ColNb_UL) {
-	// TODO : Manage Coordinates
+void LcdDisplay::enableExternalWrite(unsigned long LineIdx_UL, unsigned long ColIdx_UL) {
+	// Set Cursor Properly and Display it
+	GL_pLcdDevice_H->setCursor(ColIdx_UL, LineIdx_UL);
+	GL_pLcdDevice_H->cursor();
+
+	// Save coordinates value
+	GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL = LineIdx_UL;
+	GL_LcdDisplayParam_X.ExternalWriteColIdx_UL = ColIdx_UL;
+
+	// Set boolean flag
 	GL_LcdDisplayParam_X.ExternalWriteEnabled_B = true;
 }
 
 void LcdDisplay::disableExternalWrite(void) {
+	// Reset boolean flag
 	GL_LcdDisplayParam_X.ExternalWriteEnabled_B = false;
+
+	// Hide cursor
+	GL_pLcdDevice_H->noCursor();
+}
+
+boolean LcdDisplay::isExternalWriteEnabled(void) {
+	return GL_LcdDisplayParam_X.ExternalWriteEnabled_B;
 }
 
 

@@ -39,6 +39,7 @@
 #define WCMD_LCD_SET_BACKLIGHT				0x33
 #define WCMD_LCD_ENABLE_EXT_WRITE			0x34
 #define WCMD_LCD_DISABLE_EXT_WRITE			0x35
+#define WCMD_LCD_GET_EXT_WRITE_STATUS		0x36
 #define WCMD_EEPROM_WRITE					0x40
 #define WCMD_EEPROM_READ					0x41
 #define WCMD_COMPORT_OPEN					0x50
@@ -88,6 +89,7 @@ WCMD_FCT_STS WCmdProcess_LcdClear(const unsigned char * pParam_UB, unsigned long
 WCMD_FCT_STS WCmdProcess_LcdSetBacklight(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_LcdEnableExternalWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_LcdDisableExternalWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_LcdGetExternalWriteStatus(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 
 WCMD_FCT_STS WCmdProcess_EepromWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_EepromRead(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);

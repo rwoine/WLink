@@ -31,6 +31,8 @@
 typedef struct {
 	boolean IsInitialized_B;
 	boolean ExternalWriteEnabled_B;
+	unsigned long ExternalWriteLineIdx_UL;
+	unsigned long ExternalWriteColIdx_UL;
 } LCD_DISPLAY_PARAM;
 
 typedef enum {
@@ -54,12 +56,13 @@ public:
 	void clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E = LCD_DISPLAY_ALL_LINE);
 	void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str);
 	void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
-	void appendDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str);
-	void appendDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
+	void appendDisplay(String TextStr_Str);
+	void appendDisplay(unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
 	void readDisplayShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long * pArraySize_UL);
 	void setBacklight(unsigned char Value_UB);
-	void enableExternalWrite(unsigned long LineNb_UL, unsigned long ColNb_UL);
+	void enableExternalWrite(unsigned long LineIdx_UL, unsigned long ColIdx_UL);
 	void disableExternalWrite(void);
+	boolean isExternalWriteEnabled(void);
 
 	LCD_DISPLAY_PARAM GL_LcdDisplayParam_X;
 };
