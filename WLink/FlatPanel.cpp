@@ -56,12 +56,8 @@ void FlatPanel::attachEvent(void(*pEventHandler_H)(char)) {
 
 void FlatPanel::manageKeytoLcd(char Key_UB) {
 
-	DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Enter ManageKey function");
-
 	// If a Key is pressed
 	if (GL_pKeypad_H->getState() == PRESSED) {
-
-		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Key PRESSED");
 
 		// Manage Action according to Key
 		switch (Key_UB) {

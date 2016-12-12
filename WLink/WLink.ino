@@ -32,7 +32,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16121001";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16121201";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -108,6 +108,7 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 
 #define WCMD_FCT_DESCR_SIZE (sizeof(cGL_pFctDescr_X)/sizeof(WCMD_FCT_DESCR))
 
+void ManageKeyToLcd(char Key_UB);
 
 /* ******************************************************************************** */
 /* Setup
@@ -266,9 +267,12 @@ void loop() {
 
 	UDPServerManager_Process();
 	TCPServerManager_Process();
-	//IndicatorManager_Process();
-	//BadgeReaderManager_Process();
+	IndicatorManager_Process();
+	BadgeReaderManager_Process();
 	BlinkingLedManager_Process();
+
+	// Call low-level function
+	GL_GlobalData_X.FlatPanel_H.getKey();
 
 }
 

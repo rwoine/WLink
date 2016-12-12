@@ -130,7 +130,7 @@ void LcdDisplay::appendDisplay(String TextStr_Str) {
 void LcdDisplay::appendDisplay(unsigned char * pTextStr_UB, unsigned long ArraySize_UL) {
 
 	// Copy the whole buffer or until the end of the line
-	for (int i = 0; (i < ArraySize_UL) || (GL_LcdDisplayParam_X.ExternalWriteColIdx_UL < LCD_DISPLAY_COLUMN_NUMBER); i++) {
+	for (int i = 0; (i < ArraySize_UL) && (GL_LcdDisplayParam_X.ExternalWriteColIdx_UL < LCD_DISPLAY_COLUMN_NUMBER); i++) {
 		// Copy Content in Shadow Line
 		GL_ppLcdLineShadow_UB[GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL][GL_LcdDisplayParam_X.ExternalWriteColIdx_UL++] = pTextStr_UB[i];
 
