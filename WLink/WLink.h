@@ -39,8 +39,12 @@
 #include "BadgeReaderManager.h"
 
 #include "LcdDisplay.h"
+
 #include "FlatPanel.h"
+#include "FlatPanelManager.h"
+
 #include "EepromWire.h"
+
 
 #include "Debug.h"
 

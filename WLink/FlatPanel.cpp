@@ -39,6 +39,7 @@ FlatPanel::FlatPanel() {
 /* ******************************************************************************** */
 void FlatPanel::init(Keypad * pKeypad_H) {
 	GL_pKeypad_H = pKeypad_H;
+	GL_FlatPanelParam_X.IsInitialized_B = true;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Flat Panel Module Initialized");
 }
 
@@ -67,6 +68,7 @@ void FlatPanel::manageKeytoLcd(char Key_UB) {
 				break;
 
 			case FLAT_PANEL_KEY_CLEAR :
+				GL_GlobalData_X.Lcd_H.backspaceDisplay(1);
 				break;
 
 			case FLAT_PANEL_KEY_F1 :

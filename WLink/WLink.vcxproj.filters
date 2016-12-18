@@ -114,6 +114,9 @@
     <ClInclude Include="EepromWire.h">
       <Filter>Source Files\EEPROM</Filter>
     </ClInclude>
+    <ClInclude Include="FlatPanelManager.h">
+      <Filter>Source Files\FlatPanel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -166,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="EepromWire.cpp">
       <Filter>Source Files\EEPROM</Filter>
+    </ClCompile>
+    <ClCompile Include="FlatPanelManager.cpp">
+      <Filter>Source Files\FlatPanel</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

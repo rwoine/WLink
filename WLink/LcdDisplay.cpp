@@ -36,6 +36,8 @@ static unsigned char GL_ppLcdLineShadow_UB[LCD_DISPLAY_LINE_NUMBER][LCD_DISPLAY_
 LcdDisplay::LcdDisplay() {
 	GL_LcdDisplayParam_X.IsInitialized_B = false;
 	GL_LcdDisplayParam_X.ExternalWriteEnabled_B = false;
+	GL_LcdDisplayParam_X.ExternalWriteInitLineIdx_UL = 0;
+	GL_LcdDisplayParam_X.ExternalWriteInitColIdx_UL = 0;
 	GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL = 0;
 	GL_LcdDisplayParam_X.ExternalWriteColIdx_UL = 0;
 }
@@ -73,6 +75,9 @@ void LcdDisplay::clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
 		for (int i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
 			GL_pLcdDevice_H->write(' ');
 	}	
+
+	// Erase Shadow Content
+	EraseLineShadowContent(LineIndex_E);
 }
 
 void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str) {
@@ -140,6 +145,21 @@ void LcdDisplay::appendDisplay(unsigned char * pTextStr_UB, unsigned long ArrayS
 
 }
 
+void LcdDisplay::backspaceDisplay(unsigned long BackspaceNb_UL) {
+
+	for (int i = 0; (i < BackspaceNb_UL) && (GL_LcdDisplayParam_X.ExternalWriteColIdx_UL > GL_LcdDisplayParam_X.ExternalWriteInitColIdx_UL); i++) {
+
+		// Erase in Shadow Line
+		GL_ppLcdLineShadow_UB[GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL][--GL_LcdDisplayParam_X.ExternalWriteColIdx_UL] = 0x20;
+
+		// Erase on Device
+		GL_pLcdDevice_H->setCursor(GL_LcdDisplayParam_X.ExternalWriteColIdx_UL, GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL);
+		GL_pLcdDevice_H->write(' ');
+		GL_pLcdDevice_H->setCursor(GL_LcdDisplayParam_X.ExternalWriteColIdx_UL, GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL);
+	}
+
+}
+
 void LcdDisplay::readDisplayShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long * pArraySize_UL) {
 	int i = 0;
 	unsigned long Offset_UL = 0;
@@ -191,6 +211,8 @@ void LcdDisplay::enableExternalWrite(unsigned long LineIdx_UL, unsigned long Col
 	GL_pLcdDevice_H->cursor();
 
 	// Save coordinates value
+	GL_LcdDisplayParam_X.ExternalWriteInitLineIdx_UL = LineIdx_UL;
+	GL_LcdDisplayParam_X.ExternalWriteInitColIdx_UL = ColIdx_UL;
 	GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL = LineIdx_UL;
 	GL_LcdDisplayParam_X.ExternalWriteColIdx_UL = ColIdx_UL;
 
@@ -222,12 +244,12 @@ void EraseLineShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
 	if (LineIndex_E == LCD_DISPLAY_ALL_LINE) {
 		for (LineIdx_UL = 0; LineIdx_UL < LCD_DISPLAY_LINE_NUMBER; LineIdx_UL++) {
 			for (i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
-				GL_ppLcdLineShadow_UB[LineIdx_UL][i] = 0x00;
+				GL_ppLcdLineShadow_UB[LineIdx_UL][i] = 0x20;
 		}
 	}
 	else {
 		for (i = 0; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
-			GL_ppLcdLineShadow_UB[LineIdx_UL][i] = 0x00;
+			GL_ppLcdLineShadow_UB[LineIdx_UL][i] = 0x20;
 	}
 }
 

@@ -32,7 +32,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16121201";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "16121801";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -45,6 +45,7 @@ unsigned long GL_AbsoluteTime_UL;
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
 void BlinkingLedManager_Process(void);
+void ManageKeyToLcd(char Key_UB);
 
 /* ******************************************************************************** */
 /* Flat Panel Configuration
@@ -107,8 +108,6 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 };
 
 #define WCMD_FCT_DESCR_SIZE (sizeof(cGL_pFctDescr_X)/sizeof(WCMD_FCT_DESCR))
-
-void ManageKeyToLcd(char Key_UB);
 
 /* ******************************************************************************** */
 /* Setup
@@ -232,6 +231,8 @@ void setup() {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Flat Panel Modules");
 	GL_GlobalData_X.FlatPanel_H.init(&GL_Keypad_X);
 	GL_GlobalData_X.FlatPanel_H.attachEvent(ManageKeyToLcd);
+	FlatPanelManager_Init(&(GL_GlobalData_X.FlatPanel_H));
+	FlatPanelManager_Enable();
 
 	/* Initialize EEPROM Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize EEPROM Modules");
@@ -269,10 +270,8 @@ void loop() {
 	TCPServerManager_Process();
 	IndicatorManager_Process();
 	BadgeReaderManager_Process();
+	FlatPanelManager_Process();
 	BlinkingLedManager_Process();
-
-	// Call low-level function
-	GL_GlobalData_X.FlatPanel_H.getKey();
 
 }
 
@@ -289,16 +288,18 @@ void BlinkingLedManager_Process(void) {
 	}
 }
 
-void ManageKeyToLcd(char Key_UB) {
-	DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Event from Keypad");
-	GL_GlobalData_X.FlatPanel_H.manageKeytoLcd(Key_UB);
-}
+
 
 /* ******************************************************************************** */
 /* Events
 /* ******************************************************************************** */
+
+/* Serial Event */
 //void serialEvent() { GL_PortComEventMap_X[PORT_COM0].EventHandler(); }
 void serialEvent1() { GL_PortComEventMap_X[PORT_COM1].EventHandler(); }
 //void serialEvent2() { GL_PortComEventMap_X[PORT_COM2].EventHandler(); }
 //void serialEvent3() { GL_PortComEventMap_X[PORT_COM3].EventHandler(); }
+
+/* Keypad Event */
+void ManageKeyToLcd(char Key_UB) { GL_GlobalData_X.FlatPanel_H.manageKeytoLcd(Key_UB); }
 

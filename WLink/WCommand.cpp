@@ -229,7 +229,7 @@ WCMD_FCT_STS WCmdProcess_LcdWrite(const unsigned char * pParam_UB, unsigned long
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdWrite");
 	*pAnsNb_UL = 0;
 
-	if (ParamNb_UL < 3)
+	if (ParamNb_UL < 2)
 		return WCMD_FCT_STS_BAD_PARAM_NB;
 
 	GL_GlobalData_X.Lcd_H.writeDisplay((LCD_DISPLAY_LINE_ENUM) pParam_UB[0], (unsigned char *) &(pParam_UB[1]), (ParamNb_UL-1));
