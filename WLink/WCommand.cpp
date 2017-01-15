@@ -303,6 +303,20 @@ WCMD_FCT_STS WCmdProcess_LcdGetExternalWriteStatus(const unsigned char * pParam_
 	return WCMD_FCT_STS_OK;
 }
 
+WCMD_FCT_STS WCmdProcess_LcdGetExternalWriteData(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_LcdGetExternalWriteData");
+	*pAnsNb_UL = 1 + GL_GlobalData_X.Lcd_H.getExternalWriteData().length();
+
+	// Get external write status
+	pAns_UB[0] = (GL_GlobalData_X.Lcd_H.isExternalWriteEnabled()) ? 0x01 : 0x00;
+
+	// Get external write data
+	for (int i = 0; i < GL_GlobalData_X.Lcd_H.getExternalWriteData().length(); i++)
+		pAns_UB[i + 1] = GL_GlobalData_X.Lcd_H.getExternalWriteData().charAt(i);
+
+	return WCMD_FCT_STS_OK;
+}
+
 
 /* EEPROM ************************************************************************* */
 /* ******************************************************************************** */

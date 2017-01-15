@@ -35,6 +35,7 @@ typedef struct {
 	unsigned long ExternalWriteInitColIdx_UL;
 	unsigned long ExternalWriteLineIdx_UL;
 	unsigned long ExternalWriteColIdx_UL;
+	String ExternalWriteData_Str;
 } LCD_DISPLAY_PARAM;
 
 typedef enum {
@@ -66,6 +67,7 @@ public:
 	void enableExternalWrite(unsigned long LineIdx_UL, unsigned long ColIdx_UL);
 	void disableExternalWrite(void);
 	boolean isExternalWriteEnabled(void);
+	String getExternalWriteData(void);
 
 	LCD_DISPLAY_PARAM GL_LcdDisplayParam_X;
 };

@@ -32,7 +32,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "16121801";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "17011501";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -97,6 +97,7 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 	{ WCMD_LCD_ENABLE_EXT_WRITE, WCmdProcess_LcdEnableExternalWrite },
 	{ WCMD_LCD_DISABLE_EXT_WRITE, WCmdProcess_LcdDisableExternalWrite },
 	{ WCMD_LCD_GET_EXT_WRITE_STATUS, WCmdProcess_LcdGetExternalWriteStatus },
+	{ WCMD_LCD_GET_EXT_WRITE_DATA, WCmdProcess_LcdGetExternalWriteData },
 
 	{ WCMD_COMPORT_OPEN, WCmdProcess_ComPortOpen },
 	{ WCMD_COMPORT_CLOSE, WCmdProcess_ComPortClose },
@@ -254,8 +255,8 @@ void setup() {
 
 	/* Display Welcome Message */
 	GL_GlobalData_X.Lcd_H.clearDisplay();
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  ---");
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, cGL_pWLinkRevisionId_Str);
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "> " + cGL_pWLinkRevisionId_Str);
 
 	/* Record Absolute Time */
 	GL_AbsoluteTime_UL = millis();

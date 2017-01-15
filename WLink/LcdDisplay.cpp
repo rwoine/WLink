@@ -8,6 +8,8 @@
 /* History :  	13/06/2016  (RW)	Creation of this file                           */
 /*				15/07/2016	(RW)	Resolve bug when writing all lines				*/
 /*				01/01/2016	(RW)	Fix LCD write and read functions				*/
+/*				18/12/2016	(RW)	Add external write management					*/
+/*				15/01/2017	(RW)	Manage external data							*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -40,6 +42,7 @@ LcdDisplay::LcdDisplay() {
 	GL_LcdDisplayParam_X.ExternalWriteInitColIdx_UL = 0;
 	GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL = 0;
 	GL_LcdDisplayParam_X.ExternalWriteColIdx_UL = 0;
+	GL_LcdDisplayParam_X.ExternalWriteData_Str = "";
 }
 
 /* ******************************************************************************** */
@@ -47,6 +50,7 @@ LcdDisplay::LcdDisplay() {
 /* ******************************************************************************** */
 static void EraseLineShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E);
 static void PrintLineShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E);
+static String HexToString(unsigned char Char_UB);
 
 /* ******************************************************************************** */
 /* Functions
@@ -139,6 +143,9 @@ void LcdDisplay::appendDisplay(unsigned char * pTextStr_UB, unsigned long ArrayS
 		// Copy Content in Shadow Line
 		GL_ppLcdLineShadow_UB[GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL][GL_LcdDisplayParam_X.ExternalWriteColIdx_UL++] = pTextStr_UB[i];
 
+		// Copy in Data String
+		GL_LcdDisplayParam_X.ExternalWriteData_Str += HexToString(pTextStr_UB[i]);
+
 		// Display on Device
 		GL_pLcdDevice_H->write(pTextStr_UB[i]);
 	}
@@ -151,6 +158,9 @@ void LcdDisplay::backspaceDisplay(unsigned long BackspaceNb_UL) {
 
 		// Erase in Shadow Line
 		GL_ppLcdLineShadow_UB[GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL][--GL_LcdDisplayParam_X.ExternalWriteColIdx_UL] = 0x20;
+
+		// Erase in Data String
+		GL_LcdDisplayParam_X.ExternalWriteData_Str.remove(GL_LcdDisplayParam_X.ExternalWriteData_Str.length() - 1);
 
 		// Erase on Device
 		GL_pLcdDevice_H->setCursor(GL_LcdDisplayParam_X.ExternalWriteColIdx_UL, GL_LcdDisplayParam_X.ExternalWriteLineIdx_UL);
@@ -210,6 +220,9 @@ void LcdDisplay::enableExternalWrite(unsigned long LineIdx_UL, unsigned long Col
 	GL_pLcdDevice_H->setCursor(ColIdx_UL, LineIdx_UL);
 	GL_pLcdDevice_H->cursor();
 
+	// Reset data
+	GL_LcdDisplayParam_X.ExternalWriteData_Str = "";
+
 	// Save coordinates value
 	GL_LcdDisplayParam_X.ExternalWriteInitLineIdx_UL = LineIdx_UL;
 	GL_LcdDisplayParam_X.ExternalWriteInitColIdx_UL = ColIdx_UL;
@@ -224,12 +237,21 @@ void LcdDisplay::disableExternalWrite(void) {
 	// Reset boolean flag
 	GL_LcdDisplayParam_X.ExternalWriteEnabled_B = false;
 
+	// Print Data String
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "External Write Disabled. Data recorded = ");
+	DBG_PRINTDATA(GL_LcdDisplayParam_X.ExternalWriteData_Str);
+	DBG_ENDSTR();
+
 	// Hide cursor
 	GL_pLcdDevice_H->noCursor();
 }
 
 boolean LcdDisplay::isExternalWriteEnabled(void) {
 	return GL_LcdDisplayParam_X.ExternalWriteEnabled_B;
+}
+
+String LcdDisplay::getExternalWriteData(void) {
+	return GL_LcdDisplayParam_X.ExternalWriteData_Str;
 }
 
 
@@ -269,4 +291,22 @@ void PrintLineShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
 			DBG_PRINTDATABASE(GL_ppLcdLineShadow_UB[LineIdx_UL][i], HEX);
 	}
 	DBG_ENDSTR();
+}
+
+
+String HexToString(unsigned char Char_UB) {
+	switch (Char_UB) {
+		case 46:	return ".";
+		case 48:	return "0";
+		case 49:	return "1";
+		case 50:	return "2";
+		case 51:	return "3";
+		case 52:	return "4";
+		case 53:	return "5";
+		case 54:	return "6";
+		case 55:	return "7";
+		case 56:	return "8";
+		case 57:	return "9";
+		default:	return "";
+	}
 }
