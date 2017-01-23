@@ -46,6 +46,7 @@
 #define WCMD_COMPORT_OPEN					0x50
 #define WCMD_COMPORT_CLOSE					0x51
 #define WCMD_COMPORT_WRITE					0x52
+#define WCMD_TEST_CMD						0x70
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
@@ -99,6 +100,8 @@ WCMD_FCT_STS WCmdProcess_EepromRead(const unsigned char * pParam_UB, unsigned lo
 WCMD_FCT_STS WCmdProcess_ComPortOpen(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_ComPortClose(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_ComPortWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+
+WCMD_FCT_STS WCmdProcess_TestCommand(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 
 
 #endif // __WCOMMAND_H__

@@ -32,7 +32,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "17011501";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "17012301";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -104,7 +104,9 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 	{ WCMD_COMPORT_WRITE, WCmdProcess_ComPortWrite },
 
 	{ WCMD_EEPROM_WRITE, WCmdProcess_EepromWrite },
-	{ WCMD_EEPROM_READ, WCmdProcess_EepromRead }
+	{ WCMD_EEPROM_READ, WCmdProcess_EepromRead },
+
+	{ WCMD_TEST_CMD, WCmdProcess_TestCommand }
 
 };
 
@@ -120,7 +122,7 @@ void setup() {
 
 	/* Network Configuration */
 	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_TCP;
-	GL_GlobalData_X.NetworkIf_X.isDhcp_B = false;
+	GL_GlobalData_X.NetworkIf_X.isDhcp_B = false;								// DHCP can not be set when giving SubnetMask, Gateway and DNS
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[0] = 0x02;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[1] = 0x00;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[2] = 0x00;
@@ -128,6 +130,9 @@ void setup() {
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[4] = 0x00;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[5] = 0x0C;
 	GL_GlobalData_X.NetworkIf_X.IpAddr_X = IPAddress(192, 168, 1, 16);
+	GL_GlobalData_X.NetworkIf_X.SubnetMaskAddr_X = IPAddress(255, 255, 255, 0);	// Default value = 255.255.255.0
+	GL_GlobalData_X.NetworkIf_X.GatewayAddr_X = IPAddress(192, 168, 1, 1);		// Default value = IP Address with last octet set to 1
+	GL_GlobalData_X.NetworkIf_X.DnsIpAddr_X = IPAddress(192, 168, 1, 1);		// Default value = IP Address with last octet set to 1
 	GL_GlobalData_X.NetworkIf_X.LocalPort_UI = (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_TCP)?TCP_SERVER_DEFAULT_PORT:UDP_SERVER_DEFAULT_PORT;
 
 	/* Enable All UARTs by Default */
@@ -176,8 +181,10 @@ void setup() {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize TCP Server Modules");
 	if(GL_GlobalData_X.NetworkIf_X.isDhcp_B)
 		GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-	else
-		GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+	else {
+		//GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+		GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.SubnetMaskAddr_X, GL_GlobalData_X.NetworkIf_X.GatewayAddr_X, GL_GlobalData_X.NetworkIf_X.DnsIpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+	}
 	TCPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.TcpServer_H));
 
 	/* Initialize UDP Server Modules */
@@ -260,6 +267,7 @@ void setup() {
 
 	/* Record Absolute Time */
 	GL_AbsoluteTime_UL = millis();
+
 }
 
 /* ******************************************************************************** */
@@ -303,4 +311,3 @@ void serialEvent1() { GL_PortComEventMap_X[PORT_COM1].EventHandler(); }
 
 /* Keypad Event */
 void ManageKeyToLcd(char Key_UB) { GL_GlobalData_X.FlatPanel_H.manageKeytoLcd(Key_UB); }
-

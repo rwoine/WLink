@@ -46,10 +46,14 @@ typedef enum {
 
 typedef struct {
 	boolean IsDhcp_B;
+	boolean AdvancedConfig_B;
 	boolean IsInitialized_B;
 	boolean IsConnected_B;
 	unsigned char pMacAddr_UB[6];
 	IPAddress IpAddr_X;
+	IPAddress SubnetMaskAddr_X;
+	IPAddress GatewayAddr_X;
+	IPAddress DnsIpAddr_X;
 	unsigned int LocalPort_UI;
 	EthernetServer Server_H = EthernetServer(TCP_SERVER_DEFAULT_PORT);
 	EthernetClient Client_H;
@@ -69,6 +73,7 @@ public:
 	void init(unsigned char pMacAddr_UB[6]);
 	void init(unsigned char pMacAddr_UB[6], IPAddress IpAddr_X);
 	void init(unsigned char pMacAddr_UB[6], IPAddress IpAddr_X, unsigned int LocalPort_UI);
+	void init(unsigned char pMacAddr_UB[6], IPAddress IpAddr_X, IPAddress SubnetMaskAddr_X, IPAddress GatewayAddr_X, IPAddress DnsIpAddr_X, unsigned int LocalPort_UI);
 	void init(unsigned char pMacAddr_UB[6], unsigned int LocalPort_UI);
 	boolean isInitialized();
 

@@ -65,6 +65,9 @@ typedef struct {
 	boolean isDhcp_B;
 	unsigned char pMacAddr_UB[6];
 	IPAddress IpAddr_X;
+	IPAddress SubnetMaskAddr_X;
+	IPAddress GatewayAddr_X;
+	IPAddress DnsIpAddr_X;
 	unsigned int LocalPort_UI;
 	UDPServer UdpServer_H;
 	TCPServer TcpServer_H;

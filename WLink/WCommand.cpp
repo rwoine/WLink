@@ -413,3 +413,20 @@ WCMD_FCT_STS WCmdProcess_ComPortWrite(const unsigned char * pParam_UB, unsigned 
 
 	return WCMD_FCT_STS_OK;
 }
+
+
+/* Test *************************************************************************** */
+/* ******************************************************************************** */
+WCMD_FCT_STS WCmdProcess_TestCommand(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_TestCommand");
+	*pAnsNb_UL = 0;
+
+	/* --> Start of Test Code Section */
+
+
+
+	/* <-- End of Test Code Section */
+
+	return WCMD_FCT_STS_OK;
+}
+

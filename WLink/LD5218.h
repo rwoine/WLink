@@ -24,7 +24,7 @@
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
-const INDICATOR_INTERFACE_FRAME_STRUCT GL_pLD5218Frames_X[] = {	{ 3, { 0x02,'?',0x03 }, 9 },						// ASK_WEIGHT
+const INDICATOR_INTERFACE_FRAME_STRUCT GL_pLD5218Frames_X[] = {	{ 1, { '?' }, 9 },									// ASK_WEIGHT
 																{ 7, { 0x02,'A','?','0','4','C',0x03 }, 17 },		// ASK_WEIGHT_ALIBI
 																{ 7, { 0x02,'a','?','0','6','C',0x03 }, 17 },		// ASK_LAST_ALIBI
 																{ 7, { 0x02,'A','=','0','>','4',0x03 }, 31 },		// ASK_WEIGHT_MSA
