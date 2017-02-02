@@ -61,6 +61,9 @@
 #define PIN_SD_CS           4
 #define PIN_SPI_CS			10	// Additional SPI pin to prevent bug from SPI Library
 
+/* Real-Time Clock */
+#define PIN_RTC_SQUARE_OUT	29
+
 /* Ethernet */
 #define PIN_ETH_LINKED		35
 

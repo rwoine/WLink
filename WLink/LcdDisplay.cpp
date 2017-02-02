@@ -234,6 +234,12 @@ void LcdDisplay::enableExternalWrite(unsigned long LineIdx_UL, unsigned long Col
 }
 
 void LcdDisplay::disableExternalWrite(void) {
+
+    if (GL_LcdDisplayParam_X.ExternalWriteEnabled_B) {
+        clearDisplay((LCD_DISPLAY_LINE_ENUM)GL_LcdDisplayParam_X.ExternalWriteInitLineIdx_UL);
+        writeDisplay((LCD_DISPLAY_LINE_ENUM)GL_LcdDisplayParam_X.ExternalWriteInitLineIdx_UL, "Traitement en cours");
+    }
+
 	// Reset boolean flag
 	GL_LcdDisplayParam_X.ExternalWriteEnabled_B = false;
 

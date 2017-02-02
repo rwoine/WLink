@@ -45,6 +45,10 @@
 
 #include "EepromWire.h"
 
+#include "RealTimeClock.h"
+
+#include "MemoryCard.h"
+
 
 #include "Debug.h"
 
@@ -81,6 +85,8 @@ typedef struct {
 	LcdDisplay Lcd_H;
 	FlatPanel FlatPanel_H;
 	EepromWire Eeprom_H;
+    RealTimeClock Rtc_H;
+    MemoryCard MemCard_H;
 	NETWORK_INTERFACE_STRUCT NetworkIf_X;
 	Indicator Indicator_H;
 	BadgeReader BadgeReader_H;

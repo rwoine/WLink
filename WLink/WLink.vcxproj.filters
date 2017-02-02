@@ -46,6 +46,12 @@
     <Filter Include="Source Files\EEPROM">
       <UniqueIdentifier>{9da55d47-9b64-4f23-91e8-778b780ee4fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\RealTimeClock\ExternalLib">
+      <UniqueIdentifier>{140f50c7-ec6f-40d2-a5e0-6c57cd6be765}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MemoryCard">
+      <UniqueIdentifier>{707b7381-c552-45cc-9d1b-7f92cbf1c37f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="WLink.ino" />
@@ -117,6 +123,15 @@
     <ClInclude Include="FlatPanelManager.h">
       <Filter>Source Files\FlatPanel</Filter>
     </ClInclude>
+    <ClInclude Include="RealTimeClock.h">
+      <Filter>Source Files\RealTimeClock</Filter>
+    </ClInclude>
+    <ClInclude Include="RealTimeClockDS1307.h">
+      <Filter>Source Files\RealTimeClock\ExternalLib</Filter>
+    </ClInclude>
+    <ClInclude Include="MemoryCard.h">
+      <Filter>Source Files\MemoryCard</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -172,6 +187,15 @@
     </ClCompile>
     <ClCompile Include="FlatPanelManager.cpp">
       <Filter>Source Files\FlatPanel</Filter>
+    </ClCompile>
+    <ClCompile Include="RealTimeClock.cpp">
+      <Filter>Source Files\RealTimeClock</Filter>
+    </ClCompile>
+    <ClCompile Include="RealTimeClockDS1307.cpp">
+      <Filter>Source Files\RealTimeClock\ExternalLib</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryCard.cpp">
+      <Filter>Source Files\MemoryCard</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

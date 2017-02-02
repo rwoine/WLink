@@ -43,6 +43,8 @@
 #define WCMD_LCD_GET_EXT_WRITE_DATA			0x37
 #define WCMD_EEPROM_WRITE					0x40
 #define WCMD_EEPROM_READ					0x41
+#define WCMD_RTC_SET_DATETIME               0x48
+#define WCMD_RTC_GET_DATETIME               0x49
 #define WCMD_COMPORT_OPEN					0x50
 #define WCMD_COMPORT_CLOSE					0x51
 #define WCMD_COMPORT_WRITE					0x52
@@ -96,6 +98,9 @@ WCMD_FCT_STS WCmdProcess_LcdGetExternalWriteData(const unsigned char * pParam_UB
 
 WCMD_FCT_STS WCmdProcess_EepromWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_EepromRead(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+
+WCMD_FCT_STS WCmdProcess_RtcSetDateTime(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_RtcGetDateTime(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 
 WCMD_FCT_STS WCmdProcess_ComPortOpen(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_ComPortClose(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);

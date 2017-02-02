@@ -1,21 +1,22 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* EepromWire.h			                                                            */
+/* RealTimeClock.h		                                                            */
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for Eeprom.cpp													*/
+/*		Header file for RealTimeClock.cpp											*/
 /*                                                                                  */
-/* History :  	17/10/2016  (RW)	Creation of this file							*/
+/* History :  	24/01/2017  (RW)	Creation of this file							*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __EEPROM_WIRE_H__
-#define __EEPROM_WIRE_H__
+#ifndef __REAL_TIME_CLOCK_H__
+#define __REAL_TIME_CLOCK_H__
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
 #include <Arduino.h>
+#include "RealTimeClockDS1307.h"
 #include <Wire.h>
 
 /* ******************************************************************************** */
@@ -27,24 +28,45 @@
 /* ******************************************************************************** */
 typedef struct {
 	boolean IsInitialized_B;
-} EEPROM_WIRE_PARAM;
+} RTC_PARAM;
+
+typedef struct {
+    unsigned char Hour_UB;
+    unsigned char Min_UB;
+    unsigned char Sec_UB;
+} RTC_TIME_STRUCT;
+
+typedef struct {
+    unsigned char Day_UB;
+    unsigned char Month_UB;
+    unsigned char Year_UB;
+} RTC_DATE_STRUCT;
+
+typedef struct {
+    RTC_TIME_STRUCT Time_X;
+    RTC_DATE_STRUCT Date_X;
+} RTC_DATETIME_STRUCT;
 
 /* ******************************************************************************** */
 /* Class
 /* ******************************************************************************** */
-class EepromWire {
+class RealTimeClock {
 public:
 	// Constructor
-	EepromWire();
+	RealTimeClock();
 
 	// Functions
-	void init(TwoWire * pWire_H, unsigned char EepromAddr_UB);
+	void init(TwoWire * pWire_H, unsigned char PinSquareOut_UB);
 	boolean isInitialized(void);
 
-	void write(unsigned int Addr_UW, unsigned char * pData_UB, unsigned long Size_UL);
-	unsigned long read(unsigned int Addr_UW, unsigned char * pData_UB, unsigned long Size_UL);
+    void setDateTime(RTC_DATETIME_STRUCT DateTime_X);
 
-	EEPROM_WIRE_PARAM GL_EepromWireParam_X;
+    RTC_DATE_STRUCT getDate(void);
+    RTC_TIME_STRUCT getTime(void);
+    RTC_DATETIME_STRUCT getDateTime(void);
+    String getDateTimeString(void);
+
+	RTC_PARAM GL_RealTimeClockParam_X;
 };
 
-#endif // __EEPROM_WIRE_H__
+#endif // __REAL_TIME_CLOCK_H__

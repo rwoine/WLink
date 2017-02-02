@@ -9,6 +9,7 @@
 /*				14/05/2016	(RW)	Re-mastered version								*/
 /*                                                                                  */
 /* ******************************************************************************** */
+
 #define MODULE_NAME		"Main"
 
 /* ******************************************************************************** */
@@ -20,6 +21,7 @@
 #include <LiquidCrystal.h>
 #include <Keypad.h>
 #include <Wire.h>
+#include <SD.h>
 
 #include "WLink.h"
 #include "Hardware.h"
@@ -32,7 +34,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "17012301";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "17020201";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -99,12 +101,15 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 	{ WCMD_LCD_GET_EXT_WRITE_STATUS, WCmdProcess_LcdGetExternalWriteStatus },
 	{ WCMD_LCD_GET_EXT_WRITE_DATA, WCmdProcess_LcdGetExternalWriteData },
 
+    { WCMD_EEPROM_WRITE, WCmdProcess_EepromWrite },
+    { WCMD_EEPROM_READ, WCmdProcess_EepromRead },
+
+    { WCMD_RTC_SET_DATETIME, WCmdProcess_RtcSetDateTime },
+    { WCMD_RTC_GET_DATETIME, WCmdProcess_RtcGetDateTime },
+
 	{ WCMD_COMPORT_OPEN, WCmdProcess_ComPortOpen },
 	{ WCMD_COMPORT_CLOSE, WCmdProcess_ComPortClose },
 	{ WCMD_COMPORT_WRITE, WCmdProcess_ComPortWrite },
-
-	{ WCMD_EEPROM_WRITE, WCmdProcess_EepromWrite },
-	{ WCMD_EEPROM_READ, WCmdProcess_EepromRead },
 
 	{ WCMD_TEST_CMD, WCmdProcess_TestCommand }
 
@@ -246,9 +251,15 @@ void setup() {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize EEPROM Modules");
 	GL_GlobalData_X.Eeprom_H.init(&Wire1, 0x50);
 
+    /* Initialize RTC Modules */
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize RTC Modules");
+    GL_GlobalData_X.Rtc_H.init(&Wire, PIN_RTC_SQUARE_OUT);
+    //GL_GlobalData_X.Rtc_H.setDateTime({10,32,01,25,1,17});
 
-	
-
+    /* Initialize SD Card Modules */
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Memory Card Modules");
+    GL_GlobalData_X.MemCard_H.init(PIN_SD_CS, PIN_SD_CD, PIN_SD_WP);
+    
 	/* Map Specific Functions on CommEvent Handler */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Map Specific CommEvent Handler");
 	GL_PortComEventMap_X[PORT_COM1].EventHandler = CommEvent_BadgeReader;
@@ -256,14 +267,17 @@ void setup() {
 	/* Add Output Management for Bug in SPI ¨*/
 	pinMode(PIN_SPI_CS, OUTPUT);
 
+
 	/* End of Initialization */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Initialization!");
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enter Process Management in Loop Code..");
+
 
 	/* Display Welcome Message */
 	GL_GlobalData_X.Lcd_H.clearDisplay();
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "> " + cGL_pWLinkRevisionId_Str);
+
 
 	/* Record Absolute Time */
 	GL_AbsoluteTime_UL = millis();

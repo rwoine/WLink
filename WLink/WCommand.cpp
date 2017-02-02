@@ -9,6 +9,7 @@
 /*				14/05/2016	(RW)	Re-mastered version								*/
 /*				17/10/2016	(RW)	Add port COM functions							*/
 /*									Add EEPROM functions							*/
+/*              25/01/2017  (RW)    Add RTC functions                               */
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -344,6 +345,61 @@ WCMD_FCT_STS WCmdProcess_EepromRead(const unsigned char * pParam_UB, unsigned lo
 	*pAnsNb_UL = GL_GlobalData_X.Eeprom_H.read(((pParam_UB[0] << 8) + pParam_UB[1]), pAns_UB, (unsigned long)pParam_UB[2]);
 
 	return WCMD_FCT_STS_OK;
+}
+
+
+/* RTC **************************************************************************** */
+/* ******************************************************************************** */
+WCMD_FCT_STS WCmdProcess_RtcSetDateTime(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_RtcSetDateTime");
+    *pAnsNb_UL = 0;
+
+    RTC_DATETIME_STRUCT DateTime_X;
+
+    // Must have 6 parameters
+    if (ParamNb_UL != 6)
+        return WCMD_FCT_STS_BAD_PARAM_NB;
+
+    DateTime_X.Time_X.Hour_UB = pParam_UB[0];
+    DateTime_X.Time_X.Min_UB = pParam_UB[1];
+    DateTime_X.Time_X.Sec_UB = pParam_UB[2];
+    DateTime_X.Date_X.Day_UB = pParam_UB[3];
+    DateTime_X.Date_X.Month_UB = pParam_UB[4];
+    DateTime_X.Date_X.Year_UB = pParam_UB[5];
+
+    // Call low-level function
+    GL_GlobalData_X.Rtc_H.setDateTime(DateTime_X);
+
+    // Debug print actual time
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Actual time : ");
+    DBG_PRINTDATA(GL_GlobalData_X.Rtc_H.getDateTimeString());
+    DBG_ENDSTR();
+
+    return WCMD_FCT_STS_OK;
+}
+
+WCMD_FCT_STS WCmdProcess_RtcGetDateTime(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_RtcGetDateTime");
+    *pAnsNb_UL = 0;
+
+    RTC_DATETIME_STRUCT DateTime_X;
+
+    // Call low-level function
+    DateTime_X = GL_GlobalData_X.Rtc_H.getDateTime();
+
+    pAns_UB[(*pAnsNb_UL)++] = DateTime_X.Time_X.Hour_UB;
+    pAns_UB[(*pAnsNb_UL)++] = DateTime_X.Time_X.Min_UB;
+    pAns_UB[(*pAnsNb_UL)++] = DateTime_X.Time_X.Sec_UB;
+    pAns_UB[(*pAnsNb_UL)++] = DateTime_X.Date_X.Day_UB;
+    pAns_UB[(*pAnsNb_UL)++] = DateTime_X.Date_X.Month_UB;
+    pAns_UB[(*pAnsNb_UL)++] = DateTime_X.Date_X.Year_UB;
+
+    // Debug print actual time
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Actual time : ");
+    DBG_PRINTDATA(GL_GlobalData_X.Rtc_H.getDateTimeString());
+    DBG_ENDSTR();
+
+    return WCMD_FCT_STS_OK;
 }
 
 

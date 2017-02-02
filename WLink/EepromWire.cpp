@@ -22,7 +22,7 @@
 /* ******************************************************************************** */
 /* Local Variables
 /* ******************************************************************************** */
-static TwoWire* GL_pEepromWire_X;
+static TwoWire * GL_pEepromWire_H;
 static unsigned char GL_EepromDeviceAddr_UB = 0x00;
 
 /* ******************************************************************************** */
@@ -35,10 +35,10 @@ EepromWire::EepromWire() {
 /* ******************************************************************************** */
 /* Functions
 /* ******************************************************************************** */
-void EepromWire::init(TwoWire* pWire_X, unsigned char EepromAddr_UB) {
-	GL_pEepromWire_X = pWire_X;
+void EepromWire::init(TwoWire * pWire_H, unsigned char EepromAddr_UB) {
+	GL_pEepromWire_H = pWire_H;
 	GL_EepromDeviceAddr_UB = EepromAddr_UB;
-	GL_pEepromWire_X->begin();	// Begin as a Master
+	GL_pEepromWire_H->begin();	// Begin as a Master
 	GL_EepromWireParam_X.IsInitialized_B = true;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "EEPROM Wire Module Initialized");
 }
@@ -96,13 +96,13 @@ void EepromWire::write(unsigned int Addr_UW, unsigned char * pData_UB, unsigned 
 			WriteSize_UL = 16;
 
 		if (WriteSize_UL) {
-			GL_pEepromWire_X->beginTransmission((int)GL_EepromDeviceAddr_UB);
-			GL_pEepromWire_X->write((int)(LoopAddr_UW >> 8));   // Address MSB
-			GL_pEepromWire_X->write((int)(LoopAddr_UW & 0xFF)); // Address LSB
+			GL_pEepromWire_H->beginTransmission((int)GL_EepromDeviceAddr_UB);
+			GL_pEepromWire_H->write((int)(LoopAddr_UW >> 8));   // Address MSB
+			GL_pEepromWire_H->write((int)(LoopAddr_UW & 0xFF)); // Address LSB
 
 			for (int i = 0; i < WriteSize_UL; i++)
-				GL_pEepromWire_X->write(pData_UB[TotalSize_UL++]);
-			GL_pEepromWire_X->endTransmission();
+				GL_pEepromWire_H->write(pData_UB[TotalSize_UL++]);
+			GL_pEepromWire_H->endTransmission();
 
 			LoopAddr_UW += WriteSize_UL;
 
@@ -127,10 +127,10 @@ unsigned long EepromWire::read(unsigned int Addr_UW, unsigned char * pData_UB, u
 
 		LoopAddr_UW = Addr_UW + 16 * LoopCnt_UL;
 
-		GL_pEepromWire_X->beginTransmission((int)GL_EepromDeviceAddr_UB);
-		GL_pEepromWire_X->write((int)(LoopAddr_UW >> 8));   // Address MSB
-		GL_pEepromWire_X->write((int)(LoopAddr_UW & 0xFF)); // Address LSB
-		GL_pEepromWire_X->endTransmission();
+		GL_pEepromWire_H->beginTransmission((int)GL_EepromDeviceAddr_UB);
+		GL_pEepromWire_H->write((int)(LoopAddr_UW >> 8));   // Address MSB
+		GL_pEepromWire_H->write((int)(LoopAddr_UW & 0xFF)); // Address LSB
+		GL_pEepromWire_H->endTransmission();
 
 		if (LoopCnt_UL == 0)
 			LoopSize_UL = (Size_UL <= 16) ? Size_UL : 16; // first request
@@ -139,11 +139,11 @@ unsigned long EepromWire::read(unsigned int Addr_UW, unsigned char * pData_UB, u
 		else
 			LoopSize_UL = 16;                       // requests of 16
 
-		GL_pEepromWire_X->requestFrom(GL_EepromDeviceAddr_UB, LoopSize_UL);
+		GL_pEepromWire_H->requestFrom(GL_EepromDeviceAddr_UB, LoopSize_UL);
 
 		int i = 0;
-		while (GL_pEepromWire_X->available() || i < LoopSize_UL) {
-			pData_UB[TotalSize_UL++] = GL_pEepromWire_X->read();
+		while (GL_pEepromWire_H->available() || i < LoopSize_UL) {
+			pData_UB[TotalSize_UL++] = GL_pEepromWire_H->read();
 			i++;
 		}
 
