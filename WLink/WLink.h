@@ -21,6 +21,8 @@
 
 #include "Hardware.h"
 
+#include "NetworkAdapter.h"
+
 #include "TCPServer.h"
 #include "TCPServerManager.h"
 

@@ -132,6 +132,9 @@
     <ClInclude Include="MemoryCard.h">
       <Filter>Source Files\MemoryCard</Filter>
     </ClInclude>
+    <ClInclude Include="NetworkAdapter.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
