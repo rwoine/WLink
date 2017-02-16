@@ -44,10 +44,11 @@ typedef enum {
 } NETWORK_ADAPTER_STATUS;
 
 typedef struct {
-    boolean IsDhcp_B;
-    boolean AdvancedConfig_B;
     boolean IsInitialized_B;
     boolean IsConnected_B;
+    boolean IsDhcp_B;
+    boolean AdvancedConfig_B;
+    unsigned char PintEthLink_UB;
     unsigned char pMacAddr_UB[6];
     IPAddress IpAddr_X;
     IPAddress SubnetMaskAddr_X;
