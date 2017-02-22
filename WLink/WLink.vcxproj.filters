@@ -135,6 +135,9 @@
     <ClInclude Include="NetworkAdapter.h">
       <Filter>Source Files\Network</Filter>
     </ClInclude>
+    <ClInclude Include="NetworkAdapterManager.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -201,6 +204,9 @@
       <Filter>Source Files\MemoryCard</Filter>
     </ClCompile>
     <ClCompile Include="NetworkAdapter.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkAdapterManager.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
   </ItemGroup>

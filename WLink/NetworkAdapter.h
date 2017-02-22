@@ -26,6 +26,9 @@
 /* Define
 /* ******************************************************************************** */
 
+#define NETWORK_ADAPTER_IS_ETHERNET_LINKED_TRY_NB    3
+#define NETWORK_ADAPTER_IS_ETHERNET_LINKED_DELAY_MS  400
+
 #define NETWORK_ADAPTER_DEFAULT_MAC_ADDR0	0x02  // Unicast - Locally Administered
 #define NETWORK_ADAPTER_DEFAULT_MAC_ADDR1	0x00  // 0x00
 #define NETWORK_ADAPTER_DEFAULT_MAC_ADDR2	0x00  // 0x00
@@ -36,13 +39,6 @@
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
-typedef enum {
-    NETWORK_ADAPTER_IDLE,
-    NETWORK_ADAPTER_AWAKE,
-    NETWORK_ADAPTER_CONNECTED,
-    NETWORK_ADAPTER_RUNNING
-} NETWORK_ADAPTER_STATUS;
-
 typedef struct {
     boolean IsInitialized_B;
     boolean IsConnected_B;
@@ -54,7 +50,6 @@ typedef struct {
     IPAddress SubnetMaskAddr_X;
     IPAddress GatewayAddr_X;
     IPAddress DnsIpAddr_X;
-    NETWORK_ADAPTER_STATUS Status_E;
 } NETWORK_ADAPTER_PARAM;
 
 /* ******************************************************************************** */
@@ -77,15 +72,17 @@ public:
     void setSubnetMaskAddr(IPAddress SubnetMaskAddr_X);
     void setGatewayAddr(IPAddress GatewayAddr_X);
     void setDnsIpAddr(IPAddress DnsIpAddr_X);
-    unsigned char * getMacAddr();
-    IPAddress getIpAddr();
-    IPAddress getSubnetMaskAddr();
-    IPAddress getGatewayAddr();
-    IPAddress getDnsIpAddr();
+    unsigned char * getMacAddr(void);
+    IPAddress getIpAddr(void);
+    IPAddress getSubnetMaskAddr(void);
+    IPAddress getGatewayAddr(void);
+    IPAddress getDnsIpAddr(void);
 
-    void begin();
-    void renew();
-    boolean isEthernetLinked();
+    void begin(void);
+    void flush(void);
+    void renew(void);
+    boolean isConnected(void);
+    boolean isEthernetLinked(void);
 
     NETWORK_ADAPTER_PARAM GL_NetworkAdapterParam_X;
 };

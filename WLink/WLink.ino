@@ -34,7 +34,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "17020201";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "17021801";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -128,6 +128,7 @@ void setup() {
 	/* Network Configuration */
 	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_TCP;
 	GL_GlobalData_X.NetworkIf_X.isDhcp_B = false;								// DHCP can not be set when giving SubnetMask, Gateway and DNS
+    GL_GlobalData_X.NetworkIf_X.isAdvancedConfig_B = true;                      // Advanced configuration when giving SubnetMask, Gateway and DNS
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[0] = 0x02;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[1] = 0x00;
 	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[2] = 0x00;
@@ -182,42 +183,54 @@ void setup() {
 		digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], LOW);
 	}
 
-	/* Initialize TCP Server Modules */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize TCP Server Modules");
-	if(GL_GlobalData_X.NetworkIf_X.isDhcp_B)
-		GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-	else {
-		//GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-		GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.SubnetMaskAddr_X, GL_GlobalData_X.NetworkIf_X.GatewayAddr_X, GL_GlobalData_X.NetworkIf_X.DnsIpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-	}
-	TCPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.TcpServer_H));
+	///* Initialize TCP Server Modules */
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize TCP Server Modules");
+	//if(GL_GlobalData_X.NetworkIf_X.isDhcp_B)
+	//	GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+	//else {
+	//	//GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+	//	GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.SubnetMaskAddr_X, GL_GlobalData_X.NetworkIf_X.GatewayAddr_X, GL_GlobalData_X.NetworkIf_X.DnsIpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+	//}
+	//TCPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.TcpServer_H));
 
-	/* Initialize UDP Server Modules */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize UDP Server Modules");
-	if (GL_GlobalData_X.NetworkIf_X.isDhcp_B)
-		GL_GlobalData_X.NetworkIf_X.UdpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-	else
-		GL_GlobalData_X.NetworkIf_X.UdpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-	UDPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.UdpServer_H));
+	///* Initialize UDP Server Modules */
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize UDP Server Modules");
+	//if (GL_GlobalData_X.NetworkIf_X.isDhcp_B)
+	//	GL_GlobalData_X.NetworkIf_X.UdpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+	//else
+	//	GL_GlobalData_X.NetworkIf_X.UdpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
+	//UDPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.UdpServer_H));
 
-	/* Enable Proper Server */
-	if (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_TCP) {
-		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enable TCP Server");
-		TCPServerManager_Enable();
-	}
-	if (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_UDP) {
-		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enable UDP Server");
-		UDPServerManager_Enable();
-	}
+	///* Enable Proper Server */
+	//if (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_TCP) {
+	//	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enable TCP Server");
+	//	TCPServerManager_Enable();
+	//}
+	//if (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_UDP) {
+	//	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enable UDP Server");
+	//	UDPServerManager_Enable();
+	//}
+
+
+    /* Initialize Network Adapter Modules */
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Network Adapter Modules");
+    if (GL_GlobalData_X.NetworkIf_X.isDhcp_B)
+        GL_GlobalData_X.NetworkIf_X.Adapter_H.init(PIN_ETH_LINKED, GL_GlobalData_X.NetworkIf_X.pMacAddr_UB);
+    else if (!GL_GlobalData_X.NetworkIf_X.isAdvancedConfig_B)
+        GL_GlobalData_X.NetworkIf_X.Adapter_H.init(PIN_ETH_LINKED, GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X);
+    else
+        GL_GlobalData_X.NetworkIf_X.Adapter_H.init(PIN_ETH_LINKED, GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.SubnetMaskAddr_X, GL_GlobalData_X.NetworkIf_X.GatewayAddr_X, GL_GlobalData_X.NetworkIf_X.DnsIpAddr_X);
+    NetworkAdapterManager_Init(&(GL_GlobalData_X.NetworkIf_X.Adapter_H));
+    NetworkAdapterManager_Enable();
 	
-	/* Initialiaze W-Link Command Management Modules */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize W-Link Command Management Modules");
-	switch (GL_GlobalWCmdMedium_E) {
-		case WCMD_MEDIUM_SERIAL:	WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GL_PortComMap_X[PORT_COM3]);				break;	// Medium mapped on COM3
-		case WCMD_MEDIUM_UDP:		WCmdMedium_Init(WCMD_MEDIUM_UDP, &(GL_GlobalData_X.NetworkIf_X.UdpServer_H));	break;	// Medium mapped on UDP Server	
-		case WCMD_MEDIUM_TCP:		WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.NetworkIf_X.TcpServer_H));	break;	// Medium mapped on TCP Server
-	}
-	WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
+	///* Initialiaze W-Link Command Management Modules */
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize W-Link Command Management Modules");
+	//switch (GL_GlobalWCmdMedium_E) {
+	//	case WCMD_MEDIUM_SERIAL:	WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GL_PortComMap_X[PORT_COM3]);				break;	// Medium mapped on COM3
+	//	case WCMD_MEDIUM_UDP:		WCmdMedium_Init(WCMD_MEDIUM_UDP, &(GL_GlobalData_X.NetworkIf_X.UdpServer_H));	break;	// Medium mapped on UDP Server	
+	//	case WCMD_MEDIUM_TCP:		WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.NetworkIf_X.TcpServer_H));	break;	// Medium mapped on TCP Server
+	//}
+	//WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
 
 	/* Initialize Indicator Modules */
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Indicator Modules");
@@ -289,12 +302,14 @@ void setup() {
 /* ******************************************************************************** */
 void loop() {
 
-	UDPServerManager_Process();
-	TCPServerManager_Process();
-	IndicatorManager_Process();
-	BadgeReaderManager_Process();
+	//UDPServerManager_Process();
+	//TCPServerManager_Process();
+	//IndicatorManager_Process();
+	//BadgeReaderManager_Process();
 	FlatPanelManager_Process();
 	BlinkingLedManager_Process();
+
+    NetworkAdapterManager_Process();
 
 }
 

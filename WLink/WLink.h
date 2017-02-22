@@ -22,6 +22,7 @@
 #include "Hardware.h"
 
 #include "NetworkAdapter.h"
+#include "NetworkAdapterManager.h"
 
 #include "TCPServer.h"
 #include "TCPServerManager.h"
@@ -69,14 +70,16 @@ typedef enum {
 typedef struct {
 	NETWORK_PROTOCOL_ENUM NetworkProtocol_E;
 	boolean isDhcp_B;
+    boolean isAdvancedConfig_B;
 	unsigned char pMacAddr_UB[6];
 	IPAddress IpAddr_X;
 	IPAddress SubnetMaskAddr_X;
 	IPAddress GatewayAddr_X;
 	IPAddress DnsIpAddr_X;
 	unsigned int LocalPort_UI;
-	UDPServer UdpServer_H;
-	TCPServer TcpServer_H;
+    NetworkAdapter Adapter_H;
+	//UDPServer UdpServer_H;
+	//TCPServer TcpServer_H;
 } NETWORK_INTERFACE_STRUCT;
 
 typedef struct {
@@ -89,9 +92,9 @@ typedef struct {
 	EepromWire Eeprom_H;
     RealTimeClock Rtc_H;
     MemoryCard MemCard_H;
-	NETWORK_INTERFACE_STRUCT NetworkIf_X;
 	Indicator Indicator_H;
 	BadgeReader BadgeReader_H;
+    NETWORK_INTERFACE_STRUCT NetworkIf_X;
 } GLOBAL_PARAM_STRUCT;
 
 #endif // __WLINK_H__
