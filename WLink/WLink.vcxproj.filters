@@ -138,6 +138,12 @@
     <ClInclude Include="NetworkAdapterManager.h">
       <Filter>Source Files\Network</Filter>
     </ClInclude>
+    <ClInclude Include="WLinkManager.h">
+      <Filter>Source Files\WManager</Filter>
+    </ClInclude>
+    <ClInclude Include="WConfigManager.h">
+      <Filter>Source Files\WManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -208,6 +214,12 @@
     </ClCompile>
     <ClCompile Include="NetworkAdapterManager.cpp">
       <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="WLinkManager.cpp">
+      <Filter>Source Files\WManager</Filter>
+    </ClCompile>
+    <ClCompile Include="WConfigManager.cpp">
+      <Filter>Source Files\WManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

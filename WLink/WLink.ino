@@ -40,6 +40,8 @@ const String cGL_pWLinkRevisionId_Str = "17021801";	// YYMMDDVV - Year-Month-Day
 /* Global
 /* ******************************************************************************** */
 GLOBAL_PARAM_STRUCT GL_GlobalData_X;
+GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
+
 WCMD_MEDIUM_ENUM GL_GlobalWCmdMedium_E;
 unsigned long GL_AbsoluteTime_UL;
 
@@ -261,8 +263,7 @@ void setup() {
 	FlatPanelManager_Enable();
 
 	/* Initialize EEPROM Modules */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize EEPROM Modules");
-	GL_GlobalData_X.Eeprom_H.init(&Wire1, 0x50);
+
 
     /* Initialize RTC Modules */
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize RTC Modules");

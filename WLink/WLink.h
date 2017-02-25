@@ -97,4 +97,10 @@ typedef struct {
     NETWORK_INTERFACE_STRUCT NetworkIf_X;
 } GLOBAL_PARAM_STRUCT;
 
+
+typedef struct {
+    unsigned char MajorRev_UB;
+    unsigned char MinorRev_UB;
+} GLOBAL_CONFIG_STRUCT;
+
 #endif // __WLINK_H__
