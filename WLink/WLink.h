@@ -53,6 +53,9 @@
 #include "MemoryCard.h"
 
 
+#include "WLinkManager.h"
+
+
 #include "Debug.h"
 
 /* ******************************************************************************** */
@@ -99,8 +102,18 @@ typedef struct {
 
 
 typedef struct {
+    unsigned long Index_UL;
+    boolean isEnabled_B;
+    unsigned char Config_UB;
+    unsigned long Baudrate_UL;
+    boolean isDebug_B;
+} COM_PORT_CONFIG_STRUCT;
+
+
+typedef struct {
     unsigned char MajorRev_UB;
     unsigned char MinorRev_UB;
+    COM_PORT_CONFIG_STRUCT ComPort_X[4];
 } GLOBAL_CONFIG_STRUCT;
 
 #endif // __WLINK_H__

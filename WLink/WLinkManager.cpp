@@ -57,7 +57,8 @@ static void TransitionToConfig(void);
 void WLinkManager_Init() {
     GL_WLinkManagerEnabled_B = false;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "W-Link Manager Initialized");
-    // Init sub-entities Manager
+
+    /* Init sub-entities Manager */
     WConfigManager_Init();
 }
 

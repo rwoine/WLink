@@ -30,7 +30,8 @@ typedef enum {
     WCFG_STS_OK             = 0,
     WCFG_STS_NOT_ENABLED    = 1,
     WCFG_STS_ERROR          = 100,
-    WCFG_STS_ERROR_READING  = 101
+    WCFG_STS_ERROR_READING  = 101,
+    WCFG_STS_BAD_PARAM      = 102
 }WCFG_STATUS;
 
 /* ******************************************************************************** */
