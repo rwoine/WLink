@@ -16,6 +16,7 @@
 /* ******************************************************************************** */
 
 #include "WConfigManager.h"
+#include "SerialHandler.h"
 
 #include "Debug.h"
 
@@ -33,6 +34,7 @@
 #define WCONFIG_ADDR_BOARD_REV          0x0002
 #define WCONFIG_ADDR_IO                 0x0008
 #define WCONFIG_ADDR_COM                0x0010
+#define WCONFIG_ADDR_ETH                0x001C
 
 
 /* ******************************************************************************** */
@@ -58,6 +60,8 @@ enum WCFG_STATE {
     WCFG_GET_BOARD_REVISION, 
     WCFG_GET_IO_CONFIG,
     WCFG_GET_COM_CONFIG,
+    WCFG_GET_ETH_CONFIG,
+    WCFG_CONFIG_DONE,
     WCFG_ERROR_READING,
     WCFG_BAD_PARAM
 };
@@ -75,6 +79,8 @@ static unsigned char GL_pWConfigBuffer_UB[WCONFIG_PARAMETER_BUFFER_SIZE];
 /* ******************************************************************************** */
 static void TransitionToErrorReading(void);
 static void TransitionToBadParam(void);
+
+String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str);
 
 /* ******************************************************************************** */
 /* Functions
@@ -234,6 +240,9 @@ WCFG_STATUS WConfigManager_Process() {
             digitalWrite(GL_GlobalData_X.LedPin_UB, HIGH);	// Turn-on by default
 
 
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of I/O's configuration");
+
+
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET COM CONFIG");
             GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_COM_CONFIG;
         }
@@ -254,7 +263,7 @@ WCFG_STATUS WConfigManager_Process() {
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configure COM Ports:");
             for (int i = 0; i < 4; i++) {
 
-                GL_GlobalConfig_X.ComPort_X[i].Index_UL = i;
+                GL_GlobalConfig_X.pComPortConfig_X[i].Index_UL = i;
                 DBG_PRINT(DEBUG_SEVERITY_INFO, "- Configure COM");
                 DBG_PRINTDATA(i);
                 DBG_PRINTDATA(": ");
@@ -270,7 +279,7 @@ WCFG_STATUS WConfigManager_Process() {
                         TransitionToBadParam();
                     }
                     else
-                        GL_GlobalConfig_X.ComPort_X[i].Config_UB = SERIAL_8N1;
+                        GL_GlobalConfig_X.pComPortConfig_X[i].Config_UB = SERIAL_8N1;
 
                     // Check baudrate
                     if ((GL_pWConfigBuffer_UB[i * 3 + 2] > 0x07)) {
@@ -281,40 +290,176 @@ WCFG_STATUS WConfigManager_Process() {
                         TransitionToBadParam();
                     }
                     else
-                        GL_GlobalConfig_X.ComPort_X[i].Baudrate_UL = GL_pPortComSpeedLut_UL[GL_pWConfigBuffer_UB[i * 3 + 2]];
+                        GL_GlobalConfig_X.pComPortConfig_X[i].Baudrate_UL = GL_pPortComSpeedLut_UL[GL_pWConfigBuffer_UB[i * 3 + 2]];
 
                     // Check if debug
-                    GL_GlobalConfig_X.ComPort_X[i].isDebug_B = ((GL_pWConfigBuffer_UB[i * 3] && 0x02) == 0x02) ? true : false;
+                    GL_GlobalConfig_X.pComPortConfig_X[i].isDebug_B = ((GL_pWConfigBuffer_UB[i * 3] && 0x02) == 0x02) ? true : false;
 
                     // TODO : IRQ-based configuration sould be added here
 
-                    // Configure actual COM port
+                    // Configure actual COM port (if not debug port)
+                    if (!GL_GlobalConfig_X.pComPortConfig_X[i].isDebug_B)
+                        GetSerialHandle(i)->begin(GL_GlobalConfig_X.pComPortConfig_X[i].Baudrate_UL);
 
 
                     // Print out configuration
-                    GL_GlobalConfig_X.ComPort_X[i].isEnabled_B = true;
+                    GL_GlobalConfig_X.pComPortConfig_X[i].isEnabled_B = true;
                     DBG_PRINTDATA(": Enabled (8N1, ");
-                    DBG_PRINTDATA(GL_GlobalConfig_X.ComPort_X[i].Baudrate_UL);
-                    DBG_PRINTDATA(")");
-                    if (GL_GlobalConfig_X.ComPort_X[i].isDebug_B)
+                    DBG_PRINTDATA(GL_GlobalConfig_X.pComPortConfig_X[i].Baudrate_UL);
+                    DBG_PRINTDATA(" [baud])");
+                    if (GL_GlobalConfig_X.pComPortConfig_X[i].isDebug_B)
                         DBG_PRINTDATA(" -> Configured as Debug COM port");
                     DBG_ENDSTR();
 
                 }
                 else {
-                    GL_GlobalConfig_X.ComPort_X[i].isEnabled_B = false;
+                    GL_GlobalConfig_X.pComPortConfig_X[i].isEnabled_B = false;
                 }
 
             }
 
-            //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET COM CONFIG");
-            //GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_COM_CONFIG;
+            // Configure Debug COM port in last
+            for (int i = 0; i < 4; i++) {
+                if ((GL_GlobalConfig_X.pComPortConfig_X[i].isEnabled_B) && (GL_GlobalConfig_X.pComPortConfig_X[i].isDebug_B)) {
+                    if (i == WLINK_DEBUG_DEFAULT_COM_PORT) {
+                        if (GL_GlobalConfig_X.pComPortConfig_X[i].Baudrate_UL != WLINK_DEBUG_DEFAULT_SPEED) {
+                            DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Change Debug output speed");
+                            delay(10);
+                            Debug_Init(GetSerialHandle(i), GL_GlobalConfig_X.pComPortConfig_X[i].Baudrate_UL);
+                        }
+                        else {
+                            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "No change in Debug COM port default configuration");
+                        }
+                    }
+                    else {
+                        DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Change Debug COM port");
+                        delay(10);
+                        Debug_Init(GetSerialHandle(i), GL_GlobalConfig_X.pComPortConfig_X[i].Baudrate_UL);
+                    }
+                }
+            }
 
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of COM Ports configuration");
+
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET ETH CONFIG");
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_ETH_CONFIG;
         }
         else {
             TransitionToErrorReading();
         }
         
+        break;
+
+
+    /* GET ETH CONFIG */
+    /* > Retreive Ethernet configuration. */
+    case WCFG_GET_ETH_CONFIG:
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive Ethernet configuration");
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_ETH, GL_pWConfigBuffer_UB, 24) == 24) {
+
+            if ((GL_pWConfigBuffer_UB[0] && 0x01) == 0x01) {
+                GL_GlobalConfig_X.EthConfig_X.isEnabled_B = true;
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Ethernet enabled");
+
+                // Get MAC Address
+                for (int i = 0; i < sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB); i++) {
+                    GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB[i] = GL_pWConfigBuffer_UB[i + 2];
+                }
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "- MAC Address = [");
+                DBG_PRINTDATA(HexArrayToString(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB), ":"));
+                DBG_PRINTDATA("]");
+                DBG_ENDSTR();
+
+                // Check if DHCP
+                if ((GL_pWConfigBuffer_UB[0] && 0x02) == 0x02) {
+                    GL_GlobalConfig_X.EthConfig_X.isDhcp_B = true;
+                    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- DHCP enabled");
+                }
+                else {
+                    GL_GlobalConfig_X.EthConfig_X.isDhcp_B = false;
+                    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- DHCP not enabled");
+
+                    GL_GlobalConfig_X.EthConfig_X.IpAddr_X = IPAddress(GL_pWConfigBuffer_UB[8], GL_pWConfigBuffer_UB[9], GL_pWConfigBuffer_UB[10], GL_pWConfigBuffer_UB[11]);
+                    DBG_PRINT(DEBUG_SEVERITY_INFO, "- IP Address = ");
+                    DBG_PRINTDATA(GL_GlobalConfig_X.EthConfig_X.IpAddr_X);
+                    DBG_ENDSTR();
+
+                    // Check if Advanced Configuration
+                    if ((GL_pWConfigBuffer_UB[0] && 0x03) == 0x03) {
+                        GL_GlobalConfig_X.EthConfig_X.isAdvancedConfig_B = true;
+                        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- Advanced configuration");
+
+                        GL_GlobalConfig_X.EthConfig_X.SubnetMaskAddr_X = IPAddress(GL_pWConfigBuffer_UB[8], GL_pWConfigBuffer_UB[9], GL_pWConfigBuffer_UB[10], GL_pWConfigBuffer_UB[11]);
+                        DBG_PRINT(DEBUG_SEVERITY_INFO, "- Subnet Mask = ");
+                        DBG_PRINTDATA(GL_GlobalConfig_X.EthConfig_X.SubnetMaskAddr_X);
+                        DBG_ENDSTR();
+
+                        GL_GlobalConfig_X.EthConfig_X.GatewayAddr_X = IPAddress(GL_pWConfigBuffer_UB[8], GL_pWConfigBuffer_UB[9], GL_pWConfigBuffer_UB[10], GL_pWConfigBuffer_UB[11]);
+                        DBG_PRINT(DEBUG_SEVERITY_INFO, "- Gateway Address = ");
+                        DBG_PRINTDATA(GL_GlobalConfig_X.EthConfig_X.GatewayAddr_X);
+                        DBG_ENDSTR();
+
+                        GL_GlobalConfig_X.EthConfig_X.DnsIpAddr_X = IPAddress(GL_pWConfigBuffer_UB[8], GL_pWConfigBuffer_UB[9], GL_pWConfigBuffer_UB[10], GL_pWConfigBuffer_UB[11]);
+                        DBG_PRINT(DEBUG_SEVERITY_INFO, "- DNS Address = ");
+                        DBG_PRINTDATA(GL_GlobalConfig_X.EthConfig_X.DnsIpAddr_X);
+                        DBG_ENDSTR();
+                    }
+                    else {
+                        GL_GlobalConfig_X.EthConfig_X.isAdvancedConfig_B = false;
+                        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- No advanced configuration");
+                    }
+                }
+                
+                // Initialize Network Adapter
+                if (GL_GlobalConfig_X.EthConfig_X.isDhcp_B) {
+                    GL_GlobalData_X.Network_H.init(PIN_ETH_LINKED, GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB);
+                }
+                else {
+                    if (GL_GlobalConfig_X.EthConfig_X.isAdvancedConfig_B) {
+                        GL_GlobalData_X.Network_H.init(PIN_ETH_LINKED, GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, GL_GlobalConfig_X.EthConfig_X.IpAddr_X, GL_GlobalConfig_X.EthConfig_X.SubnetMaskAddr_X, GL_GlobalConfig_X.EthConfig_X.GatewayAddr_X, GL_GlobalConfig_X.EthConfig_X.DnsIpAddr_X);
+                    }
+                    else {
+                        GL_GlobalData_X.Network_H.init(PIN_ETH_LINKED, GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, GL_GlobalConfig_X.EthConfig_X.IpAddr_X);
+                    }
+                }
+
+                // Enable Network Adapter Manager
+                NetworkAdapterManager_Init(&(GL_GlobalData_X.Network_H));
+                NetworkAdapterManager_Enable(); // GL_GlobalData_X.Network_H.begin() is called in NetworkAdapterManager_Process() when cable is conneted
+
+            }
+            else {
+                // Disable Network Adapter Manager
+                NetworkAdapterManager_Disable();
+
+                GL_GlobalConfig_X.EthConfig_X.isEnabled_B = false;
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Ethernet not enabled");
+            }
+
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Ethernet configuration");
+
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CONFIG DONE");
+            GL_WConfigStatus_E = WCFG_STS_OK;
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_CONFIG_DONE;
+        }
+        else {
+            TransitionToErrorReading();
+        }
+
+        break;
+
+
+    /* CONFIG DONE */
+    /* > End of configuration phase. State machine idling until renew of configuration. */
+    case WCFG_CONFIG_DONE:
+
+        GL_WConfigStatus_E = WCFG_STS_OK;
+
         break;
 
 
@@ -358,4 +503,18 @@ void TransitionToBadParam(void) {
     GL_WConfigStatus_E = WCFG_STS_BAD_PARAM;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To BAD PARAM");
     GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_BAD_PARAM;
+}
+
+
+String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str) {
+    String Temp_Str = "";
+    unsigned int Temp_UW = 0;
+
+    for (int i = 0; i < ItemNb_UL; i++) {
+        Temp_UW = pHexArray[i];
+        Temp_Str += String((Temp_UW % 128), HEX);
+        Temp_Str += String((Temp_UW / 128), HEX);
+        if (i < ItemNb_UL - 1)
+            Temp_Str += Separator_Str;
+    }
 }

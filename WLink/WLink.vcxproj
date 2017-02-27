@@ -95,6 +95,7 @@
     <ClInclude Include="NetworkAdapterManager.h" />
     <ClInclude Include="RealTimeClock.h" />
     <ClInclude Include="RealTimeClockDS1307.h" />
+    <ClInclude Include="SerialHandler.h" />
     <ClInclude Include="TCPServer.h" />
     <ClInclude Include="TCPServerManager.h" />
     <ClInclude Include="UDPServer.h" />
@@ -124,6 +125,7 @@
     <ClCompile Include="NetworkAdapterManager.cpp" />
     <ClCompile Include="RealTimeClock.cpp" />
     <ClCompile Include="RealTimeClockDS1307.cpp" />
+    <ClCompile Include="SerialHandler.cpp" />
     <ClCompile Include="TCPServer.cpp" />
     <ClCompile Include="TCPServerManager.cpp" />
     <ClCompile Include="UDPServer.cpp" />

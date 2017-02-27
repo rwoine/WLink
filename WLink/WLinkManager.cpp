@@ -32,7 +32,8 @@
 /* ******************************************************************************** */
 enum W_STATE {
     W_IDLE,
-    W_CONFIG
+    W_CONFIG,
+    W_PROCESS_WLINK
 };
 
 static W_STATE GL_WLinkManager_CurrentState_E = W_STATE::W_IDLE;
@@ -44,10 +45,12 @@ static boolean GL_WLinkManagerEnabled_B = false;
 /* ******************************************************************************** */
 static void ProcessIdle(void);
 static void ProcessConfig(void);
+static void ProcessWLink(void);
 
 
 static void TransitionToIdle(void);
 static void TransitionToConfig(void);
+static void TransitionToProcessWLink(void);
 
 
 /* ******************************************************************************** */
@@ -76,6 +79,14 @@ void WLinkManager_Process() {
         ProcessIdle();
         break;
 
+    case W_CONFIG:
+        ProcessConfig();
+        break;
+
+    case W_PROCESS_WLINK:
+        ProcessWLink();
+        break;
+
     }
 }
 
@@ -91,8 +102,19 @@ void ProcessIdle(void) {
 
 void ProcessConfig(void) {
     if (WConfigManager_Process() != WCFG_STS_BUSY) {
-
+        if (WConfigManager_Process() == WCFG_STS_OK) {
+            TransitionToProcessWLink();
+            // TODO : Add gateway from Debug port to EEPROM to allow new configuration
+        }
+        else {
+            // TODO : Transition to Error state. Allowing Configuration to be loaded
+        }
     }
+}
+
+void ProcessWLink(void) {
+    // TODO : if Interface is enabled -> call process() from Interface Manager
+    if (GL_GlobalConfig_X.EthConfig_X.isEnabled_B)      NetworkAdapterManager_Process();
 }
 
 void TransitionToIdle(void) {
@@ -104,5 +126,10 @@ void TransitionToConfig(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition to CONFIG");
     WConfigManager_Enable();
     GL_WLinkManager_CurrentState_E = W_STATE::W_CONFIG;
+}
+
+void TransitionToProcessWLink(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To PROCESS W-LINK");
+    GL_WLinkManager_CurrentState_E = W_STATE::W_PROCESS_WLINK;
 }
 

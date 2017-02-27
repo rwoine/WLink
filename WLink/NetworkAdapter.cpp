@@ -174,6 +174,11 @@ IPAddress NetworkAdapter::getDnsIpAddr(void) {
 }
 
 
+void NetworkAdapter::enableDhcp(void) {
+    GL_NetworkAdapterParam_X.IsDhcp_B = true;
+}
+
+
 void NetworkAdapter::begin(void) {
     if (GL_NetworkAdapterParam_X.AdvancedConfig_B) {
         Ethernet.begin(GL_NetworkAdapterParam_X.pMacAddr_UB, GL_NetworkAdapterParam_X.IpAddr_X, GL_NetworkAdapterParam_X.DnsIpAddr_X, GL_NetworkAdapterParam_X.GatewayAddr_X, GL_NetworkAdapterParam_X.SubnetMaskAddr_X);

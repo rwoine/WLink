@@ -7,6 +7,7 @@
 /*                                                                                  */
 /* History :	01/12/2014  (RW)	Creation of this file                           */
 /*				14/05/2016	(RW)	Re-mastered version								*/
+/*              27/02/2017  (RW°    Re-mastered version with WConfigManager         */
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -25,7 +26,6 @@
 
 #include "WLink.h"
 #include "Hardware.h"
-#include "CommEvent.h"
 
 /* ******************************************************************************** */
 /* Define
@@ -34,7 +34,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "17021801";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "17022701";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -42,38 +42,36 @@ const String cGL_pWLinkRevisionId_Str = "17021801";	// YYMMDDVV - Year-Month-Day
 GLOBAL_PARAM_STRUCT GL_GlobalData_X;
 GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 
-WCMD_MEDIUM_ENUM GL_GlobalWCmdMedium_E;
 unsigned long GL_AbsoluteTime_UL;
 
 /* ******************************************************************************** */
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
-void BlinkingLedManager_Process(void);
-void ManageKeyToLcd(char Key_UB);
+//void BlinkingLedManager_Process(void);
+//void ManageKeyToLcd(char Key_UB);
 
 /* ******************************************************************************** */
 /* Flat Panel Configuration
 /* ******************************************************************************** */
-char GL_ppFlatPanel_KeyConfig_UB[4][4] = {	{ 'A','1','2','3' },
-											{ 'B','4','5','6' },
-											{ 'C','7','8','9' },
-											{ 'X','V','0','.' }
-											};
-
-byte GL_pFlatPanel_RowPin_UB[4] = { PIN_FP7, PIN_FP6, PIN_FP5, PIN_FP4 };
-byte GL_pFlatPanel_ColPin_UB[4] = { PIN_FP0, PIN_FP1, PIN_FP2, PIN_FP3 };
+//char GL_ppFlatPanel_KeyConfig_UB[4][4] = {	{ 'A','1','2','3' },
+//											{ 'B','4','5','6' },
+//											{ 'C','7','8','9' },
+//											{ 'X','V','0','.' }
+//											};
+//
+//byte GL_pFlatPanel_RowPin_UB[4] = { PIN_FP7, PIN_FP6, PIN_FP5, PIN_FP4 };
+//byte GL_pFlatPanel_ColPin_UB[4] = { PIN_FP0, PIN_FP1, PIN_FP2, PIN_FP3 };
 
 /* ******************************************************************************** */
 /* Serial Related
 /* ******************************************************************************** */
-HardwareSerial * GL_PortComMap_X[] = { &Serial, &Serial1, &Serial2, &Serial3 };
-COM_EVENT_FCT_STRUCT GL_PortComEventMap_X[] = { NULL, NULL, NULL, NULL };
+//COM_EVENT_FCT_STRUCT GL_pPortComEventMap_X[] = { NULL, NULL, NULL, NULL };
 
 /* ******************************************************************************** */
 /* Pre-Built Objects
 /* ******************************************************************************** */
-Keypad GL_Keypad_X = Keypad(makeKeymap(GL_ppFlatPanel_KeyConfig_UB), GL_pFlatPanel_RowPin_UB, GL_pFlatPanel_ColPin_UB, sizeof(GL_pFlatPanel_RowPin_UB), sizeof(GL_pFlatPanel_ColPin_UB));
-LiquidCrystal GL_LcdObject_X(PIN_LCD_RS, PIN_LCD_RW, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
+//Keypad GL_Keypad_X = Keypad(makeKeymap(GL_ppFlatPanel_KeyConfig_UB), GL_pFlatPanel_RowPin_UB, GL_pFlatPanel_ColPin_UB, sizeof(GL_pFlatPanel_RowPin_UB), sizeof(GL_pFlatPanel_ColPin_UB));
+//LiquidCrystal GL_LcdObject_X(PIN_LCD_RS, PIN_LCD_RW, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
 
 /* ******************************************************************************** */
 /* Functions Mapping
@@ -144,8 +142,9 @@ void setup() {
     pinMode(PIN_EN_SERIAL23, OUTPUT);
     digitalWrite(PIN_EN_SERIAL23, LOW);
 
-    /* Initialize Debug Module */
-    Debug_Init(GL_PortComMap_X[PORT_COM0], 115200);
+    /* Initialize Debug Module with Default Parameters */
+    Debug_Init(GetSerialHandle(WLINK_DEBUG_DEFAULT_COM_PORT), WLINK_DEBUG_DEFAULT_SPEED);
+
 
 
     /* Print out Global Header */ 
@@ -161,6 +160,7 @@ void setup() {
 
     /* W-Link Manager Initialization */
     WLinkManager_Init();
+    WLinkManager_Enable();
 
 
 
@@ -170,24 +170,24 @@ void setup() {
 
 
 
-	/* WCommand Interface Selection */
-	GL_GlobalWCmdMedium_E = WCMD_MEDIUM_TCP;
+	///* WCommand Interface Selection */
+	//GL_GlobalWCmdMedium_E = WCMD_MEDIUM_TCP;
 
-	/* Network Configuration */
-	GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_TCP;
-	GL_GlobalData_X.NetworkIf_X.isDhcp_B = false;								// DHCP can not be set when giving SubnetMask, Gateway and DNS
-    GL_GlobalData_X.NetworkIf_X.isAdvancedConfig_B = true;                      // Advanced configuration when giving SubnetMask, Gateway and DNS
-	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[0] = 0x02;
-	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[1] = 0x00;
-	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[2] = 0x00;
-	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[3] = 0x01;
-	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[4] = 0x00;
-	GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[5] = 0x0C;
-	GL_GlobalData_X.NetworkIf_X.IpAddr_X = IPAddress(192, 168, 1, 16);
-	GL_GlobalData_X.NetworkIf_X.SubnetMaskAddr_X = IPAddress(255, 255, 255, 0);	// Default value = 255.255.255.0
-	GL_GlobalData_X.NetworkIf_X.GatewayAddr_X = IPAddress(192, 168, 1, 1);		// Default value = IP Address with last octet set to 1
-	GL_GlobalData_X.NetworkIf_X.DnsIpAddr_X = IPAddress(192, 168, 1, 1);		// Default value = IP Address with last octet set to 1
-	GL_GlobalData_X.NetworkIf_X.LocalPort_UI = (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_TCP)?TCP_SERVER_DEFAULT_PORT:UDP_SERVER_DEFAULT_PORT;
+	///* Network Configuration */
+	//GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_TCP;
+	//GL_GlobalData_X.NetworkIf_X.isDhcp_B = false;								// DHCP can not be set when giving SubnetMask, Gateway and DNS
+ //   GL_GlobalData_X.NetworkIf_X.isAdvancedConfig_B = true;                      // Advanced configuration when giving SubnetMask, Gateway and DNS
+	//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[0] = 0x02;
+	//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[1] = 0x00;
+	//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[2] = 0x00;
+	//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[3] = 0x01;
+	//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[4] = 0x00;
+	//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[5] = 0x0C;
+	//GL_GlobalData_X.NetworkIf_X.IpAddr_X = IPAddress(192, 168, 1, 16);
+	//GL_GlobalData_X.NetworkIf_X.SubnetMaskAddr_X = IPAddress(255, 255, 255, 0);	// Default value = 255.255.255.0
+	//GL_GlobalData_X.NetworkIf_X.GatewayAddr_X = IPAddress(192, 168, 1, 1);		// Default value = IP Address with last octet set to 1
+	//GL_GlobalData_X.NetworkIf_X.DnsIpAddr_X = IPAddress(192, 168, 1, 1);		// Default value = IP Address with last octet set to 1
+	//GL_GlobalData_X.NetworkIf_X.LocalPort_UI = (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_TCP)?TCP_SERVER_DEFAULT_PORT:UDP_SERVER_DEFAULT_PORT;
 
 
 
@@ -220,16 +220,16 @@ void setup() {
 	//}
 
 
-    /* Initialize Network Adapter Modules */
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Network Adapter Modules");
-    if (GL_GlobalData_X.NetworkIf_X.isDhcp_B)
-        GL_GlobalData_X.NetworkIf_X.Adapter_H.init(PIN_ETH_LINKED, GL_GlobalData_X.NetworkIf_X.pMacAddr_UB);
-    else if (!GL_GlobalData_X.NetworkIf_X.isAdvancedConfig_B)
-        GL_GlobalData_X.NetworkIf_X.Adapter_H.init(PIN_ETH_LINKED, GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X);
-    else
-        GL_GlobalData_X.NetworkIf_X.Adapter_H.init(PIN_ETH_LINKED, GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.SubnetMaskAddr_X, GL_GlobalData_X.NetworkIf_X.GatewayAddr_X, GL_GlobalData_X.NetworkIf_X.DnsIpAddr_X);
-    NetworkAdapterManager_Init(&(GL_GlobalData_X.NetworkIf_X.Adapter_H));
-    NetworkAdapterManager_Enable();
+    ///* Initialize Network Adapter Modules */
+    //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Network Adapter Modules");
+    //if (GL_GlobalData_X.NetworkIf_X.isDhcp_B)
+    //    GL_GlobalData_X.NetworkIf_X.Adapter_H.init(PIN_ETH_LINKED, GL_GlobalData_X.NetworkIf_X.pMacAddr_UB);
+    //else if (!GL_GlobalData_X.NetworkIf_X.isAdvancedConfig_B)
+    //    GL_GlobalData_X.NetworkIf_X.Adapter_H.init(PIN_ETH_LINKED, GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X);
+    //else
+    //    GL_GlobalData_X.NetworkIf_X.Adapter_H.init(PIN_ETH_LINKED, GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.SubnetMaskAddr_X, GL_GlobalData_X.NetworkIf_X.GatewayAddr_X, GL_GlobalData_X.NetworkIf_X.DnsIpAddr_X);
+    //NetworkAdapterManager_Init(&(GL_GlobalData_X.NetworkIf_X.Adapter_H));
+    //NetworkAdapterManager_Enable();
 	
 	///* Initialiaze W-Link Command Management Modules */
 	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize W-Link Command Management Modules");
@@ -240,67 +240,67 @@ void setup() {
 	//}
 	//WCommandInterpreter_Init(cGL_pFctDescr_X, WCMD_FCT_DESCR_SIZE);	
 
-	/* Initialize Indicator Modules */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Indicator Modules");
-	GL_GlobalData_X.Indicator_H.init(GL_PortComMap_X[PORT_COM2], 2400);
-	GL_GlobalData_X.Indicator_H.setIndicatorDevice(INDICATOR_LD5218);
-	IndicatorInterface_Init();
-	IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
-	IndicatorManager_Enable();	// Normal frame by default
-	//IndicatorManager_Disable();
-	//GL_GlobalData_X.Indicator_H.attachEcho(GL_PortComMap_X[PORT_COM3], 9600);
+	///* Initialize Indicator Modules */
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Indicator Modules");
+	//GL_GlobalData_X.Indicator_H.init(GL_PortComMap_X[PORT_COM2], 2400);
+	//GL_GlobalData_X.Indicator_H.setIndicatorDevice(INDICATOR_LD5218);
+	//IndicatorInterface_Init();
+	//IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
+	//IndicatorManager_Enable();	// Normal frame by default
+	////IndicatorManager_Disable();
+	////GL_GlobalData_X.Indicator_H.attachEcho(GL_PortComMap_X[PORT_COM3], 9600);
 
-	/* Initialize Badge Reader Modules */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Badge Reader Modules");
-	GL_GlobalData_X.BadgeReader_H.init(GL_PortComMap_X[PORT_COM1], 9600);
-	BadgeReaderManager_Init(&(GL_GlobalData_X.BadgeReader_H));
-	BadgeReaderManager_Enable();
+	///* Initialize Badge Reader Modules */
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Badge Reader Modules");
+	//GL_GlobalData_X.BadgeReader_H.init(GL_PortComMap_X[PORT_COM1], 9600);
+	//BadgeReaderManager_Init(&(GL_GlobalData_X.BadgeReader_H));
+	//BadgeReaderManager_Enable();
 
-	/* Initialize LCD Modules */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize LCD Modules");
-	GL_GlobalData_X.Lcd_H.init(&GL_LcdObject_X, PIN_LCD_BACKLIGHT);
-	GL_GlobalData_X.Lcd_H.setBacklight(255);	// Max value for Backlight by default
+	///* Initialize LCD Modules */
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize LCD Modules");
+	//GL_GlobalData_X.Lcd_H.init(&GL_LcdObject_X, PIN_LCD_BACKLIGHT);
+	//GL_GlobalData_X.Lcd_H.setBacklight(255);	// Max value for Backlight by default
 
-	/* Initialize FlatPanel Modules */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Flat Panel Modules");
-	GL_GlobalData_X.FlatPanel_H.init(&GL_Keypad_X);
-	GL_GlobalData_X.FlatPanel_H.attachEvent(ManageKeyToLcd);
-	FlatPanelManager_Init(&(GL_GlobalData_X.FlatPanel_H));
-	FlatPanelManager_Enable();
+	///* Initialize FlatPanel Modules */
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Flat Panel Modules");
+	//GL_GlobalData_X.FlatPanel_H.init(&GL_Keypad_X);
+	//GL_GlobalData_X.FlatPanel_H.attachEvent(ManageKeyToLcd);
+	//FlatPanelManager_Init(&(GL_GlobalData_X.FlatPanel_H));
+	//FlatPanelManager_Enable();
 
-	/* Initialize EEPROM Modules */
-
-
-    /* Initialize RTC Modules */
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize RTC Modules");
-    GL_GlobalData_X.Rtc_H.init(&Wire, PIN_RTC_SQUARE_OUT);
-    //GL_GlobalData_X.Rtc_H.setDateTime({10,32,01,25,1,17});
-
-    /* Initialize SD Card Modules */
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Memory Card Modules");
-    GL_GlobalData_X.MemCard_H.init(PIN_SD_CS, PIN_SD_CD, PIN_SD_WP);
-    
-	/* Map Specific Functions on CommEvent Handler */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Map Specific CommEvent Handler");
-	GL_PortComEventMap_X[PORT_COM1].EventHandler = CommEvent_BadgeReader;
-
-	/* Add Output Management for Bug in SPI ¨*/
-	pinMode(PIN_SPI_CS, OUTPUT);
+	///* Initialize EEPROM Modules */
 
 
-	/* End of Initialization */
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Initialization!");
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enter Process Management in Loop Code..");
+ //   /* Initialize RTC Modules */
+ //   DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize RTC Modules");
+ //   GL_GlobalData_X.Rtc_H.init(&Wire, PIN_RTC_SQUARE_OUT);
+ //   //GL_GlobalData_X.Rtc_H.setDateTime({10,32,01,25,1,17});
+
+ //   /* Initialize SD Card Modules */
+ //   DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Memory Card Modules");
+ //   GL_GlobalData_X.MemCard_H.init(PIN_SD_CS, PIN_SD_CD, PIN_SD_WP);
+ //   
+	///* Map Specific Functions on CommEvent Handler */
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Map Specific CommEvent Handler");
+	//GL_pPortComEventMap_X[PORT_COM1].EventHandler = CommEvent_BadgeReader;
+
+	///* Add Output Management for Bug in SPI ¨*/
+	//pinMode(PIN_SPI_CS, OUTPUT);
 
 
-	/* Display Welcome Message */
-	GL_GlobalData_X.Lcd_H.clearDisplay();
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "> " + cGL_pWLinkRevisionId_Str);
+	///* End of Initialization */
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Initialization!");
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enter Process Management in Loop Code..");
 
 
-	/* Record Absolute Time */
-	GL_AbsoluteTime_UL = millis();
+	///* Display Welcome Message */
+	//GL_GlobalData_X.Lcd_H.clearDisplay();
+	//GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
+	//GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "> " + cGL_pWLinkRevisionId_Str);
+
+
+	///* Record Absolute Time */
+	//GL_AbsoluteTime_UL = millis();
 
 }
 
@@ -309,16 +309,21 @@ void setup() {
 /* ******************************************************************************** */
 void loop() {
 
+    BlinkingLedManager_Process();
+    WLinkManager_Process();
+
+
+
 	//UDPServerManager_Process();
 	//TCPServerManager_Process();
 	//IndicatorManager_Process();
 	//BadgeReaderManager_Process();
-	FlatPanelManager_Process();
-	BlinkingLedManager_Process();
+	//FlatPanelManager_Process();
 
-    NetworkAdapterManager_Process();
+ //   NetworkAdapterManager_Process();
 
 }
+
 
 /* ******************************************************************************** */
 /* Internal Functions
@@ -334,16 +339,15 @@ void BlinkingLedManager_Process(void) {
 }
 
 
-
 /* ******************************************************************************** */
 /* Events
 /* ******************************************************************************** */
 
 /* Serial Event */
 //void serialEvent() { GL_PortComEventMap_X[PORT_COM0].EventHandler(); }
-void serialEvent1() { GL_PortComEventMap_X[PORT_COM1].EventHandler(); }
+//void serialEvent1() { GL_pPortComEventMap_X[PORT_COM1].EventHandler(); }
 //void serialEvent2() { GL_PortComEventMap_X[PORT_COM2].EventHandler(); }
 //void serialEvent3() { GL_PortComEventMap_X[PORT_COM3].EventHandler(); }
 
 /* Keypad Event */
-void ManageKeyToLcd(char Key_UB) { GL_GlobalData_X.FlatPanel_H.manageKeytoLcd(Key_UB); }
+//void ManageKeyToLcd(char Key_UB) { GL_GlobalData_X.FlatPanel_H.manageKeytoLcd(Key_UB); }

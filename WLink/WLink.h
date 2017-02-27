@@ -21,40 +21,15 @@
 
 #include "Hardware.h"
 
+#include "SerialHandler.h"
+#include "EepromWire.h"
+
+#include "WCommand.h"
+
 #include "NetworkAdapter.h"
 #include "NetworkAdapterManager.h"
 
-#include "TCPServer.h"
-#include "TCPServerManager.h"
-
-#include "UDPServer.h"
-#include "UDPServerManager.h"
-
-#include "WCommand.h"
-#include "WCommandMedium.h"
-#include "WCommandInterpreter.h"
-
-#include "Indicator.h"
-#include "IndicatorInterface.h"
-#include "IndicatorManager.h"
-
-#include "BadgeReader.h"
-#include "BadgeReaderManager.h"
-
-#include "LcdDisplay.h"
-
-#include "FlatPanel.h"
-#include "FlatPanelManager.h"
-
-#include "EepromWire.h"
-
-#include "RealTimeClock.h"
-
-#include "MemoryCard.h"
-
-
 #include "WLinkManager.h"
-
 
 #include "Debug.h"
 
@@ -62,58 +37,56 @@
 /* Define
 /* ******************************************************************************** */
 
+#define WLINK_DEBUG_DEFAULT_COM_PORT        PORT_COM0
+#define WLINK_DEBUG_DEFAULT_SPEED           115200
+
+
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
-typedef enum {
-	NETWORK_PROTOCOL_UDP,
-	NETWORK_PROTOCOL_TCP
-} NETWORK_PROTOCOL_ENUM;
-
-typedef struct {
-	NETWORK_PROTOCOL_ENUM NetworkProtocol_E;
-	boolean isDhcp_B;
-    boolean isAdvancedConfig_B;
-	unsigned char pMacAddr_UB[6];
-	IPAddress IpAddr_X;
-	IPAddress SubnetMaskAddr_X;
-	IPAddress GatewayAddr_X;
-	IPAddress DnsIpAddr_X;
-	unsigned int LocalPort_UI;
-    NetworkAdapter Adapter_H;
-	//UDPServer UdpServer_H;
-	//TCPServer TcpServer_H;
-} NETWORK_INTERFACE_STRUCT;
 
 typedef struct {
 	unsigned char pRevisionId_UB[8];
 	unsigned char LedPin_UB;
 	unsigned char pGpioInputIndex_UB[4];
 	unsigned char pGpioOutputIndex_UB[4];
-	LcdDisplay Lcd_H;
-	FlatPanel FlatPanel_H;
-	EepromWire Eeprom_H;
-    RealTimeClock Rtc_H;
-    MemoryCard MemCard_H;
-	Indicator Indicator_H;
-	BadgeReader BadgeReader_H;
-    NETWORK_INTERFACE_STRUCT NetworkIf_X;
+    EepromWire Eeprom_H;
+    NetworkAdapter Network_H;
+//  LcdDisplay Lcd_H;
+//  FlatPanel FlatPanel_H;
+//  RealTimeClock Rtc_H;
+//  MemoryCard MemCard_H;
+//  Indicator Indicator_H;
+//  BadgeReader BadgeReader_H;
+//  NETWORK_INTERFACE_STRUCT NetworkIf_X;
 } GLOBAL_PARAM_STRUCT;
 
 
 typedef struct {
     unsigned long Index_UL;
     boolean isEnabled_B;
+    boolean isDebug_B;
     unsigned char Config_UB;
     unsigned long Baudrate_UL;
-    boolean isDebug_B;
 } COM_PORT_CONFIG_STRUCT;
+
+typedef struct {
+    boolean isEnabled_B;
+    boolean isDhcp_B;
+    boolean isAdvancedConfig_B;
+    unsigned char pMacAddr_UB[6];
+    IPAddress IpAddr_X;
+    IPAddress SubnetMaskAddr_X;
+    IPAddress GatewayAddr_X;
+    IPAddress DnsIpAddr_X;
+} ETHERNET_CONFIG_STRUCT;
 
 
 typedef struct {
     unsigned char MajorRev_UB;
     unsigned char MinorRev_UB;
-    COM_PORT_CONFIG_STRUCT ComPort_X[4];
+    COM_PORT_CONFIG_STRUCT pComPortConfig_X[4];
+    ETHERNET_CONFIG_STRUCT EthConfig_X;
 } GLOBAL_CONFIG_STRUCT;
 
 #endif // __WLINK_H__

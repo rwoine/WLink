@@ -52,6 +52,9 @@
     <Filter Include="Source Files\MemoryCard">
       <UniqueIdentifier>{707b7381-c552-45cc-9d1b-7f92cbf1c37f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Serial">
+      <UniqueIdentifier>{aa74a45d-3746-43f1-8856-4e8f0646303f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="WLink.ino" />
@@ -144,6 +147,9 @@
     <ClInclude Include="WConfigManager.h">
       <Filter>Source Files\WManager</Filter>
     </ClInclude>
+    <ClInclude Include="SerialHandler.h">
+      <Filter>Source Files\Serial</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -220,6 +226,9 @@
     </ClCompile>
     <ClCompile Include="WConfigManager.cpp">
       <Filter>Source Files\WManager</Filter>
+    </ClCompile>
+    <ClCompile Include="SerialHandler.cpp">
+      <Filter>Source Files\Serial</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -78,6 +78,8 @@ public:
     IPAddress getGatewayAddr(void);
     IPAddress getDnsIpAddr(void);
 
+    void enableDhcp(void);
+
     void begin(void);
     void flush(void);
     void renew(void);

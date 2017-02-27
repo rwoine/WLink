@@ -104,11 +104,11 @@ void ProcessIdle(void) {
 }
 
 void ProcessConnecting(void) {
-    if (GL_pNetworkAdapter_H->isConnected())
-        TransitionToRunning();
-
     if (!GL_NetworkAdapterManagerEnabled_B)
         TransitionToIdle();
+
+    if (GL_pNetworkAdapter_H->isConnected())
+        TransitionToRunning();
 }
 
 void ProcessRunning(void) {
@@ -119,11 +119,13 @@ void ProcessRunning(void) {
 
 void TransitionToIdle(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
+    GL_pNetworkAdapter_H->flush();
     GL_NetworkAdapterManager_CurrentState_E = NETWORK_ADAPTER_STATE::NETWORK_ADAPTER_IDLE;
 }
 
 void TransitionToConnecting(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CONNECTING");
+    GL_pNetworkAdapter_H->begin();
     GL_NetworkAdapterManager_CurrentState_E = NETWORK_ADAPTER_STATE::NETWORK_ADAPTER_CONNECTING;
 }
 
