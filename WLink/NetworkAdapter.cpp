@@ -23,7 +23,6 @@
 /* ******************************************************************************** */
 /* Internal Functions Prototypes
 /* ******************************************************************************** */
-String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str);
 
 
 /* ******************************************************************************** */
@@ -218,16 +217,3 @@ boolean NetworkAdapter::isEthernetLinked() {
 /* ******************************************************************************** */
 /* Internal Functions
 /* ******************************************************************************** */
-String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str) {
-    String Temp_Str = "";
-    unsigned int Temp_UW = 0;
-
-    for (int i = 0; i < ItemNb_UL; i++) {
-        Temp_UW = pHexArray[i];
-        Temp_Str += String((Temp_UW % 128), HEX);
-        Temp_Str += String((Temp_UW / 128), HEX);
-        if (i < ItemNb_UL-1)
-            Temp_Str += Separator_Str;
-    }
-}
-

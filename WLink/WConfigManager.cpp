@@ -15,6 +15,17 @@
 /* Include
 /* ******************************************************************************** */
 
+#include <Arduino.h>
+#include <SPI.h>
+#include <Ethernet.h>
+#include <EthernetUdp.h>
+#include <LiquidCrystal.h>
+#include <Keypad.h>
+#include <Wire.h>
+#include <SD.h>
+
+#include "Utilz.h"
+
 #include "WConfigManager.h"
 #include "SerialHandler.h"
 
@@ -32,6 +43,7 @@
     
 #define WCONFIG_ADDR_CONFIG_TAG         0x0000
 #define WCONFIG_ADDR_BOARD_REV          0x0002
+#define WCONFIG_ADDR_GEN                0x0006
 #define WCONFIG_ADDR_IO                 0x0008
 #define WCONFIG_ADDR_COM                0x0010
 #define WCONFIG_ADDR_ETH                0x001C
@@ -41,6 +53,23 @@
 /* LUT
 /* ******************************************************************************** */
 unsigned long GL_pPortComSpeedLut_UL[] = { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 };
+static const String GL_pLanguageLut_str[] = { "EN", "FR", "NL" };
+
+
+/* ******************************************************************************** */
+/* General Configuration
+/* ******************************************************************************** */
+LiquidCrystal GL_LcdObject_X(PIN_LCD_RS, PIN_LCD_RW, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
+
+char GL_ppFlatPanel_KeyConfig_UB[4][4] = {	{ 'A','1','2','3' },        // A = Dedicated function (F1)
+											{ 'B','4','5','6' },        // B = Dedicated function (F2)
+											{ 'C','7','8','9' },        // C = Dedicated function (F3)
+											{ 'X','V','0','.' }
+											};
+
+byte GL_pFlatPanel_RowPin_UB[4] = { PIN_FP7, PIN_FP6, PIN_FP5, PIN_FP4 };
+byte GL_pFlatPanel_ColPin_UB[4] = { PIN_FP0, PIN_FP1, PIN_FP2, PIN_FP3 };
+Keypad GL_Keypad_X = Keypad(makeKeymap(GL_ppFlatPanel_KeyConfig_UB), GL_pFlatPanel_RowPin_UB, GL_pFlatPanel_ColPin_UB, sizeof(GL_pFlatPanel_RowPin_UB), sizeof(GL_pFlatPanel_ColPin_UB));
 
 
 /* ******************************************************************************** */
@@ -56,8 +85,10 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 enum WCFG_STATE {
     WCFG_IDLE,
     WCFG_INIT_EEPROM,
-    WCFG_CHECK,
-    WCFG_GET_BOARD_REVISION, 
+    WCFG_INIT_RTC,
+    WCFG_CHECK_TAG,
+    WCFG_GET_BOARD_REVISION,
+    WCFG_GET_GEN_CONFIG,
     WCFG_GET_IO_CONFIG,
     WCFG_GET_COM_CONFIG,
     WCFG_GET_ETH_CONFIG,
@@ -80,7 +111,6 @@ static unsigned char GL_pWConfigBuffer_UB[WCONFIG_PARAMETER_BUFFER_SIZE];
 static void TransitionToErrorReading(void);
 static void TransitionToBadParam(void);
 
-String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str);
 
 /* ******************************************************************************** */
 /* Functions
@@ -135,8 +165,8 @@ WCFG_STATUS WConfigManager_Process() {
         GL_GlobalData_X.Eeprom_H.init(&Wire1, 0x50);
 
         if (GL_GlobalData_X.Eeprom_H.isInitialized()) {
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CHECK");
-            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_CHECK;
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To INIT RTC");
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_INIT_RTC;
         }
         else {
             // TODO : Manage error if EEPROM not initialized
@@ -146,9 +176,28 @@ WCFG_STATUS WConfigManager_Process() {
         break;
 
 
-    /* CHECK */
-    /* > Check if EEPROM has been configured or not. */
-    case WCFG_CHECK:
+    /* INIT RTC */
+    /* > Initialize RTC. */
+    case WCFG_INIT_RTC:
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize RTC Modules");
+        GL_GlobalData_X.Rtc_H.init(&Wire, PIN_RTC_SQUARE_OUT);
+
+        if (GL_GlobalData_X.Rtc_H.isInitialized()) {
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CHECK TAG");
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_CHECK_TAG;
+        }
+        else {
+            // TODO : Manage error if RTC not initialized
+            DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "RTC cannot be initialized");
+        }
+
+        break;
+
+
+    /* CHECK TAG */
+    /* > Check if EEPROM has been configured or not thanks to the configuration tag. */
+    case WCFG_CHECK_TAG:
 
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive configuration tag");
         if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_CONFIG_TAG, GL_pWConfigBuffer_UB, 2) == 2) {
@@ -170,11 +219,11 @@ WCFG_STATUS WConfigManager_Process() {
 
 
     /* GET BOARD REVISION */
-    /* > Retreive board revision. Informational state. */
+    /* > Retreive board revision and language settings. */
     case WCFG_GET_BOARD_REVISION:
 
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive board revision");
-        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_BOARD_REV, GL_pWConfigBuffer_UB, 2) == 2) {
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_BOARD_REV, GL_pWConfigBuffer_UB, 3) == 3) {
 
             GL_GlobalConfig_X.MajorRev_UB = GL_pWConfigBuffer_UB[0];
             GL_GlobalConfig_X.MinorRev_UB = GL_pWConfigBuffer_UB[1];
@@ -183,6 +232,108 @@ WCFG_STATUS WConfigManager_Process() {
             DBG_PRINTDATA(".");
             DBG_PRINTDATA(GL_GlobalConfig_X.MinorRev_UB);
             DBG_ENDSTR();
+
+            if (GL_pWConfigBuffer_UB[2] < 3) {
+                GL_GlobalConfig_X.Language_E = (WLINK_LANGUAGE_ENUM)GL_pWConfigBuffer_UB[2];
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "Language sets to  ");
+                DBG_PRINTDATA(GL_pLanguageLut_str[GL_pWConfigBuffer_UB[2]]);
+                DBG_ENDSTR();
+            }
+            else {
+                GL_GlobalConfig_X.Language_E = WLINK_LANGUAGE_EN;   // Default language
+                DBG_PRINTDATA("Bad parameter for language settings (0x");
+                DBG_PRINTDATABASE(GL_pWConfigBuffer_UB[2], HEX);
+                DBG_PRINTDATA(")");
+                DBG_ENDSTR();
+                TransitionToBadParam();
+            }
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET GEN CONFIG");
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_GEN_CONFIG;
+        }
+        else {
+            TransitionToErrorReading();
+        }
+
+        break;
+
+
+    /* GET GEN CONFIG */
+    /* > Retreive general configuration. */
+    case WCFG_GET_GEN_CONFIG:
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive general configuration");
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_GEN, GL_pWConfigBuffer_UB, 1) == 1) {
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "General configuration :");
+
+            // Check if WLink has LCD
+            if ((GL_pWConfigBuffer_UB[0] && 0x01) == 0x01) {
+                GL_GlobalConfig_X.HasLcd_B = true;
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- LCD");
+            }
+            else {
+                GL_GlobalConfig_X.HasLcd_B = false;
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- No LCD");
+            }
+
+
+            // Check if WLink has Flat-Panel
+            if ((GL_pWConfigBuffer_UB[0] && 0x02) == 0x02) {
+                GL_GlobalConfig_X.HasFlatPanel_B = true;
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- Flat-Panel");
+            }
+            else {
+                GL_GlobalConfig_X.HasFlatPanel_B = false;
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- No Flat-Panel");
+            }
+
+
+            // Check if WLink has MemoryCard
+            if ((GL_pWConfigBuffer_UB[0] && 0x04) == 0x04) {
+                GL_GlobalConfig_X.HasMemoryCard_B = true;
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- Memory Card");
+            }
+            else {
+                GL_GlobalConfig_X.HasMemoryCard_B = false;
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- No Memory Card");
+            }
+
+
+            /* Initialize LCD Modules */
+            if (GL_GlobalConfig_X.HasLcd_B) {                
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize LCD Modules");
+                GL_GlobalData_X.Lcd_H.init(&GL_LcdObject_X, PIN_LCD_BACKLIGHT);
+                GL_GlobalData_X.Lcd_H.setBacklight(255);	// Max value for Backlight by default
+
+                if (!GL_GlobalData_X.Lcd_H.isInitialized()) {
+                    // TODO : Manage error if LCD not initialized
+                    DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "LCD cannot be initialized");
+                }                    
+            }
+
+            /* Initialize FlatPanel Modules */
+            if (GL_GlobalConfig_X.HasFlatPanel_B) {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Flat-Panel Modules");
+                GL_GlobalData_X.FlatPanel_H.init(&GL_Keypad_X);
+
+                if (!GL_GlobalData_X.FlatPanel_H.isInitialized()) {
+                    // TODO : Manage error if Flat-Panel not initialized
+                    DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Flat-Panel cannot be initialized");
+                }
+            }
+
+            /* Initialize Memory Card Modules */
+            if (GL_GlobalConfig_X.HasMemoryCard_B) {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Memory Card Modules");
+                GL_GlobalData_X.MemCard_H.init(PIN_SD_CS, PIN_SD_CD, PIN_SD_WP);
+
+                if (!GL_GlobalData_X.MemCard_H.isInitialized()) {
+                    // TODO : Manage error if Memory Card not initialized
+                    DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Memory Card cannot be initialized");
+                }
+            }
+
 
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET IO CONFIG");
             GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_IO_CONFIG;
@@ -503,18 +654,4 @@ void TransitionToBadParam(void) {
     GL_WConfigStatus_E = WCFG_STS_BAD_PARAM;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To BAD PARAM");
     GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_BAD_PARAM;
-}
-
-
-String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str) {
-    String Temp_Str = "";
-    unsigned int Temp_UW = 0;
-
-    for (int i = 0; i < ItemNb_UL; i++) {
-        Temp_UW = pHexArray[i];
-        Temp_Str += String((Temp_UW % 128), HEX);
-        Temp_Str += String((Temp_UW / 128), HEX);
-        if (i < ItemNb_UL - 1)
-            Temp_Str += Separator_Str;
-    }
 }

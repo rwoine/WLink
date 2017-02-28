@@ -47,31 +47,13 @@ unsigned long GL_AbsoluteTime_UL;
 /* ******************************************************************************** */
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
-//void BlinkingLedManager_Process(void);
+void BlinkingLedManager_Process(void);
 //void ManageKeyToLcd(char Key_UB);
-
-/* ******************************************************************************** */
-/* Flat Panel Configuration
-/* ******************************************************************************** */
-//char GL_ppFlatPanel_KeyConfig_UB[4][4] = {	{ 'A','1','2','3' },
-//											{ 'B','4','5','6' },
-//											{ 'C','7','8','9' },
-//											{ 'X','V','0','.' }
-//											};
-//
-//byte GL_pFlatPanel_RowPin_UB[4] = { PIN_FP7, PIN_FP6, PIN_FP5, PIN_FP4 };
-//byte GL_pFlatPanel_ColPin_UB[4] = { PIN_FP0, PIN_FP1, PIN_FP2, PIN_FP3 };
 
 /* ******************************************************************************** */
 /* Serial Related
 /* ******************************************************************************** */
 //COM_EVENT_FCT_STRUCT GL_pPortComEventMap_X[] = { NULL, NULL, NULL, NULL };
-
-/* ******************************************************************************** */
-/* Pre-Built Objects
-/* ******************************************************************************** */
-//Keypad GL_Keypad_X = Keypad(makeKeymap(GL_ppFlatPanel_KeyConfig_UB), GL_pFlatPanel_RowPin_UB, GL_pFlatPanel_ColPin_UB, sizeof(GL_pFlatPanel_RowPin_UB), sizeof(GL_pFlatPanel_ColPin_UB));
-//LiquidCrystal GL_LcdObject_X(PIN_LCD_RS, PIN_LCD_RW, PIN_LCD_EN, PIN_LCD_D4, PIN_LCD_D5, PIN_LCD_D6, PIN_LCD_D7);
 
 /* ******************************************************************************** */
 /* Functions Mapping
@@ -256,29 +238,17 @@ void setup() {
 	//BadgeReaderManager_Init(&(GL_GlobalData_X.BadgeReader_H));
 	//BadgeReaderManager_Enable();
 
-	///* Initialize LCD Modules */
-	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize LCD Modules");
-	//GL_GlobalData_X.Lcd_H.init(&GL_LcdObject_X, PIN_LCD_BACKLIGHT);
-	//GL_GlobalData_X.Lcd_H.setBacklight(255);	// Max value for Backlight by default
 
-	///* Initialize FlatPanel Modules */
-	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Flat Panel Modules");
-	//GL_GlobalData_X.FlatPanel_H.init(&GL_Keypad_X);
+
+
 	//GL_GlobalData_X.FlatPanel_H.attachEvent(ManageKeyToLcd);
 	//FlatPanelManager_Init(&(GL_GlobalData_X.FlatPanel_H));
 	//FlatPanelManager_Enable();
 
-	///* Initialize EEPROM Modules */
 
 
- //   /* Initialize RTC Modules */
- //   DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize RTC Modules");
- //   GL_GlobalData_X.Rtc_H.init(&Wire, PIN_RTC_SQUARE_OUT);
- //   //GL_GlobalData_X.Rtc_H.setDateTime({10,32,01,25,1,17});
 
- //   /* Initialize SD Card Modules */
- //   DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Memory Card Modules");
- //   GL_GlobalData_X.MemCard_H.init(PIN_SD_CS, PIN_SD_CD, PIN_SD_WP);
+
  //   
 	///* Map Specific Functions on CommEvent Handler */
 	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Map Specific CommEvent Handler");

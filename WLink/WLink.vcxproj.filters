@@ -150,6 +150,9 @@
     <ClInclude Include="SerialHandler.h">
       <Filter>Source Files\Serial</Filter>
     </ClInclude>
+    <ClInclude Include="Utilz.h">
+      <Filter>Source Files\WManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -229,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="SerialHandler.cpp">
       <Filter>Source Files\Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilz.cpp">
+      <Filter>Source Files\WManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
