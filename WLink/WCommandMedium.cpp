@@ -7,6 +7,7 @@
 /*		the commands channel														*/
 /*                                                                                  */
 /* History :  	26/05/2015  (RW)	Creation of this file                           */
+/*              01/03/2017  (RW)    Add GSM as possible medium                      */
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -34,7 +35,7 @@ static HardwareSerial * GL_pMediumSerial_H;
 static UDPServer * GL_pMediumUdpServer_H;
 static TCPServer * GL_pMediumTcpServer_H;
 
-static const String GL_pMediumLut_cstr[] = {"Serial", "UDP", "TCP"};
+static const String GL_pMediumLut_cstr[] = {"Serial", "UDP", "TCP", "GSM"};
 
 /* ******************************************************************************** */
 /* Functions
@@ -54,9 +55,13 @@ void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H) {
 		case WCMD_MEDIUM_TCP:
 			GL_pMediumTcpServer_H = (TCPServer *)pMedium_H;
 			break;
+
+        case WCMD_MEDIUM_GSM:
+            // TODO : not yet implemented
+            break;
 	}
 
-	DBG_PRINT(DEBUG_SEVERITY_INFO, "W-Command Medium Initialized -> ");
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "W-Command Medium Assigned -> ");
 	DBG_PRINTDATA(GL_pMediumLut_cstr[WCmdMedium_E]);
 	DBG_ENDSTR();
 }
@@ -79,6 +84,10 @@ boolean WCmdMedium_IsConnected(void) {
 	case WCMD_MEDIUM_TCP:
 		RetVal_B = GL_pMediumTcpServer_H->isInitialized();
 		break;
+
+    case WCMD_MEDIUM_GSM:
+        // TODO : not yet implemented
+        break;
 	}
 
 	return RetVal_B;
@@ -99,6 +108,10 @@ int WCmdMedium_DataAvailable(void) {
 	case WCMD_MEDIUM_TCP:
 		RetVal_SI = GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.available();
 		break;
+
+    case WCMD_MEDIUM_GSM:
+        // TODO : not yet implemented
+        break;
 	}
 
 	return RetVal_SI;
@@ -119,6 +132,10 @@ unsigned char WCmdMedium_ReadByte(void) {
 	case WCMD_MEDIUM_TCP:
 		RetVal_UB = GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.read();
 		break;
+
+    case WCMD_MEDIUM_GSM:
+        // TODO : not yet implemented
+        break;
 	}
 
 	return RetVal_UB;
@@ -137,6 +154,10 @@ void WCmdMedium_WriteByte(unsigned char Byte_UB) {
 	case WCMD_MEDIUM_TCP:
 		GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.write(Byte_UB);
 		break;
+
+    case WCMD_MEDIUM_GSM:
+        // TODO : not yet implemented
+        break;
 	}
 }
 
@@ -153,6 +174,10 @@ void WCmdMedium_Write(unsigned char * pBuffer_UB, unsigned long NbData_UL) {
 	case WCMD_MEDIUM_TCP:
 		GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.write(pBuffer_UB, NbData_UL);
 		break;
+
+    case WCMD_MEDIUM_GSM:
+        // TODO : not yet implemented
+        break;
 	}
 }
 
@@ -169,6 +194,10 @@ void WCmdMedium_Flush(void) {
 	case WCMD_MEDIUM_TCP:
 		GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.flush();
 		break;
+
+    case WCMD_MEDIUM_GSM:
+        // TODO : not yet implemented
+        break;
 	}
 }
 
@@ -184,6 +213,10 @@ void WCmdMedium_Stop(void) {
 	case WCMD_MEDIUM_TCP:
 		GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.stop();
 		break;
+
+    case WCMD_MEDIUM_GSM:
+        // TODO : not yet implemented
+        break;
 	}
 }
 
@@ -198,6 +231,10 @@ void WCmdMedium_BeginPacket(void) {
 
 	case WCMD_MEDIUM_TCP:		// Do nothing for TCP
 		break;
+
+    case WCMD_MEDIUM_GSM:
+        // TODO : not yet implemented
+        break;
 	}
 }
 
@@ -212,5 +249,9 @@ void WCmdMedium_EndPacket(void) {
 
 	case WCMD_MEDIUM_TCP:		// Do nothing for TCP
 		break;
+
+    case WCMD_MEDIUM_GSM:
+        // TODO : not yet implemented
+        break;
 	}
 }

@@ -35,9 +35,14 @@
 #include "BadgeReaderManager.h"
 
 #include "WCommand.h"
+#include "WCommandMedium.h"
+#include "WCommandInterpreter.h"
 
 #include "NetworkAdapter.h"
 #include "NetworkAdapterManager.h"
+
+#include "TCPServer.h"
+#include "UDPServer.h"
 
 #include "WLinkManager.h"
 
@@ -62,6 +67,26 @@ typedef enum {
     WLINK_LANGUAGE_NL = 2
 } WLINK_LANGUAGE_ENUM;
 
+// WCommand Medium
+typedef enum {
+    WLINK_WCMD_MEDIUM_NONE = 0,
+    WLINK_WCMD_MEDIUM_COM0 = 1,
+    WLINK_WCMD_MEDIUM_COM1 = 2,
+    WLINK_WCMD_MEDIUM_COM2 = 3,
+    WLINK_WCMD_MEDIUM_COM3 = 4,
+    WLINK_WCMD_MEDIUM_UDP_SERVER = 5,
+    WLINK_WCMD_MEDIUM_TCP_SERVER = 6,
+    WLINK_WCMD_MEDIUM_GSM_SERVER = 7
+} WLINK_WCMD_MEDIUM_ENUM;
+
+// > Dedicated Structure for Ethernet Access Points
+typedef struct {
+    TCPServer TcpServer_H;
+    UDPServer UdpServer_H;
+    unsigned long GsmServer_H;  // TODO : to modify when GSMServer Object will be created
+} ETHERNET_ACCESS_POINT_STRUCT;
+
+
 // Global Parameters Strucure
 typedef struct {
 	unsigned char pRevisionId_UB[8];
@@ -74,9 +99,11 @@ typedef struct {
     FlatPanel FlatPanel_H;
     MemoryCard MemCard_H;
     NetworkAdapter Network_H;
+    ETHERNET_ACCESS_POINT_STRUCT EthAP_X;
     Indicator Indicator_H;          // Not yet managed
     BadgeReader BadgeReader_H;      // Not yet managed
 } GLOBAL_PARAM_STRUCT;
+
 
 // > Dedicated Strucure for COM Port Configuration
 typedef struct {
@@ -99,11 +126,19 @@ typedef struct {
     IPAddress DnsIpAddr_X;
 } ETHERNET_CONFIG_STRUCT;
 
+// > Dedicated Strucure for WCommand Configuration
+typedef struct {
+    WLINK_WCMD_MEDIUM_ENUM Medium_E;
+    const WCMD_FCT_DESCR * pFctDescr_X;
+    unsigned long NbFct_UL;
+} WCMD_CONFIG_STRUCT;
+
 // Global Configuration Structure
 typedef struct {
     unsigned char MajorRev_UB;
     unsigned char MinorRev_UB;
     WLINK_LANGUAGE_ENUM Language_E;
+    WCMD_CONFIG_STRUCT WCmdConfig_X;
     boolean HasLcd_B;
     boolean HasFlatPanel_B;
     boolean HasMemoryCard_B;

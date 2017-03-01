@@ -29,6 +29,10 @@
 #include "WConfigManager.h"
 #include "SerialHandler.h"
 
+#include "WCommand.h"
+#include "WCommandMedium.h"
+#include "WCommandInterpreter.h"
+
 #include "Debug.h"
 
 
@@ -43,7 +47,9 @@
     
 #define WCONFIG_ADDR_CONFIG_TAG         0x0000
 #define WCONFIG_ADDR_BOARD_REV          0x0002
+#define WCONFIG_ADDR_LANGUAGE           0x0003
 #define WCONFIG_ADDR_GEN                0x0006
+#define WCONFIG_ADDR_WCMD_MEDIUM        0x0007
 #define WCONFIG_ADDR_IO                 0x0008
 #define WCONFIG_ADDR_COM                0x0010
 #define WCONFIG_ADDR_ETH                0x001C
@@ -54,6 +60,7 @@
 /* ******************************************************************************** */
 unsigned long GL_pPortComSpeedLut_UL[] = { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 };
 static const String GL_pLanguageLut_str[] = { "EN", "FR", "NL" };
+static const String GL_pWCmdMediumLut_str[] = { "None", "COM0", "COM1", "COM2", "COM3", "UDP Server", "TCP Server", "GSM Server" };
 
 
 /* ******************************************************************************** */
@@ -78,6 +85,7 @@ Keypad GL_Keypad_X = Keypad(makeKeymap(GL_ppFlatPanel_KeyConfig_UB), GL_pFlatPan
 extern GLOBAL_PARAM_STRUCT GL_GlobalData_X;
 extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 
+extern const WCMD_FCT_DESCR cGL_pFctDescr_X[];
 
 /* ******************************************************************************** */
 /* Local Variables
@@ -88,7 +96,9 @@ enum WCFG_STATE {
     WCFG_INIT_RTC,
     WCFG_CHECK_TAG,
     WCFG_GET_BOARD_REVISION,
+    WCFG_GET_LANGUAGE,
     WCFG_GET_GEN_CONFIG,
+    WCFG_GET_WCMD_MEDIUM,
     WCFG_GET_IO_CONFIG,
     WCFG_GET_COM_CONFIG,
     WCFG_GET_ETH_CONFIG,
@@ -223,7 +233,7 @@ WCFG_STATUS WConfigManager_Process() {
     case WCFG_GET_BOARD_REVISION:
 
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive board revision");
-        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_BOARD_REV, GL_pWConfigBuffer_UB, 3) == 3) {
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_BOARD_REV, GL_pWConfigBuffer_UB, 2) == 2) {
 
             GL_GlobalConfig_X.MajorRev_UB = GL_pWConfigBuffer_UB[0];
             GL_GlobalConfig_X.MinorRev_UB = GL_pWConfigBuffer_UB[1];
@@ -233,18 +243,36 @@ WCFG_STATUS WConfigManager_Process() {
             DBG_PRINTDATA(GL_GlobalConfig_X.MinorRev_UB);
             DBG_ENDSTR();
 
-            if (GL_pWConfigBuffer_UB[2] < 3) {
-                GL_GlobalConfig_X.Language_E = (WLINK_LANGUAGE_ENUM)GL_pWConfigBuffer_UB[2];
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET LANGUAGE");
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_LANGUAGE;
+        }
+        else {
+            TransitionToErrorReading();
+        }
+
+        break;
+
+
+    /* GET LANGUAGE */
+    /* > Retreive language. */
+    case WCFG_GET_LANGUAGE:
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive language settings");
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_LANGUAGE, GL_pWConfigBuffer_UB, 1) == 1) {
+
+            if (GL_pWConfigBuffer_UB[0] < 3) {
+                GL_GlobalConfig_X.Language_E = (WLINK_LANGUAGE_ENUM)GL_pWConfigBuffer_UB[0];
                 DBG_PRINT(DEBUG_SEVERITY_INFO, "Language sets to  ");
-                DBG_PRINTDATA(GL_pLanguageLut_str[GL_pWConfigBuffer_UB[2]]);
+                DBG_PRINTDATA(GL_pLanguageLut_str[GL_pWConfigBuffer_UB[0]]);
                 DBG_ENDSTR();
             }
             else {
                 GL_GlobalConfig_X.Language_E = WLINK_LANGUAGE_EN;   // Default language
-                DBG_PRINTDATA("Bad parameter for language settings (0x");
-                DBG_PRINTDATABASE(GL_pWConfigBuffer_UB[2], HEX);
+                DBG_PRINT(DEBUG_SEVERITY_ERROR, "Bad parameter for language settings (0x");
+                DBG_PRINTDATABASE(GL_pWConfigBuffer_UB[0], HEX);
                 DBG_PRINTDATA(")");
                 DBG_ENDSTR();
+                DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Language sets to " + GL_pLanguageLut_str[GL_GlobalConfig_X.Language_E] + " (default)");
                 TransitionToBadParam();
             }
 
@@ -254,6 +282,7 @@ WCFG_STATUS WConfigManager_Process() {
         else {
             TransitionToErrorReading();
         }
+
 
         break;
 
@@ -335,6 +364,62 @@ WCFG_STATUS WConfigManager_Process() {
             }
 
 
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of general configuration");
+
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET WCMD MEDIUM");
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_WCMD_MEDIUM;
+        }
+        else {
+            TransitionToErrorReading();
+        }
+
+        break;
+
+
+    /* GET WCMD MEDIUM */
+    /* Retreive WCommand Medium. */
+    case WCFG_GET_WCMD_MEDIUM:
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive WCommand Medium");
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_WCMD_MEDIUM, GL_pWConfigBuffer_UB, 1) == 1) {
+
+            if (GL_pWConfigBuffer_UB[0] < 8) {
+                GL_GlobalConfig_X.WCmdConfig_X.Medium_E = (WLINK_WCMD_MEDIUM_ENUM)GL_pWConfigBuffer_UB[0];
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "WCommand Medium sets to  ");
+                DBG_PRINTDATA(GL_pWCmdMediumLut_str[GL_pWConfigBuffer_UB[0]]);
+                DBG_ENDSTR();
+
+                /* Initialize W-Link Command Management Modules */
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize W-Link Command Management Modules");
+
+                switch (GL_GlobalConfig_X.WCmdConfig_X.Medium_E) {
+                case WLINK_WCMD_MEDIUM_COM0:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(0));                    break;
+                case WLINK_WCMD_MEDIUM_COM1:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(1));                    break;
+                case WLINK_WCMD_MEDIUM_COM2:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(2));                    break;
+                case WLINK_WCMD_MEDIUM_COM3:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(3));                    break;
+                case WLINK_WCMD_MEDIUM_UDP_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_UDP, &(GL_GlobalData_X.EthAP_X.UdpServer_H));   break;
+                case WLINK_WCMD_MEDIUM_TCP_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.EthAP_X.TcpServer_H));   break;
+                case WLINK_WCMD_MEDIUM_GSM_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_GSM, &(GL_GlobalData_X.EthAP_X.GsmServer_H));   break;      // TODO : to modify once the GSMServer Object will be created
+                }
+
+                WCommandInterpreter_Init(GL_GlobalConfig_X.WCmdConfig_X.pFctDescr_X, GL_GlobalConfig_X.WCmdConfig_X.NbFct_UL);
+
+            }
+            else {
+                GL_GlobalConfig_X.WCmdConfig_X.Medium_E = WLINK_WCMD_MEDIUM_COM0;   // Default Medium = Default debug port
+                DBG_PRINT(DEBUG_SEVERITY_ERROR, "Bad parameter for WCommand Medium settings (0x");
+                DBG_PRINTDATABASE(GL_pWConfigBuffer_UB[0], HEX);
+                DBG_PRINTDATA(")");
+                DBG_ENDSTR();
+                DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "WCommand Medium sets to " + GL_pWCmdMediumLut_str[GL_GlobalConfig_X.WCmdConfig_X.Medium_E] + " (default)");
+                TransitionToBadParam();
+            }
+
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of WCommand Medium configuration");
+
+
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET IO CONFIG");
             GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_IO_CONFIG;
         }
@@ -389,6 +474,10 @@ WCFG_STATUS WConfigManager_Process() {
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configure Blinking LED");
             pinMode(GL_GlobalData_X.LedPin_UB, OUTPUT);
             digitalWrite(GL_GlobalData_X.LedPin_UB, HIGH);	// Turn-on by default
+
+
+            /* Add Output Management for Bug in SPI ¨*/
+            pinMode(PIN_SPI_CS, OUTPUT);
 
 
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of I/O's configuration");

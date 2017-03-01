@@ -22,6 +22,8 @@
 #include "WLink.h"
 #include "WCommand.h"
 
+#include "SerialHandler.h"
+
 #include "Debug.h"
 
 /* ******************************************************************************** */
@@ -29,7 +31,6 @@
 /* ******************************************************************************** */
 
 extern GLOBAL_PARAM_STRUCT GL_GlobalData_X;
-extern HardwareSerial * GL_PortComMap_X[4];
 
 /* ******************************************************************************** */
 /* Functions
@@ -428,7 +429,7 @@ WCMD_FCT_STS WCmdProcess_ComPortOpen(const unsigned char * pParam_UB, unsigned l
 		return WCMD_FCT_STS_BAD_DATA;
 
 	// Open Serial
-	GL_PortComMap_X[pParam_UB[0]]->begin(pPortComSpeedLut_UL[pParam_UB[1]]);
+	GetSerialHandle(pParam_UB[0])->begin(pPortComSpeedLut_UL[pParam_UB[1]]);
 
 	return WCMD_FCT_STS_OK;
 }
@@ -446,7 +447,7 @@ WCMD_FCT_STS WCmdProcess_ComPortClose(const unsigned char * pParam_UB, unsigned 
 		return WCMD_FCT_STS_BAD_DATA;
 
 	// Close Serial
-	GL_PortComMap_X[pParam_UB[0]]->end();
+    GetSerialHandle(pParam_UB[0])->end();
 
 	return WCMD_FCT_STS_OK;
 }
@@ -465,7 +466,7 @@ WCMD_FCT_STS WCmdProcess_ComPortWrite(const unsigned char * pParam_UB, unsigned 
 
 	// Send Bytes
 	for (int i = 0; i < pParam_UB[1]; i++)
-		GL_PortComMap_X[pParam_UB[0]]->write(pParam_UB[2+i]);
+        GetSerialHandle(pParam_UB[0])->write(pParam_UB[2+i]);
 
 	return WCMD_FCT_STS_OK;
 }

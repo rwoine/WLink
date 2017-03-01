@@ -7,6 +7,7 @@
 /*		Enables the selection of the communication medium for the commands channel	*/
 /*                                                                                  */
 /* History :	14/05/2016	(RW)	Creation of this file                           */
+/*              01/03/2017  (RW)    Add GSM as possible medium                      */
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -30,7 +31,8 @@
 typedef enum {
 	WCMD_MEDIUM_SERIAL = 0,
 	WCMD_MEDIUM_UDP,
-	WCMD_MEDIUM_TCP
+	WCMD_MEDIUM_TCP,
+    WCMD_MEDIUM_GSM
 } WCMD_MEDIUM_ENUM;
 
 
