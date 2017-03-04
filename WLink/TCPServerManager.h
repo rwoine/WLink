@@ -30,10 +30,12 @@
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
-void TCPServerManager_Init(TCPServer * pTCPServer_H);
+void TCPServerManager_Init(NetworkAdapter * pNetworkAdapter_H, TCPServer * pTCPServer_H);
 void TCPServerManager_Enable();
 void TCPServerManager_Disable();
 void TCPServerManager_Process();
+
+boolean TCPServerManager_IsRunning();
 
 
 #endif // __TCP_SERVER_MANAGER_H__

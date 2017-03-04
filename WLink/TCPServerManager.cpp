@@ -25,8 +25,6 @@
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define TCP_SERVER_MANAGER_IS_ETHERNET_LINKED_TRY_NB    3
-#define TCP_SERVER_MANAGER_IS_ETHERNET_LINKED_DELAY_MS  400
 
 
 /* ******************************************************************************** */
@@ -41,10 +39,9 @@ enum TCP_SERVER_MANAGER_STATE {
 
 static TCP_SERVER_MANAGER_STATE GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_IDLE;
 
+static NetworkAdapter * GL_pNetworkAdapter_H;
 static TCPServer * GL_pTcpServer_H;
 
-static unsigned char GL_TcpIsCableConnectedTryCnt_UB = 0;
-static unsigned long GL_TcpAbsoluteTime_UL = 0;
 static boolean GL_TcpServerManagerEnabled_B = false;
 
 
@@ -61,14 +58,13 @@ static void TransitionToConnecting(void);
 static void TransitionToWaitClient(void);
 static void TransitionToRunning(void);
 
-static boolean IsEthernetStillLinked(void);
-
 
 /* ******************************************************************************** */
 /* Functions
 /* ******************************************************************************** */
 
-void TCPServerManager_Init(TCPServer * pTCPServer_H) {
+void TCPServerManager_Init(NetworkAdapter * pNetworkAdapter_H, TCPServer * pTCPServer_H) {
+    GL_pNetworkAdapter_H = pNetworkAdapter_H;
 	GL_pTcpServer_H = pTCPServer_H;
 	GL_TcpServerManagerEnabled_B = false;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "TCP Server Manager Initialized");
@@ -102,27 +98,30 @@ void TCPServerManager_Process() {
 	}
 }
 
+boolean TCPServerManager_IsRunning(void) {
+    return ((GL_TCPServerManager_CurrentState_E == TCP_SERVER_MANAGER_RUNNING) ? true : false);
+}
+
 
 /* ******************************************************************************** */
 /* Internal Functions
 /* ******************************************************************************** */
 
 void ProcessIdle(void) {
-	if (GL_pTcpServer_H->GL_TcpServerParam_X.IsInitialized_B && GL_pTcpServer_H->isEthernetLinked() && GL_TcpServerManagerEnabled_B)
+	if (GL_pTcpServer_H->isInitialized() && GL_pNetworkAdapter_H->isConnected() && GL_TcpServerManagerEnabled_B)
 		TransitionToConnecting();
 }
 
 void ProcessConnecting(void) {
-	if (GL_pTcpServer_H->GL_TcpServerParam_X.IsConnected_B)
-		TransitionToWaitClient();
-
-	if (!GL_TcpServerManagerEnabled_B)
+	if (GL_TcpServerManagerEnabled_B)
 		TransitionToIdle();
+    else if (GL_pTcpServer_H->isConnected())
+        TransitionToWaitClient();
 }
 
 void ProcessWaitClient(void) {
-	if (!IsEthernetStillLinked() || !GL_TcpServerManagerEnabled_B) {
-		WCommandInterpreter_Restart();
+	if (!(GL_pNetworkAdapter_H->isConnected()) || !GL_TcpServerManagerEnabled_B) {
+		//WCommandInterpreter_Restart();
 		TransitionToIdle();
 	}
 
@@ -134,14 +133,14 @@ void ProcessWaitClient(void) {
 void ProcessRunning(void) {
 	boolean EnableCmd_B = true;
 
-	if (!IsEthernetStillLinked() || !GL_TcpServerManagerEnabled_B) {
-		WCommandInterpreter_Restart();
+	if (!(GL_pNetworkAdapter_H->isConnected()) || !GL_TcpServerManagerEnabled_B) {
+		//WCommandInterpreter_Restart();
 		TransitionToIdle();
 		EnableCmd_B = false;
 	}
 
 	if (!GL_pTcpServer_H->GL_TcpServerParam_X.Client_H.connected()) {
-		WCommandInterpreter_Restart();
+		//WCommandInterpreter_Restart();
 		TransitionToWaitClient();
 		EnableCmd_B = false;
 	}
@@ -155,49 +154,21 @@ void TransitionToIdle(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
 	GL_pTcpServer_H->GL_TcpServerParam_X.Client_H.flush();
 	GL_pTcpServer_H->GL_TcpServerParam_X.Client_H.stop();
-	GL_pTcpServer_H->GL_TcpServerParam_X.Status_E = TCP_SERVER_IDLE;
 	GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_IDLE;
 }
 
 void TransitionToConnecting(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CONNECTING");
 	GL_pTcpServer_H->begin();
-	GL_pTcpServer_H->GL_TcpServerParam_X.Status_E = TCP_SERVER_AWAKE;
 	GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_CONNECTING;
 }
 
 void TransitionToWaitClient(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT CLIENT");
-	GL_pTcpServer_H->GL_TcpServerParam_X.Status_E = TCP_SERVER_CONNECTED;
 	GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_WAIT_CLIENT;
 }
 
 void TransitionToRunning(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To RUNNING");
-	GL_TcpAbsoluteTime_UL = millis();
-	GL_pTcpServer_H->GL_TcpServerParam_X.Status_E = TCP_SERVER_RUNNING;
 	GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_RUNNING;
-}
-
-
-boolean IsEthernetStillLinked(void) {
-	if (!GL_pTcpServer_H->isEthernetLinked()) {
-		if ((millis() - GL_TcpAbsoluteTime_UL) >= TCP_SERVER_MANAGER_IS_ETHERNET_LINKED_DELAY_MS) {
-			GL_TcpAbsoluteTime_UL = millis();
-			GL_TcpIsCableConnectedTryCnt_UB++;
-			//DBG_PRINT(DEBUG_SEVERITY_WARNING, "Cable Disconnected. Try Number = ");
-			//DBG_PRINTDATA(GL_TcpIsCableConnectedTryCnt_UB);
-			//DBG_ENDSTR();
-		}
-		if (GL_TcpIsCableConnectedTryCnt_UB == TCP_SERVER_MANAGER_IS_ETHERNET_LINKED_TRY_NB) {
-			GL_TcpIsCableConnectedTryCnt_UB = 0;
-			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Cable Disconnected");
-			return false;
-		}
-	}
-	else {
-		GL_TcpIsCableConnectedTryCnt_UB = 0;
-	}
-
-	return true;
 }

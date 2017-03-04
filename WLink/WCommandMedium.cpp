@@ -22,7 +22,9 @@
 #include "WCommandInterpreter.h"
 
 #include "UDPServer.h"
+#include "UDPServerManager.h"
 #include "TCPServer.h"
+#include "TCPServerManager.h"
 
 #include "Debug.h"
 
@@ -69,20 +71,20 @@ void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H) {
 /* ******************************************************************************** */
 /* Functions - Exported
 /* ******************************************************************************** */
-boolean WCmdMedium_IsConnected(void) {
+boolean WCmdMedium_IsRunning(void) {
 	boolean RetVal_B = false;
 
 	switch (GL_Medium_E) {
 	case WCMD_MEDIUM_SERIAL:
-		RetVal_B = true; // Serial always connected
+		RetVal_B = true; // Serial always running
 		break;
 
 	case WCMD_MEDIUM_UDP:
-		RetVal_B = GL_pMediumUdpServer_H->isInitialized();
+		RetVal_B = GL_pMediumUdpServer_H->isInitialized();  // TODO : Change with ServerManager_StateMachine IsRunning()
 		break;
 
 	case WCMD_MEDIUM_TCP:
-		RetVal_B = GL_pMediumTcpServer_H->isInitialized();
+		RetVal_B = TCPServerManager_IsRunning();
 		break;
 
     case WCMD_MEDIUM_GSM:

@@ -31,7 +31,8 @@ typedef enum {
     WCFG_STS_NOT_ENABLED    = 1,
     WCFG_STS_ERROR          = 100,
     WCFG_STS_ERROR_READING  = 101,
-    WCFG_STS_BAD_PARAM      = 102
+    WCFG_STS_BAD_PARAM      = 102,
+    WCFG_STS_ERROR_INIT     = 103
 }WCFG_STATUS;
 
 /* ******************************************************************************** */
@@ -41,6 +42,8 @@ void WConfigManager_Init();
 void WConfigManager_Enable();
 void WConfigManager_Disable();
 WCFG_STATUS WConfigManager_Process();
+
+void WConfigManager_BuildSerialGateway();
 
 
 #endif // __WCONFIG_MANAGER_H__

@@ -39,7 +39,7 @@
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define WCONFIG_PARAMETER_BUFFER_SIZE   128
+#define WCONFIG_PARAMETER_BUFFER_SIZE   48
 
 #define WCONFIG_CONFIG_TAG0             0xAA
 #define WCONFIG_CONFIG_TAG1             0x55
@@ -53,6 +53,8 @@
 #define WCONFIG_ADDR_IO                 0x0008
 #define WCONFIG_ADDR_COM                0x0010
 #define WCONFIG_ADDR_ETH                0x001C
+#define WCONFIG_ADDR_TCP_SERVER         0x0034
+#define WCONFIG_ADDR_UDP_SERVER         0x0036
 
 
 /* ******************************************************************************** */
@@ -71,7 +73,7 @@ LiquidCrystal GL_LcdObject_X(PIN_LCD_RS, PIN_LCD_RW, PIN_LCD_EN, PIN_LCD_D4, PIN
 char GL_ppFlatPanel_KeyConfig_UB[4][4] = {	{ 'A','1','2','3' },        // A = Dedicated function (F1)
 											{ 'B','4','5','6' },        // B = Dedicated function (F2)
 											{ 'C','7','8','9' },        // C = Dedicated function (F3)
-											{ 'X','V','0','.' }
+											{ 'X','V','0','.' }         // X = Cancel - V = Validate
 											};
 
 byte GL_pFlatPanel_RowPin_UB[4] = { PIN_FP7, PIN_FP6, PIN_FP5, PIN_FP4 };
@@ -85,7 +87,6 @@ Keypad GL_Keypad_X = Keypad(makeKeymap(GL_ppFlatPanel_KeyConfig_UB), GL_pFlatPan
 extern GLOBAL_PARAM_STRUCT GL_GlobalData_X;
 extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 
-extern const WCMD_FCT_DESCR cGL_pFctDescr_X[];
 
 /* ******************************************************************************** */
 /* Local Variables
@@ -102,9 +103,12 @@ enum WCFG_STATE {
     WCFG_GET_IO_CONFIG,
     WCFG_GET_COM_CONFIG,
     WCFG_GET_ETH_CONFIG,
+    WCFG_GET_TCP_SERVER_CONFIG,
+    WCFG_GET_UDP_SERVER_CONFIG,
     WCFG_CONFIG_DONE,
     WCFG_ERROR_READING,
-    WCFG_BAD_PARAM
+    WCFG_BAD_PARAM,
+    WCFG_ERROR_INIT
 };
 
 static WCFG_STATE GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_IDLE;
@@ -118,8 +122,10 @@ static unsigned char GL_pWConfigBuffer_UB[WCONFIG_PARAMETER_BUFFER_SIZE];
 /* ******************************************************************************** */
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
+static void TransitionToConfigDone(void);
 static void TransitionToErrorReading(void);
 static void TransitionToBadParam(void);
+static void TransitionToErrorInit(void);
 
 
 /* ******************************************************************************** */
@@ -143,6 +149,9 @@ void WConfigManager_Disable() {
 }
 
 WCFG_STATUS WConfigManager_Process() { 
+
+    boolean ErrorInit_B = false;
+    boolean BadParam_B = false;
 
     /* Reset Condition */
     if (!GL_WConfigManagerEnabled_B) {
@@ -179,8 +188,8 @@ WCFG_STATUS WConfigManager_Process() {
             GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_INIT_RTC;
         }
         else {
-            // TODO : Manage error if EEPROM not initialized
             DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "EEPROM cannot be initialized");
+            TransitionToErrorInit();
         }
 
         break;
@@ -198,8 +207,8 @@ WCFG_STATUS WConfigManager_Process() {
             GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_CHECK_TAG;
         }
         else {
-            // TODO : Manage error if RTC not initialized
             DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "RTC cannot be initialized");
+            TransitionToErrorInit();
         }
 
         break;
@@ -217,8 +226,8 @@ WCFG_STATUS WConfigManager_Process() {
                 GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_BOARD_REVISION;
             }
             else {
-                // TODO : Manage error if no or bad configuration tag
                 DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Error in configuration tag (no tag or bad tag)");
+                TransitionToBadParam();
             }
         }
         else {
@@ -265,6 +274,9 @@ WCFG_STATUS WConfigManager_Process() {
                 DBG_PRINT(DEBUG_SEVERITY_INFO, "Language sets to  ");
                 DBG_PRINTDATA(GL_pLanguageLut_str[GL_pWConfigBuffer_UB[0]]);
                 DBG_ENDSTR();
+
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET GEN CONFIG");
+                GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_GEN_CONFIG;
             }
             else {
                 GL_GlobalConfig_X.Language_E = WLINK_LANGUAGE_EN;   // Default language
@@ -275,9 +287,6 @@ WCFG_STATUS WConfigManager_Process() {
                 DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Language sets to " + GL_pLanguageLut_str[GL_GlobalConfig_X.Language_E] + " (default)");
                 TransitionToBadParam();
             }
-
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET GEN CONFIG");
-            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_GEN_CONFIG;
         }
         else {
             TransitionToErrorReading();
@@ -336,8 +345,8 @@ WCFG_STATUS WConfigManager_Process() {
                 GL_GlobalData_X.Lcd_H.setBacklight(255);	// Max value for Backlight by default
 
                 if (!GL_GlobalData_X.Lcd_H.isInitialized()) {
-                    // TODO : Manage error if LCD not initialized
                     DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "LCD cannot be initialized");
+                    ErrorInit_B = true;
                 }                    
             }
 
@@ -347,8 +356,14 @@ WCFG_STATUS WConfigManager_Process() {
                 GL_GlobalData_X.FlatPanel_H.init(&GL_Keypad_X);
 
                 if (!GL_GlobalData_X.FlatPanel_H.isInitialized()) {
-                    // TODO : Manage error if Flat-Panel not initialized
+                    FlatPanelManager_Disable();
                     DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Flat-Panel cannot be initialized");
+                    ErrorInit_B = true;
+                }
+                else {
+                    /* Initialize & Enable Interface Manager */
+                    FlatPanelManager_Init(&(GL_GlobalData_X.FlatPanel_H));
+                    FlatPanelManager_Enable();
                 }
             }
 
@@ -358,17 +373,20 @@ WCFG_STATUS WConfigManager_Process() {
                 GL_GlobalData_X.MemCard_H.init(PIN_SD_CS, PIN_SD_CD, PIN_SD_WP);
 
                 if (!GL_GlobalData_X.MemCard_H.isInitialized()) {
-                    // TODO : Manage error if Memory Card not initialized
                     DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Memory Card cannot be initialized");
+                    ErrorInit_B = true;
                 }
             }
 
+            if (ErrorInit_B) {
+                TransitionToErrorInit();
+            }
+            else {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of general configuration");
 
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of general configuration");
-
-
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET WCMD MEDIUM");
-            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_WCMD_MEDIUM;
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET WCMD MEDIUM");
+                GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_WCMD_MEDIUM;
+            }
         }
         else {
             TransitionToErrorReading();
@@ -390,7 +408,7 @@ WCFG_STATUS WConfigManager_Process() {
                 DBG_PRINTDATA(GL_pWCmdMediumLut_str[GL_pWConfigBuffer_UB[0]]);
                 DBG_ENDSTR();
 
-                /* Initialize W-Link Command Management Modules */
+                /* Initialize W-Link Command Medium Modules */
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize W-Link Command Management Modules");
 
                 switch (GL_GlobalConfig_X.WCmdConfig_X.Medium_E) {
@@ -401,27 +419,26 @@ WCFG_STATUS WConfigManager_Process() {
                 case WLINK_WCMD_MEDIUM_UDP_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_UDP, &(GL_GlobalData_X.EthAP_X.UdpServer_H));   break;
                 case WLINK_WCMD_MEDIUM_TCP_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.EthAP_X.TcpServer_H));   break;
                 case WLINK_WCMD_MEDIUM_GSM_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_GSM, &(GL_GlobalData_X.EthAP_X.GsmServer_H));   break;      // TODO : to modify once the GSMServer Object will be created
-                }
+                }       
 
                 WCommandInterpreter_Init(GL_GlobalConfig_X.WCmdConfig_X.pFctDescr_X, GL_GlobalConfig_X.WCmdConfig_X.NbFct_UL);
 
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of WCommand Medium configuration");
+
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET IO CONFIG");
+                GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_IO_CONFIG;
             }
             else {
-                GL_GlobalConfig_X.WCmdConfig_X.Medium_E = WLINK_WCMD_MEDIUM_COM0;   // Default Medium = Default debug port
+
                 DBG_PRINT(DEBUG_SEVERITY_ERROR, "Bad parameter for WCommand Medium settings (0x");
                 DBG_PRINTDATABASE(GL_pWConfigBuffer_UB[0], HEX);
                 DBG_PRINTDATA(")");
                 DBG_ENDSTR();
-                DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "WCommand Medium sets to " + GL_pWCmdMediumLut_str[GL_GlobalConfig_X.WCmdConfig_X.Medium_E] + " (default)");
+
+                WConfigManager_BuildSerialGateway();
                 TransitionToBadParam();
-            }
+            }           
 
-
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of WCommand Medium configuration");
-
-
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET IO CONFIG");
-            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_IO_CONFIG;
         }
         else {
             TransitionToErrorReading();
@@ -482,7 +499,6 @@ WCFG_STATUS WConfigManager_Process() {
 
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of I/O's configuration");
 
-
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET COM CONFIG");
             GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_COM_CONFIG;
         }
@@ -516,7 +532,7 @@ WCFG_STATUS WConfigManager_Process() {
                         DBG_PRINTDATABASE(GL_pWConfigBuffer_UB[i * 3 + 1], HEX);
                         DBG_PRINTDATA(")");
                         DBG_ENDSTR();
-                        TransitionToBadParam();
+                        BadParam_B = true;
                     }
                     else
                         GL_GlobalConfig_X.pComPortConfig_X[i].Config_UB = SERIAL_8N1;
@@ -527,7 +543,7 @@ WCFG_STATUS WConfigManager_Process() {
                         DBG_PRINTDATABASE(GL_pWConfigBuffer_UB[i * 3 + 2], HEX);
                         DBG_PRINTDATA(")");
                         DBG_ENDSTR();
-                        TransitionToBadParam();
+                        BadParam_B = true;
                     }
                     else
                         GL_GlobalConfig_X.pComPortConfig_X[i].Baudrate_UL = GL_pPortComSpeedLut_UL[GL_pWConfigBuffer_UB[i * 3 + 2]];
@@ -580,11 +596,15 @@ WCFG_STATUS WConfigManager_Process() {
             }
 
 
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of COM Ports configuration");
+            if (BadParam_B) {
+                TransitionToBadParam();
+            }
+            else {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of COM Ports configuration");
 
-
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET ETH CONFIG");
-            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_ETH_CONFIG;
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET ETH CONFIG");
+                GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_ETH_CONFIG;
+            }
         }
         else {
             TransitionToErrorReading();
@@ -670,6 +690,21 @@ WCFG_STATUS WConfigManager_Process() {
                 NetworkAdapterManager_Init(&(GL_GlobalData_X.Network_H));
                 NetworkAdapterManager_Enable(); // GL_GlobalData_X.Network_H.begin() is called in NetworkAdapterManager_Process() when cable is conneted
 
+
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Ethernet configuration");
+
+
+
+
+
+
+
+
+
+
+
+                TransitionToConfigDone();
+
             }
             else {
                 // Disable Network Adapter Manager
@@ -679,19 +714,44 @@ WCFG_STATUS WConfigManager_Process() {
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Ethernet not enabled");
             }
 
-
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Ethernet configuration");
-
-
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CONFIG DONE");
-            GL_WConfigStatus_E = WCFG_STS_OK;
-            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_CONFIG_DONE;
         }
         else {
             TransitionToErrorReading();
         }
 
         break;
+
+
+    /* GET TCP SERVER CONFIG */
+    /* > Retreive TCP Server configuration. */
+    case WCFG_GET_TCP_SERVER_CONFIG:
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive TCP Server configuration");
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_TCP_SERVER, GL_pWConfigBuffer_UB, 2) == 2) {
+        
+        
+        }
+        else {
+            TransitionToErrorReading();        
+        }
+
+        break;
+
+
+    ///* GET XXX CONFIG */
+    ///* > Retreive XXX configuration. */
+    //case WCFG_STATE:
+
+        //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive XXX configuration");
+        //if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_XXX, GL_pWConfigBuffer_UB, XXX) == XXX) {
+
+
+        //}
+        //else {
+        //    TransitionToErrorReading();
+        //}
+
+    //    break;
 
 
     /* CONFIG DONE */
@@ -721,15 +781,41 @@ WCFG_STATUS WConfigManager_Process() {
         break;
 
 
+    /* ERROR INIT */
+    /* > Error while trying to initialize an object in a previous state. */
+    case WCFG_ERROR_INIT:
+
+        GL_WConfigStatus_E = WCFG_STS_ERROR_INIT;
+
+        break;
+
+
     }
 
     return GL_WConfigStatus_E;
 }
 
 
+void WConfigManager_BuildSerialGateway(void) {
+
+    GL_GlobalConfig_X.WCmdConfig_X.Medium_E = WLINK_WCMD_MEDIUM_COM0;   // Default Medium = Default debug port
+    DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "WCommand Medium sets to " + GL_pWCmdMediumLut_str[GL_GlobalConfig_X.WCmdConfig_X.Medium_E] + " (default)");
+
+    WCommandInterpreter_Init(GL_GlobalConfig_X.WCmdConfig_X.pFctDescr_X, GL_GlobalConfig_X.WCmdConfig_X.NbFct_UL);
+
+}
+
+
 /* ******************************************************************************** */
 /* Internal Functions
 /* ******************************************************************************** */
+
+void TransitionToConfigDone(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Configuration from EEPROM..");
+    GL_WConfigStatus_E = WCFG_STS_OK;
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CONFIG DONE");
+    GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_CONFIG_DONE;
+}
 
 void TransitionToErrorReading(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Error when reading from EEPROM");
@@ -743,4 +829,11 @@ void TransitionToBadParam(void) {
     GL_WConfigStatus_E = WCFG_STS_BAD_PARAM;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To BAD PARAM");
     GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_BAD_PARAM;
+}
+
+void TransitionToErrorInit(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Error while trying to initialize an object");
+    GL_WConfigStatus_E = WCFG_STS_ERROR_INIT;
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To ERROR INIT");
+    GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_ERROR_INIT;
 }

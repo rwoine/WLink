@@ -27,6 +27,7 @@
 #include "RealTimeClock.h"
 #include "LcdDisplay.h"
 #include "FlatPanel.h"
+#include "FlatPanelManager.h"
 #include "MemoryCard.h"
 
 #include "Indicator.h"

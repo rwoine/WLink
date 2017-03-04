@@ -39,7 +39,8 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 enum W_STATE {
     W_IDLE,
     W_CONFIG,
-    W_PROCESS_WLINK
+    W_PROCESS_WLINK,
+    W_ERROR
 };
 
 static W_STATE GL_WLinkManager_CurrentState_E = W_STATE::W_IDLE;
@@ -52,12 +53,13 @@ static boolean GL_WLinkManagerEnabled_B = false;
 static void ProcessIdle(void);
 static void ProcessConfig(void);
 static void ProcessWLink(void);
+static void ProcessError(void);
 
 
 static void TransitionToIdle(void);
 static void TransitionToConfig(void);
 static void TransitionToProcessWLink(void);
-
+static void TransitionToError(void);
 
 /* ******************************************************************************** */
 /* Functions
@@ -109,19 +111,29 @@ void ProcessIdle(void) {
 void ProcessConfig(void) {
     if (WConfigManager_Process() != WCFG_STS_BUSY) {
         if (WConfigManager_Process() == WCFG_STS_OK) {
+            WConfigManager_Disable();
             TransitionToProcessWLink();
-            // TODO : Add gateway from Debug port to EEPROM to allow new configuration
         }
         else {
-            // TODO : Transition to Error state. Allowing Configuration to be loaded
+            TransitionToError();
         }
     }
 }
 
 void ProcessWLink(void) {
-    // TODO : if Interface is enabled -> call process() from Interface Manager
-    if (GL_GlobalConfig_X.EthConfig_X.isEnabled_B)      NetworkAdapterManager_Process();
+
+    // If Interface is enabled -> call process() from Interface Manager
+
+    if (GL_GlobalConfig_X.EthConfig_X.isEnabled_B)                              NetworkAdapterManager_Process();
+    if (GL_GlobalConfig_X.WCmdConfig_X.Medium_E != WLINK_WCMD_MEDIUM_NONE)      WCommandInterpreter_Process();
+    if (GL_GlobalData_X.FlatPanel_H.isInitialized())                            FlatPanelManager_Process();   
 }
+
+void ProcessError(void) {
+    // Allow user to configure EEPROM through Debug port -> Need a restart after the configuration parameters are loaded
+    if (GL_GlobalConfig_X.WCmdConfig_X.Medium_E != WLINK_WCMD_MEDIUM_NONE)      WCommandInterpreter_Process();
+}
+
 
 void TransitionToIdle(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
@@ -137,5 +149,11 @@ void TransitionToConfig(void) {
 void TransitionToProcessWLink(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To PROCESS W-LINK");
     GL_WLinkManager_CurrentState_E = W_STATE::W_PROCESS_WLINK;
+}
+
+void TransitionToError(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To ERROR");
+    if (GL_GlobalConfig_X.WCmdConfig_X.Medium_E != WLINK_WCMD_MEDIUM_COM0)  WConfigManager_BuildSerialGateway();    // Build Serial Gateway to EEPROM Configuration
+    GL_WLinkManager_CurrentState_E = W_STATE::W_ERROR;
 }
 
