@@ -44,7 +44,6 @@
 /* ******************************************************************************** */
 void WCommandInterpreter_Init(const WCMD_FCT_DESCR *pFctDescr_X, unsigned long NbFct_UL);
 void WCommandInterpreter_Process();
-void WCommandInterpreter_Restart();
 
 
 #endif // __WCOMMAND_INTERPRETER_H__

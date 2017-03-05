@@ -402,23 +402,32 @@ WCFG_STATUS WConfigManager_Process() {
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive WCommand Medium");
         if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_WCMD_MEDIUM, GL_pWConfigBuffer_UB, 1) == 1) {
 
-            if (GL_pWConfigBuffer_UB[0] < 8) {
-                GL_GlobalConfig_X.WCmdConfig_X.Medium_E = (WLINK_WCMD_MEDIUM_ENUM)GL_pWConfigBuffer_UB[0];
-                DBG_PRINT(DEBUG_SEVERITY_INFO, "WCommand Medium sets to  ");
-                DBG_PRINTDATA(GL_pWCmdMediumLut_str[GL_pWConfigBuffer_UB[0]]);
+            if ((GL_pWConfigBuffer_UB[0] && 0x0F) < 8) {
+                GL_GlobalConfig_X.WCmdConfig_X.Medium_E = (WLINK_WCMD_MEDIUM_ENUM)(GL_pWConfigBuffer_UB[0] && 0x0F);
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "WCommand Medium sets to ");
+                DBG_PRINTDATA(GL_pWCmdMediumLut_str[(GL_pWConfigBuffer_UB[0] && 0x0F)]);
                 DBG_ENDSTR();
+
+                if ((GL_pWConfigBuffer_UB[0] && 0x10) == 0x10) {
+                    GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B = true;
+                    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCommand Medium is mono-client");
+                }
+                else { 
+                    GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B = false;
+                    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCommand Medium is not mono-client -> close connection after each command");
+                }
 
                 /* Initialize W-Link Command Medium Modules */
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize W-Link Command Management Modules");
 
                 switch (GL_GlobalConfig_X.WCmdConfig_X.Medium_E) {
-                case WLINK_WCMD_MEDIUM_COM0:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(0));                    break;
-                case WLINK_WCMD_MEDIUM_COM1:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(1));                    break;
-                case WLINK_WCMD_MEDIUM_COM2:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(2));                    break;
-                case WLINK_WCMD_MEDIUM_COM3:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(3));                    break;
-                case WLINK_WCMD_MEDIUM_UDP_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_UDP, &(GL_GlobalData_X.EthAP_X.UdpServer_H));   break;
-                case WLINK_WCMD_MEDIUM_TCP_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.EthAP_X.TcpServer_H));   break;
-                case WLINK_WCMD_MEDIUM_GSM_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_GSM, &(GL_GlobalData_X.EthAP_X.GsmServer_H));   break;      // TODO : to modify once the GSMServer Object will be created
+                case WLINK_WCMD_MEDIUM_COM0:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(0), GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B);                    break;
+                case WLINK_WCMD_MEDIUM_COM1:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(1), GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B);                    break;
+                case WLINK_WCMD_MEDIUM_COM2:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(2), GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B);                    break;
+                case WLINK_WCMD_MEDIUM_COM3:        WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(3), GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B);                    break;
+                case WLINK_WCMD_MEDIUM_UDP_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_UDP, &(GL_GlobalData_X.EthAP_X.UdpServer_H), GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B);   break;
+                case WLINK_WCMD_MEDIUM_TCP_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_TCP, &(GL_GlobalData_X.EthAP_X.TcpServer_H), GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B);   break;
+                case WLINK_WCMD_MEDIUM_GSM_SERVER:  WCmdMedium_Init(WCMD_MEDIUM_GSM, &(GL_GlobalData_X.EthAP_X.GsmServer_H), GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B);   break;      // TODO : to modify once the GSMServer Object will be created
                 }       
 
                 WCommandInterpreter_Init(GL_GlobalConfig_X.WCmdConfig_X.pFctDescr_X, GL_GlobalConfig_X.WCmdConfig_X.NbFct_UL);
@@ -431,7 +440,7 @@ WCFG_STATUS WConfigManager_Process() {
             else {
 
                 DBG_PRINT(DEBUG_SEVERITY_ERROR, "Bad parameter for WCommand Medium settings (0x");
-                DBG_PRINTDATABASE(GL_pWConfigBuffer_UB[0], HEX);
+                DBG_PRINTDATABASE((GL_pWConfigBuffer_UB[0] && 0x0F), HEX);
                 DBG_PRINTDATA(")");
                 DBG_ENDSTR();
 

@@ -39,12 +39,13 @@ typedef enum {
 /* ******************************************************************************** */
 /* Functions Prototypes - Configuration
 /* ******************************************************************************** */
-void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H);
+void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H, boolean isMonoClient_B);
 
 
 /* ******************************************************************************** */
 /* Functions Prototypes - Exported
 /* ******************************************************************************** */
+boolean WCmdMedium_IsMonoClient(void);
 boolean WCmdMedium_IsRunning(void);
 int WCmdMedium_DataAvailable(void);
 unsigned char WCmdMedium_ReadByte(void);

@@ -39,11 +39,13 @@ static TCPServer * GL_pMediumTcpServer_H;
 
 static const String GL_pMediumLut_cstr[] = {"Serial", "UDP", "TCP", "GSM"};
 
+static boolean GL_IsMonoClient_B = false;
+
 /* ******************************************************************************** */
 /* Functions
 /* ******************************************************************************** */
 
-void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H) {
+void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H, boolean isMonoClient_B) {
 	GL_Medium_E = WCmdMedium_E;
 	switch (GL_Medium_E) {
 		case WCMD_MEDIUM_SERIAL:
@@ -63,6 +65,8 @@ void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H) {
             break;
 	}
 
+    GL_IsMonoClient_B = isMonoClient_B;
+
 	DBG_PRINT(DEBUG_SEVERITY_INFO, "W-Command Medium Assigned -> ");
 	DBG_PRINTDATA(GL_pMediumLut_cstr[WCmdMedium_E]);
 	DBG_ENDSTR();
@@ -71,6 +75,10 @@ void WCmdMedium_Init(WCMD_MEDIUM_ENUM WCmdMedium_E, void * pMedium_H) {
 /* ******************************************************************************** */
 /* Functions - Exported
 /* ******************************************************************************** */
+boolean WCmdMedium_IsMonoClient(void) {
+    return GL_IsMonoClient_B;
+}
+
 boolean WCmdMedium_IsRunning(void) {
 	boolean RetVal_B = false;
 
@@ -194,7 +202,7 @@ void WCmdMedium_Flush(void) {
 		break;
 
 	case WCMD_MEDIUM_TCP:
-		GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.flush();
+        GL_pMediumTcpServer_H->flushClient();
 		break;
 
     case WCMD_MEDIUM_GSM:
@@ -213,7 +221,7 @@ void WCmdMedium_Stop(void) {
 		break;
 
 	case WCMD_MEDIUM_TCP:
-		GL_pMediumTcpServer_H->GL_TcpServerParam_X.Client_H.stop();
+        GL_pMediumTcpServer_H->stopClient();
 		break;
 
     case WCMD_MEDIUM_GSM:

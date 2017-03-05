@@ -130,6 +130,7 @@ typedef struct {
 // > Dedicated Strucure for WCommand Configuration
 typedef struct {
     WLINK_WCMD_MEDIUM_ENUM Medium_E;
+    boolean isMonoClient_B;
     const WCMD_FCT_DESCR * pFctDescr_X;
     unsigned long NbFct_UL;
 } WCMD_CONFIG_STRUCT;

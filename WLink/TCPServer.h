@@ -59,7 +59,14 @@ public:
 
 	void begin();
 	void renew();
+    void flushClient(void);
+    void stopClient(void);
     boolean isConnected(void);
+    boolean isClientAvailable(void);
+    boolean isClientConnected(void);
+
+    EthernetServer * getServer(void);
+    EthernetClient * getClient(void);
 
 	TCP_SERVER_PARAM GL_TcpServerParam_X;
 };

@@ -41,10 +41,7 @@ TCPServer::TCPServer() {
 /* Functions
 /* ******************************************************************************** */
 void TCPServer::init(NetworkAdapter * pNetworkAdapter_H) {
-    GL_pNetworkAdapter_H = pNetworkAdapter_H;
-    GL_TcpServerParam_X.LocalPort_UI = TCP_SERVER_DEFAULT_PORT;
-	GL_TcpServerParam_X.IsInitialized_B = true;
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "TCP Server Initialized");
+    init(pNetworkAdapter_H, TCP_SERVER_DEFAULT_PORT);
 }
 
 void TCPServer::init(NetworkAdapter * pNetworkAdapter_H, unsigned int LocalPort_UI) {
@@ -83,12 +80,44 @@ void TCPServer::begin() {
 
 void TCPServer::renew() {
 	GL_TcpServerParam_X.IsConnected_B = false;
-	GL_TcpServerParam_X.Client_H.flush(); 	// Flush buffer
-	GL_TcpServerParam_X.Client_H.stop(); 	// Close connection if any
+    flushClient();
+    stopClient();
 	begin();
+}
+
+void TCPServer::flushClient(void) {
+    GL_TcpServerParam_X.Client_H.flush();   // Flush buffer
+}
+
+void TCPServer::stopClient(void) {
+    GL_TcpServerParam_X.Client_H.stop();    // Close connection if any
 }
 
 boolean TCPServer::isConnected(void) {
     return (GL_TcpServerParam_X.IsConnected_B);
+}
+
+boolean TCPServer::isClientAvailable(void) {
+    GL_TcpServerParam_X.Client_H = GL_TcpServerParam_X.Server_H.available();
+    if (GL_TcpServerParam_X.Client_H)
+        return true;
+    else
+        return false;
+}
+
+boolean TCPServer::isClientConnected(void) {
+    if (GL_TcpServerParam_X.Client_H.connected())
+        return true;
+    else
+        return false;
+}
+
+
+EthernetServer * TCPServer::getServer(void) {
+    return (&(GL_TcpServerParam_X.Server_H));
+}
+
+EthernetClient * TCPServer::getClient(void) {
+    return (&(GL_TcpServerParam_X.Client_H));
 }
 

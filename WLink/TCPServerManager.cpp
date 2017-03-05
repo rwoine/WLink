@@ -79,6 +79,13 @@ void TCPServerManager_Disable() {
 }
 
 void TCPServerManager_Process() {
+
+    /* Reset Condition */
+    if (!(GL_pNetworkAdapter_H->isConnected() && GL_TcpServerManagerEnabled_B)) {
+        TransitionToIdle();
+    }
+
+    /* State Machine */
 	switch (GL_TCPServerManager_CurrentState_E) {
 	case TCP_SERVER_MANAGER_IDLE:
 		ProcessIdle();
@@ -113,47 +120,31 @@ void ProcessIdle(void) {
 }
 
 void ProcessConnecting(void) {
-	if (GL_TcpServerManagerEnabled_B)
+	if (!GL_TcpServerManagerEnabled_B)
 		TransitionToIdle();
     else if (GL_pTcpServer_H->isConnected())
         TransitionToWaitClient();
 }
 
 void ProcessWaitClient(void) {
-	if (!(GL_pNetworkAdapter_H->isConnected()) || !GL_TcpServerManagerEnabled_B) {
-		//WCommandInterpreter_Restart();
-		TransitionToIdle();
-	}
-
-	GL_pTcpServer_H->GL_TcpServerParam_X.Client_H = GL_pTcpServer_H->GL_TcpServerParam_X.Server_H.available();
-	if (GL_pTcpServer_H->GL_TcpServerParam_X.Client_H)
-		TransitionToRunning();
+    if (!(GL_pTcpServer_H->isConnected())) {
+        TransitionToIdle();
+    }
+    else if (GL_pTcpServer_H->isClientAvailable()) {
+        TransitionToRunning();
+    }
 }
 
 void ProcessRunning(void) {
-	boolean EnableCmd_B = true;
-
-	if (!(GL_pNetworkAdapter_H->isConnected()) || !GL_TcpServerManagerEnabled_B) {
-		//WCommandInterpreter_Restart();
-		TransitionToIdle();
-		EnableCmd_B = false;
-	}
-
-	if (!GL_pTcpServer_H->GL_TcpServerParam_X.Client_H.connected()) {
-		//WCommandInterpreter_Restart();
-		TransitionToWaitClient();
-		EnableCmd_B = false;
-	}
-
-	if (EnableCmd_B)
-		WCommandInterpreter_Process();
+    if (!(GL_pTcpServer_H->isClientConnected())) {
+        TransitionToWaitClient();
+    }
 }
 
 
 void TransitionToIdle(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
-	GL_pTcpServer_H->GL_TcpServerParam_X.Client_H.flush();
-	GL_pTcpServer_H->GL_TcpServerParam_X.Client_H.stop();
+    GL_pTcpServer_H->stopClient();
 	GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_IDLE;
 }
 

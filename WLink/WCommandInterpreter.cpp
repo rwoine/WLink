@@ -78,6 +78,12 @@ void WCommandInterpreter_Init(const WCMD_FCT_DESCR *pFctDescr_X, unsigned long N
 }
 
 void WCommandInterpreter_Process() {
+    
+    /* Reset Condition */
+    if (!WCmdMedium_IsRunning())
+        TransitionToIdle();
+
+    /* State Machine */ 
 	switch (GL_WCommandInterpreter_CurrentState_E) {
 		case WCMD_INTERPRETER_STATE_IDLE :
 			ProcessIdle();
@@ -98,16 +104,12 @@ void WCommandInterpreter_Process() {
 	}
 }
 
-void WCommandInterpreter_Restart() {
-	TransitionToIdle();
-}
-
 /* ******************************************************************************** */
 /* Internal Functions
 /* ******************************************************************************** */
 
 void ProcessIdle(void) {
-	if (WCmdMedium_IsConnected())
+	if (WCmdMedium_IsRunning())
 		TransitionToCheckCmd();
 }
 
@@ -247,14 +249,18 @@ void ProcessSendResp(void) {
 	WCmdMedium_EndPacket();
 	delay(1);
 
-	WCmdMedium_Flush();
-	WCmdMedium_Stop();
-	TransitionToIdle();
+    // Manage Transition
+    if (WCmdMedium_IsMonoClient())
+        TransitionToCheckCmd();     // Wait for next command
+    else
+        TransitionToIdle();         // Restart medium to close current connection
 }
 
 
 void TransitionToIdle(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
+    WCmdMedium_Flush();
+    WCmdMedium_Stop();
 	GL_WCommandInterpreter_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_IDLE;
 }
 
