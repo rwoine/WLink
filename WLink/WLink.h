@@ -43,7 +43,9 @@
 #include "NetworkAdapterManager.h"
 
 #include "TCPServer.h"
+#include "TCPServerManager.h"
 #include "UDPServer.h"
+#include "UDPServerManager.h"
 
 #include "WLinkManager.h"
 
@@ -115,6 +117,13 @@ typedef struct {
     unsigned long Baudrate_UL;
 } COM_PORT_CONFIG_STRUCT;
 
+
+// > Dedicated Structure for TCP/UDP Server Configuration
+typedef struct {
+    boolean isEnabled_B;
+    unsigned int LocalPort_UI;
+} SERVER_CONFIG_STRUCT;
+
 // > Dedicated Strucure for Ethernet Configuration
 typedef struct {
     boolean isEnabled_B;
@@ -125,6 +134,8 @@ typedef struct {
     IPAddress SubnetMaskAddr_X;
     IPAddress GatewayAddr_X;
     IPAddress DnsIpAddr_X;
+    SERVER_CONFIG_STRUCT TcpServerConfig_X;
+    SERVER_CONFIG_STRUCT UdpServerConfig_X;
 } ETHERNET_CONFIG_STRUCT;
 
 // > Dedicated Strucure for WCommand Configuration

@@ -29,10 +29,12 @@
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
-void UDPServerManager_Init(UDPServer * pUDPServer_H);
+void UDPServerManager_Init(NetworkAdapter * pNetworkAdapter_H, UDPServer * pUDPServer_H);
 void UDPServerManager_Enable();
 void UDPServerManager_Disable();
 void UDPServerManager_Process();
+
+boolean UDPServerManager_IsRunning();
 
 
 #endif // __UDP_SERVER_MANAGER_H__

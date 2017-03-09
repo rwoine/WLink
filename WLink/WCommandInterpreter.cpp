@@ -31,6 +31,7 @@
 /* ******************************************************************************** */
 enum WCMD_INTERPRETER_STATE {
 	WCMD_INTERPRETER_STATE_IDLE,
+    WCMD_INTERPRETER_STATE_WAIT_PACKET,
 	WCMD_INTERPRETER_STATE_CHECK_CMD,
 	WCMD_INTERPRETER_STATE_PROCESS_CMD,
 	WCMD_INTERPRETER_STATE_SEND_RESP
@@ -57,11 +58,13 @@ static WCMD_PARAM_STRUCT GL_WCmdParam_X;
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
 static void ProcessIdle(void);
+static void ProcessWaitPacket(void);
 static void ProcessCheckCmd(void);
 static void ProcessProcessCmd(void);
 static void ProcessSendResp(void);
 
 static void TransitionToIdle(void);
+static void TransitionToWaitPacket(void);
 static void TransitionToCheckCmd(void);
 static void TransitionToProcessCmd(void);
 static void TransitionToSendResp(void);
@@ -89,6 +92,10 @@ void WCommandInterpreter_Process() {
 			ProcessIdle();
 			break;
 
+        case WCMD_INTERPRETER_STATE_WAIT_PACKET :
+            ProcessWaitPacket();
+            break;
+
 		case WCMD_INTERPRETER_STATE_CHECK_CMD :
 			ProcessCheckCmd();
 			break;
@@ -110,7 +117,12 @@ void WCommandInterpreter_Process() {
 
 void ProcessIdle(void) {
 	if (WCmdMedium_IsRunning())
-		TransitionToCheckCmd();
+		TransitionToWaitPacket();
+}
+
+void ProcessWaitPacket(void) {
+    if (WCmdMedium_IsPacketReceived())
+        TransitionToCheckCmd();
 }
 
 void ProcessCheckCmd(void) {
@@ -251,9 +263,9 @@ void ProcessSendResp(void) {
 
     // Manage Transition
     if (WCmdMedium_IsMonoClient())
-        TransitionToCheckCmd();     // Wait for next command
+        TransitionToWaitPacket();       // Wait for next command
     else
-        TransitionToIdle();         // Restart medium to close current connection
+        TransitionToIdle();             // Restart medium to close current connection
 }
 
 
@@ -262,6 +274,11 @@ void TransitionToIdle(void) {
     WCmdMedium_Flush();
     WCmdMedium_Stop();
 	GL_WCommandInterpreter_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_IDLE;
+}
+
+void TransitionToWaitPacket(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT PACKET");
+    GL_WCommandInterpreter_CurrentState_E = WCMD_INTERPRETER_STATE::WCMD_INTERPRETER_STATE_WAIT_PACKET;
 }
 
 void TransitionToCheckCmd(void) {

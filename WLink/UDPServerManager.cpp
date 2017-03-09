@@ -24,8 +24,6 @@
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define UDP_SERVER_MANAGER_IS_ETHERNET_LINKED_TRY_NB    3
-#define UDP_SERVER_MANAGER_IS_ETHERNET_LINKED_DELAY_MS  400
 
 
 /* ******************************************************************************** */
@@ -34,12 +32,12 @@
 enum UDP_SERVER_MANAGER_STATE {
 	UDP_SERVER_MANAGER_IDLE,
 	UDP_SERVER_MANAGER_CONNECTING,
-	UDP_SERVER_MANAGER_WAIT_CLIENT,
 	UDP_SERVER_MANAGER_RUNNING
 };
 
 static UDP_SERVER_MANAGER_STATE GL_UDPServerManager_CurrentState_E = UDP_SERVER_MANAGER_STATE::UDP_SERVER_MANAGER_IDLE;
 
+static NetworkAdapter * GL_pNetworkAdapter_H;
 static UDPServer * GL_pUdpServer_H;
 
 static unsigned char GL_UdpIsCableConnectedTryCnt_UB = 0;
@@ -65,7 +63,8 @@ static boolean IsEthernetStillLinked(void);
 /* Functions
 /* ******************************************************************************** */
 
-void UDPServerManager_Init(UDPServer * pUDPServer_H) {
+void UDPServerManager_Init(NetworkAdapter * pNetworkAdapter_H, UDPServer * pUDPServer_H) {
+    GL_pNetworkAdapter_H = pNetworkAdapter_H;
 	GL_pUdpServer_H = pUDPServer_H;
 	GL_UdpServerManagerEnabled_B = false;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "UDP Server Manager Initialized");
@@ -80,6 +79,12 @@ void UDPServerManager_Disable() {
 }
 
 void UDPServerManager_Process() {
+    /* Reset Condition */
+    if (!(GL_pNetworkAdapter_H->isConnected() && GL_UdpServerManagerEnabled_B)) {
+        TransitionToIdle();
+    }
+
+    /* State Machine */
 	switch (GL_UDPServerManager_CurrentState_E) {
 	case UDP_SERVER_MANAGER_IDLE:
 		ProcessIdle();
@@ -95,79 +100,44 @@ void UDPServerManager_Process() {
 	}
 }
 
+boolean UDPServerManager_IsRunning(void) {
+    return ((GL_UDPServerManager_CurrentState_E != UDP_SERVER_MANAGER_IDLE) ? true : false);
+}
+
 
 /* ******************************************************************************** */
 /* Internal Functions
 /* ******************************************************************************** */
 
 void ProcessIdle(void) {
-	if (GL_pUdpServer_H->isInitialized() && GL_pUdpServer_H->isEthernetLinked() && GL_UdpServerManagerEnabled_B)
+	if (GL_pUdpServer_H->isInitialized() && GL_pNetworkAdapter_H->isConnected() && GL_UdpServerManagerEnabled_B)
 		TransitionToConnecting();
 }
 
 void ProcessConnecting(void) {
-	if (GL_pUdpServer_H->GL_UdpServerParam_X.IsConnected_B)
+	if (GL_pUdpServer_H->isConnected())
 		TransitionToRunning();
-
-	if (!GL_UdpServerManagerEnabled_B)
-		TransitionToIdle();
 }
 
 void ProcessRunning(void) {
-	boolean EnableCmd_B = true;
-
-	if (!IsEthernetStillLinked() || !GL_UdpServerManagerEnabled_B) {
-		WCommandInterpreter_Restart();
-		TransitionToIdle();
-		EnableCmd_B = false;
-	}
-
-	if (EnableCmd_B)
-		WCommandInterpreter_Process();
+    // Keep running
 }
 
 
 void TransitionToIdle(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
-	GL_pUdpServer_H->GL_UdpServerParam_X.Server_H.flush();
-	GL_pUdpServer_H->GL_UdpServerParam_X.Server_H.stop();
-	GL_pUdpServer_H->GL_UdpServerParam_X.Status_E = UDP_SERVER_IDLE;
+    GL_pUdpServer_H->flushServer();
+    GL_pUdpServer_H->stopServer();
 	GL_UDPServerManager_CurrentState_E = UDP_SERVER_MANAGER_STATE::UDP_SERVER_MANAGER_IDLE;
 }
 
 void TransitionToConnecting(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CONNECTING");
 	GL_pUdpServer_H->begin();
-	GL_pUdpServer_H->GL_UdpServerParam_X.Status_E = UDP_SERVER_AWAKE;
 	GL_UDPServerManager_CurrentState_E = UDP_SERVER_MANAGER_STATE::UDP_SERVER_MANAGER_CONNECTING;
 }
 
 void TransitionToRunning(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To RUNNING");
-	GL_UdpAbsoluteTime_UL = millis();
-	GL_pUdpServer_H->GL_UdpServerParam_X.Status_E = UDP_SERVER_RUNNING;
 	GL_UDPServerManager_CurrentState_E = UDP_SERVER_MANAGER_STATE::UDP_SERVER_MANAGER_RUNNING;
-}
-
-
-boolean IsEthernetStillLinked(void) {
-	if (!GL_pUdpServer_H->isEthernetLinked()) {
-		if ((millis() - GL_UdpAbsoluteTime_UL) >= UDP_SERVER_MANAGER_IS_ETHERNET_LINKED_DELAY_MS) {
-			GL_UdpAbsoluteTime_UL = millis();
-			GL_UdpIsCableConnectedTryCnt_UB++;
-			//DBG_PRINT(DEBUG_SEVERITY_WARNING, "Cable Disconnected. Try Number = ");
-			//DBG_PRINTDATA(GL_UdpIsCableConnectedTryCnt_UB);
-			//DBG_ENDSTR();  
-		}
-		if (GL_UdpIsCableConnectedTryCnt_UB == UDP_SERVER_MANAGER_IS_ETHERNET_LINKED_TRY_NB) {
-			GL_UdpIsCableConnectedTryCnt_UB = 0;
-			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Cable Disconnected");
-			return false;
-		}
-	}
-	else {
-		GL_UdpIsCableConnectedTryCnt_UB = 0;
-	}
-
-	return true;
 }

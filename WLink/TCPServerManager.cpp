@@ -106,7 +106,7 @@ void TCPServerManager_Process() {
 }
 
 boolean TCPServerManager_IsRunning(void) {
-    return ((GL_TCPServerManager_CurrentState_E == TCP_SERVER_MANAGER_RUNNING) ? true : false);
+    return ((GL_TCPServerManager_CurrentState_E != TCP_SERVER_MANAGER_IDLE) ? true : false);
 }
 
 
@@ -120,9 +120,7 @@ void ProcessIdle(void) {
 }
 
 void ProcessConnecting(void) {
-	if (!GL_TcpServerManagerEnabled_B)
-		TransitionToIdle();
-    else if (GL_pTcpServer_H->isConnected())
+    if (GL_pTcpServer_H->isConnected())
         TransitionToWaitClient();
 }
 
@@ -144,6 +142,7 @@ void ProcessRunning(void) {
 
 void TransitionToIdle(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
+    GL_pTcpServer_H->flushClient();
     GL_pTcpServer_H->stopClient();
 	GL_TCPServerManager_CurrentState_E = TCP_SERVER_MANAGER_STATE::TCP_SERVER_MANAGER_IDLE;
 }

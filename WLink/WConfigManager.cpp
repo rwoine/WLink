@@ -145,6 +145,7 @@ void WConfigManager_Enable() {
 }
 
 void WConfigManager_Disable() {
+    GL_WConfigStatus_E = WCFG_STS_NOT_ENABLED;
     GL_WConfigManagerEnabled_B = false;
 }
 
@@ -702,17 +703,8 @@ WCFG_STATUS WConfigManager_Process() {
 
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Ethernet configuration");
 
-
-
-
-
-
-
-
-
-
-
-                TransitionToConfigDone();
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET TCP SERVER CONFIG");
+                GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_TCP_SERVER_CONFIG;
 
             }
             else {
@@ -738,10 +730,64 @@ WCFG_STATUS WConfigManager_Process() {
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive TCP Server configuration");
         if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_TCP_SERVER, GL_pWConfigBuffer_UB, 2) == 2) {
         
+            if ((GL_pWConfigBuffer_UB[0] && 0x01) == 0x01) {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "TCP Server enabled");
+                GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.isEnabled_B = true;
+
+                GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.LocalPort_UI = (unsigned int)GL_pWConfigBuffer_UB[1];
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "Local port = ");
+                DBG_PRINTDATA(GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.LocalPort_UI);
+                DBG_ENDSTR();
+
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of TCP Server configuration");
+
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET UDP SERVER CONFIG");
+                GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_UDP_SERVER_CONFIG;
+
+            }
+            else {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "TCP Server not enabled");
+                GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.isEnabled_B = false;
+            }
         
         }
         else {
             TransitionToErrorReading();        
+        }
+
+        break;
+
+
+
+    /* GET UDP SERVER CONFIG */
+    /* > Retreive UDP Server configuration. */
+    case WCFG_GET_UDP_SERVER_CONFIG:
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive UDP Server configuration");
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_UDP_SERVER, GL_pWConfigBuffer_UB, 2) == 2) {
+
+            if ((GL_pWConfigBuffer_UB[0] && 0x01) == 0x01) {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "UDP Server enabled");
+                GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.isEnabled_B = true;
+
+                GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.LocalPort_UI = (unsigned int)GL_pWConfigBuffer_UB[1];
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "Local port = ");
+                DBG_PRINTDATA(GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.LocalPort_UI);
+                DBG_ENDSTR();
+
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of UDP Server configuration");
+
+                TransitionToConfigDone();
+
+            }
+            else {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "UDP Server not enabled");
+                GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.isEnabled_B = false;
+            }
+
+        }
+        else {
+            TransitionToErrorReading();
         }
 
         break;
@@ -753,6 +799,10 @@ WCFG_STATUS WConfigManager_Process() {
 
         //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive XXX configuration");
         //if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_XXX, GL_pWConfigBuffer_UB, XXX) == XXX) {
+
+
+
+        //      TransitionToConfigDone();
 
 
         //}
