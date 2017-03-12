@@ -46,7 +46,7 @@ typedef enum {
 
 typedef struct {
 	boolean IsInitialized_B;
-    void(*pFct_OnKeyPressed[16])(void);
+    void(*pFct_OnKeyPressed[16])(char *);
 } FLAT_PANEL_PARAM;
 
 /* ******************************************************************************** */
@@ -62,7 +62,7 @@ public:
 	boolean isInitialized(void);
 
 	unsigned char getKey(void);
-    void assignOnKeyPressedEvent(FLAT_PANEL_KEY_ENUM Key_E, void(*pFct_OnKeyPressed)(void));
+    void assignOnKeyPressedEvent(FLAT_PANEL_KEY_ENUM Key_E, void(*pFct_OnKeyPressed)(char *));
 
 	FLAT_PANEL_PARAM GL_FlatPanelParam_X;
 };

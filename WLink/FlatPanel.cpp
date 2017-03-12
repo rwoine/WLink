@@ -58,7 +58,7 @@ unsigned char FlatPanel::getKey(void) {
 	return GL_pKeypad_H->getKey();
 }
 
-void FlatPanel::assignOnKeyPressedEvent(FLAT_PANEL_KEY_ENUM Key_E, void(*pFct_OnKeyPressed)(void)) {
+void FlatPanel::assignOnKeyPressedEvent(FLAT_PANEL_KEY_ENUM Key_E, void(*pFct_OnKeyPressed)(char *)) {
     GL_FlatPanelParam_X.pFct_OnKeyPressed[Key_E] = pFct_OnKeyPressed;
 }
 
@@ -70,26 +70,27 @@ void OnKeyEvents(char Key_UB) {
     // If a Key is pressed
     if (GL_pKeypad_H->getState() == PRESSED) {
         switch (Key_UB) {
-        case '0':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_0]();          break;
-        case '1':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_1]();          break;
-        case '2':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_2]();          break;
-        case '3':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_3]();          break;
-        case '4':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_4]();          break;
-        case '5':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_5]();          break;
-        case '6':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_6]();          break;
-        case '7':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_7]();          break;
-        case '8':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_8]();          break;
-        case '9':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_9]();          break;
-        case '.':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_DOT]();        break;
-        case 'V':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_VALIDATE]();   break;
-        case 'X':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_CLEAR]();      break;
-        case 'A':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_F1]();         break;
-        case 'B':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_F2]();         break;
-        case 'C':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_F3]();         break;
+        case '0':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_0](&Key_UB);          break;
+        case '1':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_1](&Key_UB);          break;
+        case '2':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_2](&Key_UB);          break;
+        case '3':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_3](&Key_UB);          break;
+        case '4':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_4](&Key_UB);          break;
+        case '5':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_5](&Key_UB);          break;
+        case '6':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_6](&Key_UB);          break;
+        case '7':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_7](&Key_UB);          break;
+        case '8':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_8](&Key_UB);          break;
+        case '9':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_9](&Key_UB);          break;
+        case '.':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_DOT](&Key_UB);        break;
+        case 'V':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_VALIDATE](&Key_UB);   break;
+        case 'X':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_CLEAR](&Key_UB);      break;
+        case 'A':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_F1](&Key_UB);         break;
+        case 'B':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_F2](&Key_UB);         break;
+        case 'C':   GL_GlobalData_X.FlatPanel_H.GL_FlatPanelParam_X.pFct_OnKeyPressed[FLAT_PANEL_KEY_F3](&Key_UB);         break;
         }        
     }
 
 }
+
 
 
 //void FlatPanel::manageKeytoLcd(char Key_UB) {

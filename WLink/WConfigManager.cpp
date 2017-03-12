@@ -128,7 +128,11 @@ static void TransitionToBadParam(void);
 static void TransitionToErrorInit(void);
 
 
-static void OnValidateKeyPressed(void);
+/* ******************************************************************************** */
+/* Prototypes for Dedicated Functions
+/* ******************************************************************************** */
+static void DefaultKeyEvents(char * Key_UB);
+
 
 /* ******************************************************************************** */
 /* Functions
@@ -369,7 +373,24 @@ WCFG_STATUS WConfigManager_Process() {
                     FlatPanelManager_Init(&(GL_GlobalData_X.FlatPanel_H));
                     FlatPanelManager_Enable();
 
-                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_VALIDATE, OnValidateKeyPressed);
+                    /* Initialize default callbacks for each key */
+                    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Assign default callback for each key");
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_0, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_1, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_2, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_3, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_4, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_5, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_6, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_7, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_8, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_9, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_DOT, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_VALIDATE, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_CLEAR, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_F1, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_F2, DefaultKeyEvents);
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_F3, DefaultKeyEvents);
                 }
             }
 
@@ -577,7 +598,7 @@ WCFG_STATUS WConfigManager_Process() {
                     GL_GlobalConfig_X.pComPortConfig_X[i].isEnabled_B = true;
                     DBG_PRINTDATA(": Enabled (8N1, ");
                     DBG_PRINTDATA(GL_GlobalConfig_X.pComPortConfig_X[i].Baudrate_UL);
-                    DBG_PRINTDATA(" [baud])");
+                    DBG_PRINTDATA("[baud])");
                     if (GL_GlobalConfig_X.pComPortConfig_X[i].isDebug_B)
                         DBG_PRINTDATA(" -> Configured as Debug COM port");
                     DBG_ENDSTR();
@@ -922,6 +943,13 @@ void TransitionToErrorInit(void) {
 }
 
 
-void OnValidateKeyPressed(void) {
-    DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Validate Key Pressed ! Mo'fucker !");
+/* ******************************************************************************** */
+/* Dedicated Functions
+/* ******************************************************************************** */
+
+void DefaultKeyEvents(char * Key_UB) {
+    DBG_PRINT(DEBUG_SEVERITY_WARNING, "[");
+    DBG_PRINTDATA((*Key_UB));
+    DBG_PRINTDATA("] key pressed -> No callback assigned!");
+    DBG_ENDSTR();
 }
