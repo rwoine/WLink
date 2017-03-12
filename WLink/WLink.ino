@@ -34,7 +34,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "17030601";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "17031201";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -138,6 +138,12 @@ void setup() {
     for (int i = 0; i < 8; i++)
         GL_GlobalData_X.pRevisionId_UB[i] = cGL_pWLinkRevisionId_Str.charAt(i);
 
+
+
+    ///* Configure Blinking LED */
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configure Blinking LED");
+    pinMode(GL_GlobalData_X.LedPin_UB, OUTPUT);
+    digitalWrite(GL_GlobalData_X.LedPin_UB, HIGH);	// Turn-on by default
 
 
     /* W-Link Manager Initialization */

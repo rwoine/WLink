@@ -95,6 +95,9 @@ void WLinkManager_Process() {
         ProcessWLink();
         break;
 
+    case W_ERROR:
+        ProcessError();
+        break;
     }
 }
 

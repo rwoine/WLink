@@ -47,14 +47,14 @@
     
 #define WCONFIG_ADDR_CONFIG_TAG         0x0000
 #define WCONFIG_ADDR_BOARD_REV          0x0002
-#define WCONFIG_ADDR_LANGUAGE           0x0003
+#define WCONFIG_ADDR_LANGUAGE           0x0004
 #define WCONFIG_ADDR_GEN                0x0006
 #define WCONFIG_ADDR_WCMD_MEDIUM        0x0007
 #define WCONFIG_ADDR_IO                 0x0008
 #define WCONFIG_ADDR_COM                0x0010
 #define WCONFIG_ADDR_ETH                0x001C
 #define WCONFIG_ADDR_TCP_SERVER         0x0034
-#define WCONFIG_ADDR_UDP_SERVER         0x0036
+#define WCONFIG_ADDR_UDP_SERVER         0x0038
 
 
 /* ******************************************************************************** */
@@ -127,6 +127,8 @@ static void TransitionToErrorReading(void);
 static void TransitionToBadParam(void);
 static void TransitionToErrorInit(void);
 
+
+static void OnValidateKeyPressed(void);
 
 /* ******************************************************************************** */
 /* Functions
@@ -307,7 +309,7 @@ WCFG_STATUS WConfigManager_Process() {
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "General configuration :");
 
             // Check if WLink has LCD
-            if ((GL_pWConfigBuffer_UB[0] && 0x01) == 0x01) {
+            if ((GL_pWConfigBuffer_UB[0] & 0x01) == 0x01) {
                 GL_GlobalConfig_X.HasLcd_B = true;
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- LCD");
             }
@@ -318,7 +320,7 @@ WCFG_STATUS WConfigManager_Process() {
 
 
             // Check if WLink has Flat-Panel
-            if ((GL_pWConfigBuffer_UB[0] && 0x02) == 0x02) {
+            if ((GL_pWConfigBuffer_UB[0] & 0x02) == 0x02) {
                 GL_GlobalConfig_X.HasFlatPanel_B = true;
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- Flat-Panel");
             }
@@ -329,7 +331,7 @@ WCFG_STATUS WConfigManager_Process() {
 
 
             // Check if WLink has MemoryCard
-            if ((GL_pWConfigBuffer_UB[0] && 0x04) == 0x04) {
+            if ((GL_pWConfigBuffer_UB[0] & 0x04) == 0x04) {
                 GL_GlobalConfig_X.HasMemoryCard_B = true;
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- Memory Card");
             }
@@ -343,6 +345,7 @@ WCFG_STATUS WConfigManager_Process() {
             if (GL_GlobalConfig_X.HasLcd_B) {                
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize LCD Modules");
                 GL_GlobalData_X.Lcd_H.init(&GL_LcdObject_X, PIN_LCD_BACKLIGHT);
+                GL_GlobalData_X.Lcd_H.clearDisplay();
                 GL_GlobalData_X.Lcd_H.setBacklight(255);	// Max value for Backlight by default
 
                 if (!GL_GlobalData_X.Lcd_H.isInitialized()) {
@@ -365,6 +368,8 @@ WCFG_STATUS WConfigManager_Process() {
                     /* Initialize & Enable Interface Manager */
                     FlatPanelManager_Init(&(GL_GlobalData_X.FlatPanel_H));
                     FlatPanelManager_Enable();
+
+                    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_VALIDATE, OnValidateKeyPressed);
                 }
             }
 
@@ -403,13 +408,13 @@ WCFG_STATUS WConfigManager_Process() {
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive WCommand Medium");
         if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_WCMD_MEDIUM, GL_pWConfigBuffer_UB, 1) == 1) {
 
-            if ((GL_pWConfigBuffer_UB[0] && 0x0F) < 8) {
-                GL_GlobalConfig_X.WCmdConfig_X.Medium_E = (WLINK_WCMD_MEDIUM_ENUM)(GL_pWConfigBuffer_UB[0] && 0x0F);
+            if ((GL_pWConfigBuffer_UB[0] & 0x0F) < 8) {
+                GL_GlobalConfig_X.WCmdConfig_X.Medium_E = (WLINK_WCMD_MEDIUM_ENUM)(GL_pWConfigBuffer_UB[0] & 0x0F);
                 DBG_PRINT(DEBUG_SEVERITY_INFO, "WCommand Medium sets to ");
-                DBG_PRINTDATA(GL_pWCmdMediumLut_str[(GL_pWConfigBuffer_UB[0] && 0x0F)]);
+                DBG_PRINTDATA(GL_pWCmdMediumLut_str[(GL_pWConfigBuffer_UB[0] & 0x0F)]);
                 DBG_ENDSTR();
 
-                if ((GL_pWConfigBuffer_UB[0] && 0x10) == 0x10) {
+                if ((GL_pWConfigBuffer_UB[0] & 0x10) == 0x10) {
                     GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B = true;
                     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCommand Medium is mono-client");
                 }
@@ -441,7 +446,7 @@ WCFG_STATUS WConfigManager_Process() {
             else {
 
                 DBG_PRINT(DEBUG_SEVERITY_ERROR, "Bad parameter for WCommand Medium settings (0x");
-                DBG_PRINTDATABASE((GL_pWConfigBuffer_UB[0] && 0x0F), HEX);
+                DBG_PRINTDATABASE((GL_pWConfigBuffer_UB[0] & 0x0F), HEX);
                 DBG_PRINTDATA(")");
                 DBG_ENDSTR();
 
@@ -469,7 +474,7 @@ WCFG_STATUS WConfigManager_Process() {
             /* Configure Inputs */
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configure Inputs:");
             for (i = 0; i < 4; i++) {
-                if ((GL_pWConfigBuffer_UB[i] && 0x01) == 0x01) {
+                if ((GL_pWConfigBuffer_UB[i] & 0x01) == 0x01) {
 
                     pinMode(GL_GlobalData_X.pGpioInputIndex_UB[i], INPUT);
 
@@ -485,10 +490,10 @@ WCFG_STATUS WConfigManager_Process() {
             /* Configure Outputs */
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configure Outputs:");
             for (i = 4; i < 8; i++) {
-                if ((GL_pWConfigBuffer_UB[i] && 0x01) == 0x01) {
+                if ((GL_pWConfigBuffer_UB[i] & 0x01) == 0x01) {
 
-                    pinMode(GL_GlobalData_X.pGpioOutputIndex_UB[i], OUTPUT);
-                    digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], LOW);
+                    pinMode(GL_GlobalData_X.pGpioOutputIndex_UB[i-4], OUTPUT);
+                    digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i-4], LOW);
 
                     DBG_PRINT(DEBUG_SEVERITY_INFO, "- Configure OUT");
                     DBG_PRINTDATA(i-4);
@@ -534,7 +539,7 @@ WCFG_STATUS WConfigManager_Process() {
                 DBG_PRINTDATA(i);
                 DBG_PRINTDATA(": ");
 
-                if ((GL_pWConfigBuffer_UB[i * 3] && 0x01) == 0x01) {                    
+                if ((GL_pWConfigBuffer_UB[i * 3] & 0x01) == 0x01) {                    
 
                     // Check configuration
                     if ((GL_pWConfigBuffer_UB[i * 3 + 1] != 0x06)) {
@@ -559,7 +564,7 @@ WCFG_STATUS WConfigManager_Process() {
                         GL_GlobalConfig_X.pComPortConfig_X[i].Baudrate_UL = GL_pPortComSpeedLut_UL[GL_pWConfigBuffer_UB[i * 3 + 2]];
 
                     // Check if debug
-                    GL_GlobalConfig_X.pComPortConfig_X[i].isDebug_B = ((GL_pWConfigBuffer_UB[i * 3] && 0x02) == 0x02) ? true : false;
+                    GL_GlobalConfig_X.pComPortConfig_X[i].isDebug_B = ((GL_pWConfigBuffer_UB[i * 3] & 0x02) == 0x02) ? true : false;
 
                     // TODO : IRQ-based configuration sould be added here
 
@@ -580,6 +585,8 @@ WCFG_STATUS WConfigManager_Process() {
                 }
                 else {
                     GL_GlobalConfig_X.pComPortConfig_X[i].isEnabled_B = false;
+                    DBG_PRINTDATA(": Not enabled");
+                    DBG_ENDSTR();
                 }
 
             }
@@ -630,7 +637,7 @@ WCFG_STATUS WConfigManager_Process() {
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive Ethernet configuration");
         if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_ETH, GL_pWConfigBuffer_UB, 24) == 24) {
 
-            if ((GL_pWConfigBuffer_UB[0] && 0x01) == 0x01) {
+            if ((GL_pWConfigBuffer_UB[0] & 0x01) == 0x01) {
                 GL_GlobalConfig_X.EthConfig_X.isEnabled_B = true;
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Ethernet enabled");
 
@@ -644,7 +651,7 @@ WCFG_STATUS WConfigManager_Process() {
                 DBG_ENDSTR();
 
                 // Check if DHCP
-                if ((GL_pWConfigBuffer_UB[0] && 0x02) == 0x02) {
+                if ((GL_pWConfigBuffer_UB[0] & 0x02) == 0x02) {
                     GL_GlobalConfig_X.EthConfig_X.isDhcp_B = true;
                     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- DHCP enabled");
                 }
@@ -658,7 +665,7 @@ WCFG_STATUS WConfigManager_Process() {
                     DBG_ENDSTR();
 
                     // Check if Advanced Configuration
-                    if ((GL_pWConfigBuffer_UB[0] && 0x03) == 0x03) {
+                    if ((GL_pWConfigBuffer_UB[0] & 0x03) == 0x03) {
                         GL_GlobalConfig_X.EthConfig_X.isAdvancedConfig_B = true;
                         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- Advanced configuration");
 
@@ -702,10 +709,6 @@ WCFG_STATUS WConfigManager_Process() {
 
 
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Ethernet configuration");
-
-                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET TCP SERVER CONFIG");
-                GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_TCP_SERVER_CONFIG;
-
             }
             else {
                 // Disable Network Adapter Manager
@@ -714,6 +717,10 @@ WCFG_STATUS WConfigManager_Process() {
                 GL_GlobalConfig_X.EthConfig_X.isEnabled_B = false;
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Ethernet not enabled");
             }
+
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET TCP SERVER CONFIG");
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_TCP_SERVER_CONFIG;
 
         }
         else {
@@ -728,28 +735,34 @@ WCFG_STATUS WConfigManager_Process() {
     case WCFG_GET_TCP_SERVER_CONFIG:
 
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive TCP Server configuration");
-        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_TCP_SERVER, GL_pWConfigBuffer_UB, 2) == 2) {
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_TCP_SERVER, GL_pWConfigBuffer_UB, 4) == 4) {
         
-            if ((GL_pWConfigBuffer_UB[0] && 0x01) == 0x01) {
+            if ((GL_pWConfigBuffer_UB[0] & 0x01) == 0x01) {
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "TCP Server enabled");
-                GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.isEnabled_B = true;
 
-                GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.LocalPort_UI = (unsigned int)GL_pWConfigBuffer_UB[1];
+                GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.LocalPort_UI = (unsigned int)((GL_pWConfigBuffer_UB[2] << 8) + GL_pWConfigBuffer_UB[1]);
                 DBG_PRINT(DEBUG_SEVERITY_INFO, "Local port = ");
                 DBG_PRINTDATA(GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.LocalPort_UI);
                 DBG_ENDSTR();
 
-                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of TCP Server configuration");
+                /* Initialize TCP Server Modules */
+                GL_GlobalData_X.EthAP_X.TcpServer_H.init(&(GL_GlobalData_X.Network_H), GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.LocalPort_UI);
+                if (GL_GlobalData_X.EthAP_X.TcpServer_H.isInitialized()) {
+                    TCPServerManager_Init(&(GL_GlobalData_X.Network_H), &(GL_GlobalData_X.EthAP_X.TcpServer_H));
+                    TCPServerManager_Enable();
+                    GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.isEnabled_B = true;
+                }
 
-                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET UDP SERVER CONFIG");
-                GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_UDP_SERVER_CONFIG;
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of TCP Server configuration");
 
             }
             else {
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "TCP Server not enabled");
                 GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.isEnabled_B = false;
             }
-        
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET UDP SERVER CONFIG");
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_UDP_SERVER_CONFIG;        
         }
         else {
             TransitionToErrorReading();        
@@ -764,27 +777,33 @@ WCFG_STATUS WConfigManager_Process() {
     case WCFG_GET_UDP_SERVER_CONFIG:
 
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive UDP Server configuration");
-        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_UDP_SERVER, GL_pWConfigBuffer_UB, 2) == 2) {
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_UDP_SERVER, GL_pWConfigBuffer_UB, 4) == 4) {
 
-            if ((GL_pWConfigBuffer_UB[0] && 0x01) == 0x01) {
+            if ((GL_pWConfigBuffer_UB[0] & 0x01) == 0x01) {
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "UDP Server enabled");
                 GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.isEnabled_B = true;
 
-                GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.LocalPort_UI = (unsigned int)GL_pWConfigBuffer_UB[1];
+                GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.LocalPort_UI = (unsigned int)((GL_pWConfigBuffer_UB[2] << 8) + GL_pWConfigBuffer_UB[1]);
                 DBG_PRINT(DEBUG_SEVERITY_INFO, "Local port = ");
                 DBG_PRINTDATA(GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.LocalPort_UI);
                 DBG_ENDSTR();
 
+                /* Initialize UDP Server Modules */
+                GL_GlobalData_X.EthAP_X.UdpServer_H.init(&(GL_GlobalData_X.Network_H), GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.LocalPort_UI);
+                if (GL_GlobalData_X.EthAP_X.UdpServer_H.isInitialized()) {
+                    UDPServerManager_Init(&(GL_GlobalData_X.Network_H), &(GL_GlobalData_X.EthAP_X.UdpServer_H));
+                    UDPServerManager_Enable();
+                    GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.isEnabled_B = true;
+                }
+
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of UDP Server configuration");
-
-                TransitionToConfigDone();
-
             }
             else {
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "UDP Server not enabled");
                 GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.isEnabled_B = false;
             }
 
+            TransitionToConfigDone();
         }
         else {
             TransitionToErrorReading();
@@ -857,9 +876,14 @@ WCFG_STATUS WConfigManager_Process() {
 
 void WConfigManager_BuildSerialGateway(void) {
 
+    DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Build Serial Gateway");
+
+    GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B = true;
+    DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "WCommand Medium is mono-client");
     GL_GlobalConfig_X.WCmdConfig_X.Medium_E = WLINK_WCMD_MEDIUM_COM0;   // Default Medium = Default debug port
     DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "WCommand Medium sets to " + GL_pWCmdMediumLut_str[GL_GlobalConfig_X.WCmdConfig_X.Medium_E] + " (default)");
 
+    WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(0), GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B);
     WCommandInterpreter_Init(GL_GlobalConfig_X.WCmdConfig_X.pFctDescr_X, GL_GlobalConfig_X.WCmdConfig_X.NbFct_UL);
 
 }
@@ -895,4 +919,9 @@ void TransitionToErrorInit(void) {
     GL_WConfigStatus_E = WCFG_STS_ERROR_INIT;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To ERROR INIT");
     GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_ERROR_INIT;
+}
+
+
+void OnValidateKeyPressed(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Validate Key Pressed ! Mo'fucker !");
 }

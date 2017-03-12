@@ -22,17 +22,31 @@
 /* Define
 /* ******************************************************************************** */
 
-#define FLAT_PANEL_KEY_VALIDATE		'V'
-#define FLAT_PANEL_KEY_CLEAR		'X'
-#define FLAT_PANEL_KEY_F1			'A'
-#define FLAT_PANEL_KEY_F2			'B'
-#define FLAT_PANEL_KEY_F3			'C'
-
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
+typedef enum {
+    FLAT_PANEL_KEY_0            = 0,
+    FLAT_PANEL_KEY_1            = 1,
+    FLAT_PANEL_KEY_2            = 2,    //  ^   -> up
+    FLAT_PANEL_KEY_3            = 3,
+    FLAT_PANEL_KEY_4            = 4,    //  <   -> left
+    FLAT_PANEL_KEY_5            = 5,
+    FLAT_PANEL_KEY_6            = 6,    //  >   -> right
+    FLAT_PANEL_KEY_7            = 7,
+    FLAT_PANEL_KEY_8            = 8,    //  v   -> down
+    FLAT_PANEL_KEY_9            = 9,
+    FLAT_PANEL_KEY_DOT          = 10, 
+    FLAT_PANEL_KEY_VALIDATE     = 11,
+    FLAT_PANEL_KEY_CLEAR        = 12,
+    FLAT_PANEL_KEY_F1           = 13, 
+    FLAT_PANEL_KEY_F2           = 14, 
+    FLAT_PANEL_KEY_F3           = 15
+} FLAT_PANEL_KEY_ENUM;
+
 typedef struct {
 	boolean IsInitialized_B;
+    void(*pFct_OnKeyPressed[16])(void);
 } FLAT_PANEL_PARAM;
 
 /* ******************************************************************************** */
@@ -48,9 +62,7 @@ public:
 	boolean isInitialized(void);
 
 	unsigned char getKey(void);
-	void attachEvent(void(*EventHandler)(char));
-
-	void manageKeytoLcd(char Key_UB);
+    void assignOnKeyPressedEvent(FLAT_PANEL_KEY_ENUM Key_E, void(*pFct_OnKeyPressed)(void));
 
 	FLAT_PANEL_PARAM GL_FlatPanelParam_X;
 };

@@ -21,7 +21,7 @@
 /* ******************************************************************************** */
 HardwareSerial * GL_pSerial_H;
 
-static const String pSeverityLut_str[] = {"[-] INFO", "[#] WARNING", "[!] ERROR"};
+static const String pSeverityLut_str[] = {"[ ] INFO", "[!] WARNING", "[#] ERROR"};
 
 /* ******************************************************************************** */
 /* Functions

@@ -277,7 +277,8 @@ void WCmdMedium_BeginPacket(void) {
 
 void WCmdMedium_EndPacket(void) {
 	switch (GL_Medium_E) {
-	case WCMD_MEDIUM_SERIAL:	// Do nothing for Serial
+    case WCMD_MEDIUM_SERIAL:
+        GL_pMediumSerial_H->println();
 		break;
 
 	case WCMD_MEDIUM_UDP:

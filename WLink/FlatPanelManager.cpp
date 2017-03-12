@@ -71,6 +71,12 @@ void FlatPanelManager_Disable() {
 }
 
 void FlatPanelManager_Process() {
+
+    /* Reset Condition */
+    if (!(GL_FlatPanelManagerParam_X.IsEnabled_B))
+        TransitionToIdle();
+
+    /* State Machine */
 	switch (GL_FlatPanelManager_CurrentState_E) {
 	case FLAT_PANEL_MANAGER_IDLE:
 		ProcessIdle();
@@ -93,8 +99,6 @@ static void ProcessIdle(void) {
 
 static void ProcessScanKey(void) {
 	GL_pFlatPanel_H->getKey();
-	if (!(GL_FlatPanelManagerParam_X.IsEnabled_B))
-		TransitionToIdle();
 }
 
 
