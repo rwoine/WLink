@@ -153,6 +153,9 @@
     <ClInclude Include="Utilz.h">
       <Filter>Source Files\WManager</Filter>
     </ClInclude>
+    <ClInclude Include="WMenuManager.h">
+      <Filter>Source Files\WManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -234,6 +237,9 @@
       <Filter>Source Files\Serial</Filter>
     </ClCompile>
     <ClCompile Include="Utilz.cpp">
+      <Filter>Source Files\WManager</Filter>
+    </ClCompile>
+    <ClCompile Include="WMenuManager.cpp">
       <Filter>Source Files\WManager</Filter>
     </ClCompile>
   </ItemGroup>
