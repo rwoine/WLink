@@ -1,17 +1,16 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* WMenuManager.h														            */
+/* WMenuItemText.h														            */
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for WMenuManager.cpp							            	*/
-/*		Process functions to manage the main menu for the W-Link					*/
+/*		Defines the texts used for WMenu, in several languages  					*/
 /*                                                                                  */
-/* History :	16/03/2017	(RW)	Creation of this file                           */
+/* History :	18/03/2017	(RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __WMENU_MANAGER_H__
-#define __WMENU_MANAGER_H__
+#ifndef __WMENU_ITEM_TEXT_H__
+#define __WMENU_ITEM_TEXT_H__
 
 /* ******************************************************************************** */
 /* Include
@@ -22,33 +21,29 @@
 /* Define
 /* ******************************************************************************** */
 
+#define WMENU_ITEM_TEXT_NULL                0
+#define WMENU_ITEM_TEXT_WELCOME_SCREEN      1
+#define WMENU_ITEM_TEXT_PARAMETERS          2
+#define WMENU_ITEM_TEXT_LCD                 3
+#define WMENU_ITEM_TEXT_MENU1               4
+
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
-typedef enum {
-    WMENU_ITEM_TYPE_NULL,       // Not an item
-    WMENU_ITEM_TYPE_INFO,       // Only display information
-    WMENU_ITEM_TYPE_MENU,       // Navigate through sub-menu
-    WMENU_ITEM_TYPE_PARAM       // Enter some parameters
-} WMENU_ITEM_TYPE_ENUM;
 
-typedef struct {
-    WMENU_ITEM_TYPE_ENUM Type_E;
-    const char * ppText_UB[2];
-    void * pOnUpItem_X;
-    void * pOnDownItem_X;
-    void * pOnEnterItem_X;
-    void * pOnBackItem_X;
-} WMENU_ITEM_STRUCT;
+//              Text for all menu item :        
+const String GL_ppWMenuItemText_Str[][3] = {
+//      EN                          FR                          NL
+    { "                    ",     "                    ",     "                    " },
+    { "--- W-Link ---  (EN)",     "--- W-Link ---  (FR)",     "--- W-Link ---  (NL)" },
+    { "  Settings          ",     "  Paramètres        ",     "  Instellingen      " },
+    { "  LCD               ",     "  LCD               ",     "  LCD               " },
+    { "  Menu1 - EN        ",     "  Menu1 - FR        ",     "  Menu1 - FR        " },
+};
 
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
-void WMenuManager_Init();
-void WMenuManager_Enable();
-void WMenuManager_Disable();
-void WMenuManager_Process();
 
-
-#endif // __WMENU_MANAGER_H__
+#endif // __WMENU_ITEM_TEXT_H__
 

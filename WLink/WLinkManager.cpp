@@ -17,6 +17,7 @@
 
 #include "WLinkManager.h"
 #include "WConfigManager.h"
+#include "WMenuManager.h"
 
 #include "Debug.h"
 
@@ -71,6 +72,7 @@ void WLinkManager_Init() {
 
     /* Init sub-entities Manager */
     WConfigManager_Init();
+    WMenuManager_Init();
 }
 
 void WLinkManager_Enable() {
@@ -131,7 +133,8 @@ void ProcessWLink(void) {
     if (GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.isEnabled_B)            TCPServerManager_Process();
     if (GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.isEnabled_B)            UDPServerManager_Process();
     if (GL_GlobalConfig_X.WCmdConfig_X.Medium_E != WLINK_WCMD_MEDIUM_NONE)      WCommandInterpreter_Process();
-    if (GL_GlobalData_X.FlatPanel_H.isInitialized())                            FlatPanelManager_Process();   
+    if (GL_GlobalData_X.FlatPanel_H.isInitialized())                            FlatPanelManager_Process(); 
+    WMenuManager_Process();
 }
 
 void ProcessError(void) {
@@ -148,6 +151,7 @@ void TransitionToIdle(void) {
 void TransitionToConfig(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition to CONFIG");
     WConfigManager_Enable();
+    WMenuManager_Enable();
     GL_WLinkManager_CurrentState_E = W_STATE::W_CONFIG;
 }
 

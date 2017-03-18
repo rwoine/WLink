@@ -107,6 +107,7 @@
     <ClInclude Include="WConfigManager.h" />
     <ClInclude Include="WLink.h" />
     <ClInclude Include="WLinkManager.h" />
+    <ClInclude Include="WMenuItemText.h" />
     <ClInclude Include="WMenuManager.h" />
     <ClInclude Include="__vm\.WLink.vsarduino.h" />
   </ItemGroup>

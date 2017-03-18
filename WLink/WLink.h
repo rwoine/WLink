@@ -93,6 +93,7 @@ typedef struct {
 // Global Parameters Strucure
 typedef struct {
 	unsigned char pRevisionId_UB[8];
+    String RevisionId_Str;
 	unsigned char LedPin_UB;
 	unsigned char pGpioInputIndex_UB[4];
 	unsigned char pGpioOutputIndex_UB[4];

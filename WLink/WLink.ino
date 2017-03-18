@@ -137,6 +137,7 @@ void setup() {
     DBG_ENDSTR();
     for (int i = 0; i < 8; i++)
         GL_GlobalData_X.pRevisionId_UB[i] = cGL_pWLinkRevisionId_Str.charAt(i);
+    GL_GlobalData_X.RevisionId_Str = cGL_pWLinkRevisionId_Str;
 
 
 
