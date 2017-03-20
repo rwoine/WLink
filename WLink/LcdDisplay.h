@@ -58,7 +58,9 @@ public:
 
 	void clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E = LCD_DISPLAY_ALL_LINE);
 	void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str);
-	void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
+    void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
+    void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned long ColIdx_UL, String TextStr_Str);
+    void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned long ColIdx_UL, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
 	void appendDisplay(String TextStr_Str);
 	void appendDisplay(unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
 	void backspaceDisplay(unsigned long BackspaceNb_UL);

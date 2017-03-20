@@ -129,12 +129,6 @@ static void TransitionToErrorInit(void);
 
 
 /* ******************************************************************************** */
-/* Prototypes for Dedicated Functions
-/* ******************************************************************************** */
-static void DefaultKeyEvents(char * Key_UB);
-
-
-/* ******************************************************************************** */
 /* Functions
 /* ******************************************************************************** */
 
@@ -926,16 +920,4 @@ void TransitionToErrorInit(void) {
     GL_WConfigStatus_E = WCFG_STS_ERROR_INIT;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To ERROR INIT");
     GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_ERROR_INIT;
-}
-
-
-/* ******************************************************************************** */
-/* Dedicated Functions
-/* ******************************************************************************** */
-
-void DefaultKeyEvents(char * Key_UB) {
-    DBG_PRINT(DEBUG_SEVERITY_WARNING, "[");
-    DBG_PRINTDATA((*Key_UB));
-    DBG_PRINTDATA("] key pressed -> No callback assigned!");
-    DBG_ENDSTR();
 }

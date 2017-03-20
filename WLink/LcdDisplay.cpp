@@ -10,6 +10,7 @@
 /*				01/01/2016	(RW)	Fix LCD write and read functions				*/
 /*				18/12/2016	(RW)	Add external write management					*/
 /*				15/01/2017	(RW)	Manage external data							*/
+/*              20/03/2017  (RW)    Add write function with Line/Column indexes     */
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -123,6 +124,37 @@ void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char *
 		GL_pLcdDevice_H->write(pTextStr_UB[Index_UL]);
 		Index_UL++;
 	}
+}
+
+void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned long ColIdx_UL, String TextStr_Str) {
+    writeDisplay(LineIndex_E, ColIdx_UL, (unsigned char *)TextStr_Str.c_str(), TextStr_Str.length());
+}
+
+void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned long ColIdx_UL, unsigned char * pTextStr_UB, unsigned long ArraySize_UL) {
+    unsigned long Index_UL = 0;
+    unsigned long LineIdx_UL = (unsigned long)LineIndex_E;
+
+    if (LineIndex_E == LCD_DISPLAY_ALL_LINE)
+        LineIdx_UL = 0;	// Force to start at Zero if all lines selected
+
+    // Set Cursor Properly
+    GL_pLcdDevice_H->setCursor(ColIdx_UL, LineIdx_UL);
+
+    while (Index_UL < ArraySize_UL) {
+        if ((Index_UL > 0) && ((Index_UL%LCD_DISPLAY_COLUMN_NUMBER) == 0)) {
+            if (LineIndex_E == (LCD_DISPLAY_LINE_NUMBER - 1))		// Reach End of LCD
+                break;
+            else
+                GL_pLcdDevice_H->setCursor(0, ++LineIdx_UL);	// Change Line
+        }
+
+        // Copy Content in Shadow Line
+        GL_ppLcdLineShadow_UB[LineIdx_UL][Index_UL%LCD_DISPLAY_COLUMN_NUMBER] = pTextStr_UB[Index_UL];
+
+        // Display on Device
+        GL_pLcdDevice_H->write(pTextStr_UB[Index_UL]);
+        Index_UL++;
+    }
 }
 
 void LcdDisplay::appendDisplay(String TextStr_Str) {

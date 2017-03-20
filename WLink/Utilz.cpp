@@ -40,3 +40,11 @@ String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, Stri
             Temp_Str += Separator_Str;
     }
 }
+
+
+void DefaultKeyEvents(char * Key_UB) {
+    DBG_PRINT(DEBUG_SEVERITY_WARNING, "[");
+    DBG_PRINTDATA((*Key_UB));
+    DBG_PRINTDATA("] key pressed -> No callback assigned!");
+    DBG_ENDSTR();
+}

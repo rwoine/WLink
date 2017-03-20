@@ -56,6 +56,7 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* ******************************************************************************** */
 enum WMENU_STATE {
     WMENU_IDLE,
+    WMENU_WELCOME_SCREEN,
     WMENU_MENU
 };
 
@@ -65,6 +66,7 @@ static boolean GL_WMenuManagerEnabled_B = false;
 static WMENU_ITEM_STRUCT GL_pWMenuItem_X[WMENU_ITEM_NUMBER];
 static WMENU_ITEM_STRUCT * GL_pWMenuCurrentItem_X;
 
+static unsigned long GL_NavCurrentIdx_UL = 0;
 static boolean GL_pNavButtonPressed_B[] = { false, false, false, false };
 
 static String GL_WMenuTextRevisionId_Str = "";
@@ -73,9 +75,11 @@ static String GL_WMenuTextRevisionId_Str = "";
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
 static void ProcessIdle(void);
+static void ProcessWelcomeScreen(void);
 static void ProcessMenu(void);
 
 static void TransitionToIdle(void);
+static void TransitionToWelcomeScreen(void);
 static void TransitionToMenu(void);
 
 
@@ -87,6 +91,16 @@ static void WMenuCallback_OnDown(char * pKey_UB);
 static void WMenuCallback_OnEnter(char * pKey_UB);
 static void WMenuCallback_OnBack(char * pKey_UB);
 
+static void WMenu_AssignResetCallbacks(void);
+static void WMenu_AssignEnterBackCallbacks(void);
+static void WMenu_AssignNavigationCallbacks(void);
+
+
+/* ******************************************************************************** */
+/* Prototypes for Display Items
+/* ******************************************************************************** */
+static void WMenu_DisplayItem(WMENU_ITEM_STRUCT * pMenuItem_X);
+
 
 /* ******************************************************************************** */
 /* Functions
@@ -94,7 +108,7 @@ static void WMenuCallback_OnBack(char * pKey_UB);
 
 void WMenuManager_Init() {
     GL_WMenuManagerEnabled_B = false;
-
+    GL_NavCurrentIdx_UL = 0;
     GL_WMenuTextRevisionId_Str = "> " + GL_GlobalData_X.RevisionId_Str;
 
     /* ==================== */
@@ -151,8 +165,13 @@ void WMenuManager_Process() {
         ProcessIdle();
         break;
 
+    case WMENU_WELCOME_SCREEN:
+        ProcessWelcomeScreen();
+        break;
+
     case WMENU_MENU:
         ProcessMenu();
+        break;
     }
 }
 
@@ -163,7 +182,18 @@ void WMenuManager_Process() {
 
 void ProcessIdle(void) {
     if (GL_WMenuManagerEnabled_B)
-        TransitionToMenu();
+        TransitionToWelcomeScreen();
+}
+
+void ProcessWelcomeScreen(void) {
+    if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER]) {
+        GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER] = false;
+        if (((WMENU_ITEM_STRUCT *)(GL_pWMenuCurrentItem_X->pOnEnterItem_X))->Type_E == WMENU_ITEM_TYPE_MENU) {
+            GL_pWMenuCurrentItem_X = (WMENU_ITEM_STRUCT *)(GL_pWMenuCurrentItem_X->pOnEnterItem_X);
+            WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
+            TransitionToMenu();
+        }
+    }
 }
 
 void ProcessMenu(void) {
@@ -172,32 +202,30 @@ void ProcessMenu(void) {
         GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER] = false;
         if (((WMENU_ITEM_STRUCT *)(GL_pWMenuCurrentItem_X->pOnEnterItem_X))->Type_E != WMENU_ITEM_TYPE_NULL) {
             GL_pWMenuCurrentItem_X = (WMENU_ITEM_STRUCT *)(GL_pWMenuCurrentItem_X->pOnEnterItem_X);
-            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, GL_pWMenuCurrentItem_X->ppText_UB[0]);
-            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, GL_pWMenuCurrentItem_X->ppText_UB[1]);
+            WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
         }
     }
     else if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_BACK]) {
         GL_pNavButtonPressed_B[WMENU_NAVBUTTON_BACK] = false;
         if (((WMENU_ITEM_STRUCT *)(GL_pWMenuCurrentItem_X->pOnBackItem_X))->Type_E != WMENU_ITEM_TYPE_NULL) {
             GL_pWMenuCurrentItem_X = (WMENU_ITEM_STRUCT *)(GL_pWMenuCurrentItem_X->pOnBackItem_X);
-            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, GL_pWMenuCurrentItem_X->ppText_UB[0]);
-            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, GL_pWMenuCurrentItem_X->ppText_UB[1]);
+            WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
         }
     }
     else if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_UP]) {
         GL_pNavButtonPressed_B[WMENU_NAVBUTTON_UP] = false;
         if (((WMENU_ITEM_STRUCT *)(GL_pWMenuCurrentItem_X->pOnUpItem_X))->Type_E != WMENU_ITEM_TYPE_NULL) {
             GL_pWMenuCurrentItem_X = (WMENU_ITEM_STRUCT *)(GL_pWMenuCurrentItem_X->pOnUpItem_X);
-            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, GL_pWMenuCurrentItem_X->ppText_UB[0]);
-            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, GL_pWMenuCurrentItem_X->ppText_UB[1]);
+            GL_NavCurrentIdx_UL++;
+            WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
         }
     }
     else if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_DOWN]) {
         GL_pNavButtonPressed_B[WMENU_NAVBUTTON_DOWN] = false;
         if (((WMENU_ITEM_STRUCT *)(GL_pWMenuCurrentItem_X->pOnDownItem_X))->Type_E != WMENU_ITEM_TYPE_NULL) {
             GL_pWMenuCurrentItem_X = (WMENU_ITEM_STRUCT *)(GL_pWMenuCurrentItem_X->pOnDownItem_X);
-            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, GL_pWMenuCurrentItem_X->ppText_UB[0]);
-            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, GL_pWMenuCurrentItem_X->ppText_UB[1]);
+            GL_NavCurrentIdx_UL--;
+            WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
         }
     }
  
@@ -209,24 +237,76 @@ void TransitionToIdle(void) {
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_IDLE;
 }
 
+void TransitionToWelcomeScreen(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WELCOME SCREEN");
+
+    GL_pWMenuCurrentItem_X = &(GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN]);
+    WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
+    WMenu_AssignEnterBackCallbacks();
+
+    GL_NavCurrentIdx_UL = 0;
+
+    GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_WELCOME_SCREEN;
+}
+
 void TransitionToMenu(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To MENU");
 
-    GL_pWMenuCurrentItem_X = &(GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN]);
-    GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, GL_pWMenuCurrentItem_X->ppText_UB[0]);
-    GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, GL_pWMenuCurrentItem_X->ppText_UB[1]);
-
-    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_2, WMenuCallback_OnUp);
-    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_8, WMenuCallback_OnDown);
-    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_4, WMenuCallback_OnBack);
-    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_6, WMenuCallback_OnEnter);
-
-    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_CLEAR, WMenuCallback_OnBack);
-    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_VALIDATE, WMenuCallback_OnEnter);
+    WMenu_AssignNavigationCallbacks();
 
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_MENU;
 }
 
+
+/* ******************************************************************************** */
+/* Display Items
+/* ******************************************************************************** */
+void WMenu_DisplayItem(WMENU_ITEM_STRUCT * pMenuItem_X) {
+
+    // Clear Display
+    GL_GlobalData_X.Lcd_H.clearDisplay();
+
+    // Display depends on the Item Type
+    switch (pMenuItem_X->Type_E) {
+
+    // NULL
+    // > Do nothing
+    case WMENU_ITEM_TYPE_NULL:
+        break;
+        
+    // INFO
+    // > Display the two lines of text
+    case WMENU_ITEM_TYPE_INFO:
+        GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, pMenuItem_X->ppText_UB[0]);
+        GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, pMenuItem_X->ppText_UB[1]);
+        break;
+
+    // PARAM
+    // > Display the first line of text and clear the second one
+    case WMENU_ITEM_TYPE_PARAM:
+        GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, pMenuItem_X->ppText_UB[0]);
+        GL_GlobalData_X.Lcd_H.clearDisplay(LCD_DISPLAY_LINE2);
+        break;
+
+    // MENU
+    // > Display the first line of text as the Menu text
+    // > Display the second line of text as the Next Menu text
+    case WMENU_ITEM_TYPE_MENU:
+        if ((GL_NavCurrentIdx_UL % 2) == 0) {
+            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, pMenuItem_X->ppText_UB[0]);
+            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 0, ">");
+            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ((WMENU_ITEM_STRUCT *)pMenuItem_X->pOnDownItem_X)->ppText_UB[0]);
+            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 0, " ");
+        }
+        else {
+            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, ((WMENU_ITEM_STRUCT *)pMenuItem_X->pOnUpItem_X)->ppText_UB[0]);
+            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 0, " ");
+            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, pMenuItem_X->ppText_UB[0]);
+            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 0, ">");
+        }
+        break;
+    }
+}
 
 
 /* ******************************************************************************** */
@@ -253,3 +333,31 @@ void WMenuCallback_OnBack(char * pKey_UB) {
 }
 
 
+void WMenu_AssignResetCallbacks(void) {
+    for (int i = 0; i < 16; i++)
+        GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent((FLAT_PANEL_KEY_ENUM)i, DefaultKeyEvents);
+}
+
+void WMenu_AssignEnterBackCallbacks(void) {
+    // Reset callbacks
+    WMenu_AssignResetCallbacks();
+
+    // Assign navigation Enter and Back keys
+    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_CLEAR, WMenuCallback_OnBack);
+    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_VALIDATE, WMenuCallback_OnEnter);
+}
+
+void WMenu_AssignNavigationCallbacks(void) {
+    // Reset callbacks
+    WMenu_AssignResetCallbacks();
+
+    // Assign navigation with numeric keys
+    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_2, WMenuCallback_OnUp);
+    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_8, WMenuCallback_OnDown);
+    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_4, WMenuCallback_OnBack);
+    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_6, WMenuCallback_OnEnter);
+
+    // Assign navigation Enter and Back keys
+    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_CLEAR, WMenuCallback_OnBack);
+    GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_VALIDATE, WMenuCallback_OnEnter);
+}

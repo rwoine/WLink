@@ -36,7 +36,7 @@ const String GL_ppWMenuItemText_Str[][3] = {
 //      EN                          FR                          NL
     { "                    ",     "                    ",     "                    " },
     { "--- W-Link ---  (EN)",     "--- W-Link ---  (FR)",     "--- W-Link ---  (NL)" },
-    { "  Settings          ",     "  Paramètres        ",     "  Instellingen      " },
+    { "  Settings          ",     "  Réglages          ",     "  Instellingen      " },
     { "  LCD               ",     "  LCD               ",     "  LCD               " },
     { "  Menu1 - EN        ",     "  Menu1 - FR        ",     "  Menu1 - FR        " },
 };
