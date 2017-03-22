@@ -21,6 +21,11 @@
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
+#define WMENU_NAVBUTTON_UP                  0
+#define WMENU_NAVBUTTON_DOWN                1
+#define WMENU_NAVBUTTON_ENTER               2
+#define WMENU_NAVBUTTON_BACK                3
+#define WMENU_NAVBUTTON_NONE                99
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
@@ -34,11 +39,9 @@ typedef enum {
 
 typedef struct {
     WMENU_ITEM_TYPE_ENUM Type_E;
+    unsigned long NavIndex_UL;
     const char * ppText_UB[2];
-    void * pOnUpItem_X;
-    void * pOnDownItem_X;
-    void * pOnEnterItem_X;
-    void * pOnBackItem_X;
+    void * ppOnNavItem_X[4];
 } WMENU_ITEM_STRUCT;
 
 /* ******************************************************************************** */
