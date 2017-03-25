@@ -18,14 +18,22 @@
 #include "WLink.h"
 
 /* ******************************************************************************** */
-/* Define
+/* Enumeration
 /* ******************************************************************************** */
+typedef enum {
+    WMENU_ITEM_NULL = 0,
+    WMENU_ITEM_WELCOME_SCREEN,
+    WMENU_ITEM_SETTINGS,    
+    WMENU_ITEM_SETTINGS_LANGUAGE,
+    WMENU_ITEM_SETTINGS_LANGUAGE_SELECT,
+    WMENU_ITEM_SETTINGS_DATETIME,
+    WMENU_ITEM_SETTINGS_DATETIME_DATE,
+    WMENU_ITEM_SETTINGS_DATETIME_TIME,
+    WMENU_ITEM_SETTINGS_LCD,
+    WMENU_ITEM_SETTINGS_LCD_BACKLIGHT,
+    WMENU_ITEM_NUMBER
+} WMENU_ITEM_ENUM;
 
-#define WMENU_ITEM_TEXT_NULL                0
-#define WMENU_ITEM_TEXT_WELCOME_SCREEN      1
-#define WMENU_ITEM_TEXT_PARAMETERS          2
-#define WMENU_ITEM_TEXT_LCD                 3
-#define WMENU_ITEM_TEXT_MENU1               4
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
@@ -37,8 +45,13 @@ const String GL_ppWMenuItemText_Str[][3] = {
     { "                    ",     "                    ",     "                    " },
     { "--- W-Link ---  (EN)",     "--- W-Link ---  (FR)",     "--- W-Link ---  (NL)" },
     { "  Settings          ",     "  Réglages          ",     "  Instellingen      " },
+    { "  Languages         ",     "  Langues           ",     "  Talen             " },
+    { "1=EN - 2=FR - 3=NL  ",     "1=EN - 2=FR - 3=NL  ",     "1=EN - 2=FR - 3=NL  " },
+    { "  Date & Time       ",     "  Date & Heure      ",     "  Datum & Tijd      " },
+    { "  Date              ",     "  Date              ",     "  Datum             " },
+    { "  Time              ",     "  Heure             ",     "  Tijd              " },
     { "  LCD               ",     "  LCD               ",     "  LCD               " },
-    { "  Menu1 - EN        ",     "  Menu1 - FR        ",     "  Menu1 - FR        " },
+    { "  Backlight         ",     "  Rétroéclairage    ",     "  Tegenlicht        " },
 };
 
 /* ******************************************************************************** */
