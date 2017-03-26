@@ -44,14 +44,14 @@ const String GL_ppWMenuItemText_Str[][3] = {
 //      EN                          FR                          NL
     { "                    ",     "                    ",     "                    " },
     { "--- W-Link ---  (EN)",     "--- W-Link ---  (FR)",     "--- W-Link ---  (NL)" },
-    { "  Settings          ",     "  Réglages          ",     "  Instellingen      " },
+    { "  Settings          ",     "  Reglages          ",     "  Instellingen      " },
     { "  Languages         ",     "  Langues           ",     "  Talen             " },
     { "1=EN - 2=FR - 3=NL  ",     "1=EN - 2=FR - 3=NL  ",     "1=EN - 2=FR - 3=NL  " },
     { "  Date & Time       ",     "  Date & Heure      ",     "  Datum & Tijd      " },
     { "  Date              ",     "  Date              ",     "  Datum             " },
     { "  Time              ",     "  Heure             ",     "  Tijd              " },
     { "  LCD               ",     "  LCD               ",     "  LCD               " },
-    { "  Backlight         ",     "  Rétroéclairage    ",     "  Tegenlicht        " },
+    { "  Backlight         ",     "  Retroeclairage    ",     "  Tegenlicht        " },
 };
 
 /* ******************************************************************************** */

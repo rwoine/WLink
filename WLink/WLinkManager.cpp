@@ -151,12 +151,12 @@ void TransitionToIdle(void) {
 void TransitionToConfig(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition to CONFIG");
     WConfigManager_Enable();
-    WMenuManager_Enable();
     GL_WLinkManager_CurrentState_E = W_STATE::W_CONFIG;
 }
 
 void TransitionToProcessWLink(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To PROCESS W-LINK");
+    WMenuManager_Enable();
     GL_WLinkManager_CurrentState_E = W_STATE::W_PROCESS_WLINK;
 }
 

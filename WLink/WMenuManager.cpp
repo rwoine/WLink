@@ -17,6 +17,7 @@
 
 #include "WMenuManager.h"
 #include "WMenuItemText.h"
+#include "WConfigManager.h"
 
 #include "Debug.h"
 
@@ -50,13 +51,19 @@ static boolean GL_WMenuManagerEnabled_B = false;
 static WMENU_ITEM_STRUCT GL_pWMenuItem_X[WMENU_ITEM_NUMBER];
 static WMENU_ITEM_STRUCT * GL_pWMenuCurrentItem_X;
 
-static boolean GL_pNavButtonPressed_UL[4] = {false, false, false, false};
+static boolean GL_pNavButtonPressed_B[4] = {false, false, false, false};
+
+static boolean GL_KeyPressed_B = false;
+static char GL_Key_UB = 0x00;
+static unsigned char GL_pParam_UB[16];
 
 static String GL_WMenuTextRevisionId_Str = "";
 
 /* ******************************************************************************** */
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
+static void InitMenuItem(void);
+
 static void ProcessIdle(void);
 static void ProcessWelcomeScreen(void);
 static void ProcessMenu(void);
@@ -101,80 +108,11 @@ void WMenuManager_Init() {
     GL_WMenuManagerEnabled_B = false;
     GL_WMenuTextRevisionId_Str = "> " + GL_GlobalData_X.RevisionId_Str;
 
-    /* ================================== */
-    /* Initialize Navigation Button Flags */
-    /* ================================== */
-    for (int i = 0; i < 4; i++)
-        GL_pNavButtonPressed_UL[i] = false;
+    // Initialize Navigation Button Flags
+    WMenuCallback_ResetFlags();
 
-    /* ==================== */
-    /* Initialize Menu Item */
-    /* ==================== */
-    for (int i = 0; i < WMENU_ITEM_NUMBER; i++) {
-        GL_pWMenuItem_X[i].NavIndex_UL      = 0;
-        GL_pWMenuItem_X[i].ppOnNavItem[WMENU_NAVBUTTON_DOWN]    = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
-        GL_pWMenuItem_X[i].ppOnNavItem[WMENU_NAVBUTTON_UP]      = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
-        GL_pWMenuItem_X[i].ppOnNavItem[WMENU_NAVBUTTON_ENTER]   = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
-        GL_pWMenuItem_X[i].ppOnNavItem[WMENU_NAVBUTTON_BACK]    = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
-    }
-
-    /* > Null Item */
-    GL_pWMenuItem_X[WMENU_ITEM_NULL].Type_E = WMENU_ITEM_TYPE_NULL;
-    GL_pWMenuItem_X[WMENU_ITEM_NULL].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
-    GL_pWMenuItem_X[WMENU_ITEM_NULL].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
-
-
-    /* 0. Welcom Screen */
-    GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].Type_E = WMENU_ITEM_TYPE_INFO;
-    GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
-    GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_WELCOME_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
-    GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].ppText_UB[1] = GL_WMenuTextRevisionId_Str.c_str();
-
-    /* 0.0. Settings */
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].Type_E        = WMENU_ITEM_TYPE_MENU;
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].NavIndex_UL   = 0;
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN]);
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppText_UB[0]  = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS][GL_GlobalConfig_X.Language_E].c_str();
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppText_UB[1]  = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
-
-    /* 0.0.0. Settings > Languages */
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].Type_E = WMENU_ITEM_TYPE_MENU;
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].NavIndex_UL = 0;
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT]);
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].ppOnNavItem[WMENU_NAVBUTTON_DOWN] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME]);
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_LANGUAGE][GL_GlobalConfig_X.Language_E].c_str();
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
-
-    /* 0.0.0.0. Settings > Languages > Selection */
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].Type_E = WMENU_ITEM_TYPE_PARAM;
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].NavIndex_UL = 0;
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT][GL_GlobalConfig_X.Language_E].c_str();
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
-
-
-
-    /* 0.0.1. Settings > Date & Time */
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].Type_E = WMENU_ITEM_TYPE_MENU;
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].NavIndex_UL = 1;
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppOnNavItem[WMENU_NAVBUTTON_UP] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppOnNavItem[WMENU_NAVBUTTON_DOWN] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD]);
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME][GL_GlobalConfig_X.Language_E].c_str();
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
-
-    /* 0.0.2. Settings > LCD */
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].Type_E = WMENU_ITEM_TYPE_MENU;
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].NavIndex_UL = 2;
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppOnNavItem[WMENU_NAVBUTTON_UP] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME]);
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_LCD][GL_GlobalConfig_X.Language_E].c_str();
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
-
-
-
+    // Initialize Menu Item
+    InitMenuItem();
 
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "W-Link Manager Initialized");
 }
@@ -218,6 +156,76 @@ void WMenuManager_Process() {
 /* ******************************************************************************** */
 /* Internal Functions
 /* ******************************************************************************** */
+void InitMenuItem(void) {
+
+    /* Default Values */
+    for (int i = 0; i < WMENU_ITEM_NUMBER; i++) {
+        GL_pWMenuItem_X[i].NavIndex_UL = 0;
+        GL_pWMenuItem_X[i].ppOnNavItem[WMENU_NAVBUTTON_DOWN] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
+        GL_pWMenuItem_X[i].ppOnNavItem[WMENU_NAVBUTTON_UP] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
+        GL_pWMenuItem_X[i].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
+        GL_pWMenuItem_X[i].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
+        GL_pWMenuItem_X[i].AdditionalParam_UL = 0;
+        GL_pWMenuItem_X[i].pFct_OnValidateParam = DefaultOnValidateFct;
+    }
+
+    /* > Null Item */
+    GL_pWMenuItem_X[WMENU_ITEM_NULL].Type_E = WMENU_ITEM_TYPE_NULL;
+    GL_pWMenuItem_X[WMENU_ITEM_NULL].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_NULL].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+
+
+    /* 0. Welcom Screen */
+    GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].Type_E = WMENU_ITEM_TYPE_INFO;
+    GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
+    GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_WELCOME_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].ppText_UB[1] = GL_WMenuTextRevisionId_Str.c_str();
+
+    /* 0.0. Settings */
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].Type_E = WMENU_ITEM_TYPE_MENU;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].NavIndex_UL = 0;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+
+    /* 0.0.0. Settings > Languages */
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].Type_E = WMENU_ITEM_TYPE_MENU;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].NavIndex_UL = 0;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].ppOnNavItem[WMENU_NAVBUTTON_DOWN] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_LANGUAGE][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+
+    /* 0.0.0.0. Settings > Languages > Selection */
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].Type_E = WMENU_ITEM_TYPE_PARAM;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].NavIndex_UL = 0;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].AdditionalParam_UL = WMENU_ITEM_SETTINGS_LANGUAGE_SELECT;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].pFct_OnValidateParam = WConfig_SetLanguage;
+
+    /* 0.0.1. Settings > Date & Time */
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].Type_E = WMENU_ITEM_TYPE_MENU;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].NavIndex_UL = 1;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppOnNavItem[WMENU_NAVBUTTON_UP] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppOnNavItem[WMENU_NAVBUTTON_DOWN] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+
+    /* 0.0.2. Settings > LCD */
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].Type_E = WMENU_ITEM_TYPE_MENU;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].NavIndex_UL = 2;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppOnNavItem[WMENU_NAVBUTTON_UP] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_LCD][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+}
+
 
 void ProcessIdle(void) {
     if (GL_WMenuManagerEnabled_B)
@@ -225,7 +233,7 @@ void ProcessIdle(void) {
 }
 
 void ProcessWelcomeScreen(void) {
-    if (GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_ENTER]) {
+    if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER]) {
 
         // Enter Menu after Welcome Screen
         GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_ENTER];
@@ -238,7 +246,7 @@ void ProcessWelcomeScreen(void) {
 void ProcessMenu(void) {
 
     // > DOWN : Go to Next Menu
-    if (GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_DOWN]) {
+    if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_DOWN]) {
 
         if (GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_DOWN]->Type_E == WMENU_ITEM_TYPE_MENU) {
             GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_DOWN];
@@ -246,7 +254,7 @@ void ProcessMenu(void) {
         }
 
     } // > UP : Go to Previous Menu
-    else if (GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_UP]) {
+    else if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_UP]) {
 
         if (GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_UP]->Type_E == WMENU_ITEM_TYPE_MENU) {
             GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_UP];
@@ -254,13 +262,13 @@ void ProcessMenu(void) {
         }
 
     }  // > ENTER : Go inside Menu
-    else if (GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_ENTER]) {
+    else if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER]) {
         
         if (GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_ENTER]->Type_E != WMENU_ITEM_TYPE_NULL) {
             GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_ENTER];
             WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 
-            // Change state if no menu anymore
+            // Change state if no Menu anymore
             if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_INFO)
                 TransitionToInfo();
             else if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_PARAM)
@@ -269,7 +277,7 @@ void ProcessMenu(void) {
         }
 
     } // > BACK : Go to Previous Screen
-    else if (GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_BACK]) {
+    else if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_BACK]) {
 
         if (GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_BACK]->Type_E != WMENU_ITEM_TYPE_NULL) {
             GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_BACK];
@@ -291,7 +299,7 @@ void ProcessMenu(void) {
 void ProcessInfo(void) {
 
     // > BACK : Quit Screen
-    if (GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_BACK]) {
+    if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_BACK]) {
 
         if (GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_BACK]->Type_E != WMENU_ITEM_TYPE_NULL) {
             GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_BACK];
@@ -306,7 +314,7 @@ void ProcessInfo(void) {
         }
 
     } // > ENTER : Quit Screen
-    else if (GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_ENTER]) {
+    else if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER]) {
 
         if (GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_ENTER]->Type_E != WMENU_ITEM_TYPE_NULL) {
             GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_ENTER];
@@ -326,8 +334,62 @@ void ProcessInfo(void) {
 
 void ProcessParam(void) {
 
+    /* ===================================== */
+    /* Define Action according to Parameters */
+    /* ===================================== */
+    switch (GL_pWMenuCurrentItem_X->AdditionalParam_UL) {
+
+
+    // Language Selection
+    // ------------------
+    case WMENU_ITEM_SETTINGS_LANGUAGE_SELECT:
+
+        if (GL_KeyPressed_B) {
+            GL_KeyPressed_B = false;
+
+            switch (GL_Key_UB) {
+
+            case '1':   
+                GL_pParam_UB[0] = (unsigned char)WLINK_LANGUAGE_EN;  
+                GL_GlobalData_X.Lcd_H.enableCursor(1, 0);
+                break;
+
+            case '2':   
+                GL_pParam_UB[0] = (unsigned char)WLINK_LANGUAGE_FR;
+                GL_GlobalData_X.Lcd_H.enableCursor(1, 7);
+                break;
+
+            case '3':   
+                GL_pParam_UB[0] = (unsigned char)WLINK_LANGUAGE_NL;
+                GL_GlobalData_X.Lcd_H.enableCursor(1, 14);
+                break;
+
+            default:    
+                GL_pParam_UB[0] = (unsigned char)WLINK_LANGUAGE_EN;
+                GL_GlobalData_X.Lcd_H.enableCursor(1, 0);
+                break;
+
+            }
+        }
+
+        break;
+
+
+    // Default
+    // -------
+    default:
+        GL_KeyPressed_B = false;
+        break;
+    }
+
+
+
+
     // > BACK : Quit Screen
-    if (GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_BACK]) {
+    if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_BACK]) {
+
+        // Disable Cursor on LCD
+        GL_GlobalData_X.Lcd_H.disableCursor();
 
         if (GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_BACK]->Type_E != WMENU_ITEM_TYPE_NULL) {
             GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_BACK];
@@ -342,9 +404,18 @@ void ProcessParam(void) {
         }
 
     } // > ENTER : Quit Screen
-    else if (GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_ENTER]) {
+    else if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER]) {
+
+        // Disable Cursor on LCD
+        GL_GlobalData_X.Lcd_H.disableCursor();
 
         if (GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_ENTER]->Type_E != WMENU_ITEM_TYPE_NULL) {
+
+            // Call OnValidate Function
+            GL_pWMenuCurrentItem_X->pFct_OnValidateParam(GL_pParam_UB);
+            if(GL_pWMenuCurrentItem_X->AdditionalParam_UL == WMENU_ITEM_SETTINGS_LANGUAGE_SELECT)   InitMenuItem();     // Re-Init Menu if Language has changed
+
+            // Change Screen
             GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_ENTER];
             WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 
@@ -461,32 +532,34 @@ void WMenu_DisplayItem(WMENU_ITEM_STRUCT * pMenuItem_X) {
 /* ******************************************************************************** */
 void WMenuCallback_ResetFlags(void) {
     for (int i = 0; i < 4; i++)
-        GL_pNavButtonPressed_UL[i] = false;
+        GL_pNavButtonPressed_B[i] = false;
 }
 
 
 void WMenuCallback_OnUp(char * pKey_UB) {
-    GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_UP] = true;
+    GL_pNavButtonPressed_B[WMENU_NAVBUTTON_UP] = true;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Button UP Pressed");
 }
 
 void WMenuCallback_OnDown(char * pKey_UB) {
-    GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_DOWN] = true;
+    GL_pNavButtonPressed_B[WMENU_NAVBUTTON_DOWN] = true;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Button DOWN Pressed");
 }
 
 void WMenuCallback_OnEnter(char * pKey_UB) {
-    GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_ENTER] = true;
+    GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER] = true;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Button ENTER/RIGHT");
 }
 
 void WMenuCallback_OnBack(char * pKey_UB) {
-    GL_pNavButtonPressed_UL[WMENU_NAVBUTTON_BACK] = true;
+    GL_pNavButtonPressed_B[WMENU_NAVBUTTON_BACK] = true;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Button BACK/LEFT");
 }
 
 void WMenuCallback_OnNumericKey(char * pKey_UB) {
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Numeric key pressed");
+    GL_KeyPressed_B = true;
+    GL_Key_UB = *pKey_UB;
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Numeric key pressed : " + String(GL_Key_UB));
 }
 
 

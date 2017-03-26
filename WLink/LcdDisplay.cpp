@@ -247,6 +247,18 @@ void LcdDisplay::setBacklight(unsigned char Value_UB) {
 	analogWrite(GL_PinBacklight_UB, Value_UB);
 }
 
+void LcdDisplay::enableCursor(unsigned long LineIdx_UL, unsigned long ColIdx_UL) {
+    // Set Cursor Properly and Display it
+    GL_pLcdDevice_H->setCursor(ColIdx_UL, LineIdx_UL);
+    GL_pLcdDevice_H->cursor();
+}
+
+void LcdDisplay::disableCursor(void) {
+    // Hide cursor
+    GL_pLcdDevice_H->noCursor();
+}
+
+
 void LcdDisplay::enableExternalWrite(unsigned long LineIdx_UL, unsigned long ColIdx_UL) {
 	// Set Cursor Properly and Display it
 	GL_pLcdDevice_H->setCursor(ColIdx_UL, LineIdx_UL);

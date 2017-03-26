@@ -270,7 +270,7 @@ WCFG_STATUS WConfigManager_Process() {
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive language settings");
         if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_LANGUAGE, GL_pWConfigBuffer_UB, 1) == 1) {
 
-            if (GL_pWConfigBuffer_UB[0] < 3) {
+            if ((GL_pWConfigBuffer_UB[0] & 0x0F) < 3) {
                 GL_GlobalConfig_X.Language_E = (WLINK_LANGUAGE_ENUM)GL_pWConfigBuffer_UB[0];
                 DBG_PRINT(DEBUG_SEVERITY_INFO, "Language sets to  ");
                 DBG_PRINTDATA(GL_pLanguageLut_str[GL_pWConfigBuffer_UB[0]]);
@@ -282,7 +282,7 @@ WCFG_STATUS WConfigManager_Process() {
             else {
                 GL_GlobalConfig_X.Language_E = WLINK_LANGUAGE_EN;   // Default language
                 DBG_PRINT(DEBUG_SEVERITY_ERROR, "Bad parameter for language settings (0x");
-                DBG_PRINTDATABASE(GL_pWConfigBuffer_UB[0], HEX);
+                DBG_PRINTDATABASE((GL_pWConfigBuffer_UB[0] & 0x0F), HEX);
                 DBG_PRINTDATA(")");
                 DBG_ENDSTR();
                 DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Language sets to " + GL_pLanguageLut_str[GL_GlobalConfig_X.Language_E] + " (default)");
@@ -920,4 +920,30 @@ void TransitionToErrorInit(void) {
     GL_WConfigStatus_E = WCFG_STS_ERROR_INIT;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To ERROR INIT");
     GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_ERROR_INIT;
+}
+
+
+/* ******************************************************************************** */
+/* Configuration Functions
+/* ******************************************************************************** */
+void WConfig_SetLanguage(unsigned char * pLanguage_UB) {
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Set language");
+    if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_LANGUAGE, GL_pWConfigBuffer_UB, 1) == 1) {
+
+        // Get Byte and change it
+        GL_pWConfigBuffer_UB[0] &= 0xF0;
+        GL_pWConfigBuffer_UB[0] |= (*pLanguage_UB);
+
+        // Write in EEPROM
+        GL_GlobalData_X.Eeprom_H.write(WCONFIG_ADDR_LANGUAGE, GL_pWConfigBuffer_UB, 1);
+
+        // Assign Global Config Data
+        GL_GlobalConfig_X.Language_E = *((WLINK_LANGUAGE_ENUM *)(pLanguage_UB));
+        DBG_PRINT(DEBUG_SEVERITY_INFO, "Language sets to  ");
+        DBG_PRINTDATA(GL_pLanguageLut_str[*pLanguage_UB]);
+        DBG_ENDSTR();
+
+    }
+
 }

@@ -48,3 +48,8 @@ void DefaultKeyEvents(char * Key_UB) {
     DBG_PRINTDATA("] key pressed -> No callback assigned!");
     DBG_ENDSTR();
 }
+
+
+void DefaultOnValidateFct(unsigned char * pParam_UB) {
+    DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "No function on Validate");
+}

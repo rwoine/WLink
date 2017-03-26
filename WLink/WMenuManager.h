@@ -43,6 +43,8 @@ struct WMENU_ITEM_STRUCT {
     unsigned long NavIndex_UL;
     const char * ppText_UB[2];
     WMENU_ITEM_STRUCT * ppOnNavItem[4];
+    unsigned long AdditionalParam_UL;
+    void (*pFct_OnValidateParam)(unsigned char *);
 };
 
 /* ******************************************************************************** */

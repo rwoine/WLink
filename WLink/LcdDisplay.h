@@ -61,13 +61,20 @@ public:
     void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
     void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned long ColIdx_UL, String TextStr_Str);
     void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned long ColIdx_UL, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
+
 	void appendDisplay(String TextStr_Str);
 	void appendDisplay(unsigned char * pTextStr_UB, unsigned long ArraySize_UL);
+
 	void backspaceDisplay(unsigned long BackspaceNb_UL);
 	void readDisplayShadowContent(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long * pArraySize_UL);
+
 	void setBacklight(unsigned char Value_UB);
+    void enableCursor(unsigned long LineIdx_UL, unsigned long ColIdx_UL);
+    void disableCursor(void);
+
 	void enableExternalWrite(unsigned long LineIdx_UL, unsigned long ColIdx_UL);
 	void disableExternalWrite(void);
+
 	boolean isExternalWriteEnabled(void);
 	String getExternalWriteData(void);
 
