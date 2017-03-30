@@ -111,9 +111,6 @@ void WMenuManager_Init() {
     // Initialize Navigation Button Flags
     WMenuCallback_ResetFlags();
 
-    // Initialize Menu Item
-    InitMenuItem();
-
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "W-Link Manager Initialized");
 }
 
@@ -228,8 +225,10 @@ void InitMenuItem(void) {
 
 
 void ProcessIdle(void) {
-    if (GL_WMenuManagerEnabled_B)
+    if (GL_WMenuManagerEnabled_B) {
+        InitMenuItem();
         TransitionToWelcomeScreen();
+    }
 }
 
 void ProcessWelcomeScreen(void) {

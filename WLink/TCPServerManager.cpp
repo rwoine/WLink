@@ -81,7 +81,7 @@ void TCPServerManager_Disable() {
 void TCPServerManager_Process() {
 
     /* Reset Condition */
-    if (!(GL_pNetworkAdapter_H->isConnected() && GL_TcpServerManagerEnabled_B)) {
+    if ((GL_TCPServerManager_CurrentState_E != TCP_SERVER_MANAGER_IDLE) && (!(GL_pNetworkAdapter_H->isConnected() && GL_TcpServerManagerEnabled_B))) {
         TransitionToIdle();
     }
 

@@ -708,7 +708,7 @@ WCFG_STATUS WConfigManager_Process() {
                 NetworkAdapterManager_Init(&(GL_GlobalData_X.Network_H));
                 NetworkAdapterManager_Enable(); // GL_GlobalData_X.Network_H.begin() is called in NetworkAdapterManager_Process() when cable is conneted
 
-
+                
                 DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Ethernet configuration");
             }
             else {
