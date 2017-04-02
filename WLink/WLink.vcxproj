@@ -77,6 +77,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Adafruit_FONA.h" />
     <ClInclude Include="BadgeReader.h" />
     <ClInclude Include="BadgeReaderManager.h" />
     <ClInclude Include="CommEvent.h" />
@@ -84,6 +85,10 @@
     <ClInclude Include="EepromWire.h" />
     <ClInclude Include="FlatPanel.h" />
     <ClInclude Include="FlatPanelManager.h" />
+    <ClInclude Include="FONAConfig.h" />
+    <ClInclude Include="FONAExtIncludes.h" />
+    <ClInclude Include="FONAPlatform.h" />
+    <ClInclude Include="FONAPlatStd.h" />
     <ClInclude Include="Hardware.h" />
     <ClInclude Include="Indicator.h" />
     <ClInclude Include="IndicatorInterface.h" />
@@ -112,6 +117,7 @@
     <ClInclude Include="__vm\.WLink.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Adafruit_FONA.cpp" />
     <ClCompile Include="BadgeReader.cpp" />
     <ClCompile Include="BadgeReaderManager.cpp" />
     <ClCompile Include="Debug.cpp" />
