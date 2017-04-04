@@ -46,6 +46,8 @@ WCFG_STATUS WConfigManager_Process();
 void WConfigManager_BuildSerialGateway();
 
 void WConfig_SetLanguage(unsigned char * pLanguage_UB);
+void WConfig_SetDate(unsigned char * pDate_UB);
+void WConfig_SetTime(unsigned char * pTime_UB);
 
 
 #endif // __WCONFIG_MANAGER_H__

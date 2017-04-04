@@ -56,6 +56,7 @@ static boolean GL_pNavButtonPressed_B[4] = {false, false, false, false};
 static boolean GL_KeyPressed_B = false;
 static char GL_Key_UB = 0x00;
 static unsigned char GL_pParam_UB[16];
+static unsigned long GL_ParamIndex_UL = 0;
 
 static String GL_WMenuTextRevisionId_Str = "";
 
@@ -209,10 +210,49 @@ void InitMenuItem(void) {
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].Type_E = WMENU_ITEM_TYPE_MENU;
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].NavIndex_UL = 1;
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE]);
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppOnNavItem[WMENU_NAVBUTTON_UP] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppOnNavItem[WMENU_NAVBUTTON_DOWN] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD]);
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME][GL_GlobalConfig_X.Language_E].c_str();
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+
+    /* 0.0.1.0 Settings > Date & Time > Date */
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE].Type_E = WMENU_ITEM_TYPE_MENU;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE].NavIndex_UL = 0;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE].ppOnNavItem[WMENU_NAVBUTTON_DOWN] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_DATE][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+
+    /* 0.0.1.0 Settings > Date & Time > Date > Set */
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].Type_E = WMENU_ITEM_TYPE_PARAM;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].NavIndex_UL = 0;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].AdditionalParam_UL = WMENU_ITEM_SETTINGS_DATETIME_DATE_SET;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].pFct_OnValidateParam = WConfig_SetDate;
+
+    /* 0.0.1.1 Settings > Date & Time > Time */
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME].Type_E = WMENU_ITEM_TYPE_MENU;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME].NavIndex_UL = 1;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME].ppOnNavItem[WMENU_NAVBUTTON_UP] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_TIME][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+
+    /* 0.0.1.0 Settings > Date & Time > Time > Set */
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].Type_E = WMENU_ITEM_TYPE_PARAM;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].NavIndex_UL = 0;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].AdditionalParam_UL = WMENU_ITEM_SETTINGS_DATETIME_TIME_SET;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].pFct_OnValidateParam = WConfig_SetTime;
 
     /* 0.0.2. Settings > LCD */
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].Type_E = WMENU_ITEM_TYPE_MENU;
@@ -331,7 +371,9 @@ void ProcessInfo(void) {
 
 }
 
-void ProcessParam(void) {
+void ProcessParam(void) {   
+
+    unsigned long ColIdx_UL = 0;
 
     /* ===================================== */
     /* Define Action according to Parameters */
@@ -372,6 +414,44 @@ void ProcessParam(void) {
         }
 
         break;
+
+
+    // Set Date
+    // --------
+    case WMENU_ITEM_SETTINGS_DATETIME_DATE_SET:
+
+        // Manage cursor
+        switch (GL_ParamIndex_UL) {
+        case 0:   ColIdx_UL = 2; break;  // -> D 10
+        case 1:   ColIdx_UL = 3; break;  // -> D 1
+        case 2:   ColIdx_UL = 5; break;  // -> M 10
+        case 3:   ColIdx_UL = 6; break;  // -> M 1
+        case 4:   ColIdx_UL = 8; break;  // -> Y 10
+        case 5:   ColIdx_UL = 9; break;  // -> Y 1
+        }
+
+        GL_GlobalData_X.Lcd_H.enableCursor(LCD_DISPLAY_LINE2, ColIdx_UL);
+
+        if (GL_KeyPressed_B) {
+            GL_KeyPressed_B = false;
+
+            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL, (unsigned char *)(&GL_Key_UB), 1);
+            GL_pParam_UB[GL_ParamIndex_UL++] = atoi(&GL_Key_UB);
+
+            // Rollback
+            if (GL_ParamIndex_UL == 6)
+                GL_ParamIndex_UL = 0;
+
+        }
+        break;
+
+
+    // Set Time
+    // --------
+    case WMENU_ITEM_SETTINGS_DATETIME_TIME_SET:
+        GL_KeyPressed_B = false;
+        break;
+
 
 
     // Default

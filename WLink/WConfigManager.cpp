@@ -947,3 +947,13 @@ void WConfig_SetLanguage(unsigned char * pLanguage_UB) {
     }
 
 }
+
+
+void WConfig_SetDate(unsigned char * pDate_UB) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Set date");
+}
+
+
+void WConfig_SetTime(unsigned char * pTime_UB) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Set time");
+}
