@@ -56,6 +56,8 @@ public:
 	void init(LiquidCrystal * pLcd_H, unsigned char PinBacklight_UB);
 	boolean isInitialized(void);
 
+    void createChar(unsigned char CharNb_UB, unsigned char * pChar_UB);
+
 	void clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E = LCD_DISPLAY_ALL_LINE);
 	void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, String TextStr_Str);
     void writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned char * pTextStr_UB, unsigned long ArraySize_UL);

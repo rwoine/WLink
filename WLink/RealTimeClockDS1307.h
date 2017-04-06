@@ -59,6 +59,8 @@ class RealTimeClockDS1307
     RealTimeClockDS1307();
     void readClock();//read registers (incl sqw) to local store
     void setClock();//update clock registers from local store
+    void setTime();//update time registers from local store
+    void setDate();//update date registers from local store
     void stop();//immediate; does not require setClock();
     void start();//immediate; does not require setClock();
     void sqwEnable(byte);//enable the square wave with the specified frequency

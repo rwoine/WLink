@@ -70,6 +70,10 @@ boolean LcdDisplay::isInitialized(void) {
 	return GL_LcdDisplayParam_X.IsInitialized_B;
 }
 
+void LcdDisplay::createChar(unsigned char CharNb_UB, unsigned char * pChar_UB) {
+    GL_pLcdDevice_H->createChar(CharNb_UB, pChar_UB);
+}
+
 
 void LcdDisplay::clearDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E) {
 	if (LineIndex_E == LCD_DISPLAY_ALL_LINE) {

@@ -59,6 +59,8 @@ public:
 	void init(TwoWire * pWire_H, unsigned char PinSquareOut_UB);
 	boolean isInitialized(void);
 
+    void setDate(RTC_DATE_STRUCT Date_X);
+    void setTime(RTC_TIME_STRUCT Time_X);
     void setDateTime(RTC_DATETIME_STRUCT DateTime_X);
 
     RTC_DATE_STRUCT getDate(void);

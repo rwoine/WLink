@@ -56,6 +56,19 @@ boolean RealTimeClock::isInitialized(void) {
 	return GL_RealTimeClockParam_X.IsInitialized_B;
 }
 
+void RealTimeClock::setDate(RTC_DATE_STRUCT Date_X) {
+    GL_RtcDevice_H.setDay(Date_X.Day_UB);
+    GL_RtcDevice_H.setMonth(Date_X.Month_UB);
+    GL_RtcDevice_H.setYear(Date_X.Year_UB);
+    GL_RtcDevice_H.setDate();
+}
+
+void RealTimeClock::setTime(RTC_TIME_STRUCT Time_X) {
+    GL_RtcDevice_H.setSeconds(Time_X.Sec_UB);
+    GL_RtcDevice_H.setMinutes(Time_X.Min_UB);
+    GL_RtcDevice_H.setHours(Time_X.Hour_UB);
+    GL_RtcDevice_H.setTime();
+}
 
 void RealTimeClock::setDateTime(RTC_DATETIME_STRUCT DateTime_X) {
     GL_RtcDevice_H.setSeconds(DateTime_X.Time_X.Sec_UB);

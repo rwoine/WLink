@@ -77,26 +77,60 @@ void RealTimeClockDS1307::readClock()
 
 void RealTimeClockDS1307::setClock()
 {
-  //to be paranoid, we're going to first stop the clock
-  //to ensure we don't have rollovers while we're
-  //writing:
-  writeData(0,0x80);
-  //now, we'll write everything *except* the second
-  Wire.beginTransmission(DS1307_I2C_ADDRESS);
-  Wire.write((uint8_t) 0x01);
-  Wire.write(_reg1_min);
-  Wire.write(_reg2_hour);
-  Wire.write(_reg3_day);
-  Wire.write(_reg4_date);
-  Wire.write(_reg5_month);
-  Wire.write(_reg6_year);
-  Wire.endTransmission();
-  //now, we'll write the seconds; we didn't have to keep
-  //track of whether the clock was already running, because
-  //_reg0_sec already knows what we want it to be. This
-  //will restart the clock as it writes the new seconds value.
-  writeData(0,_reg0_sec); 
+    //to be paranoid, we're going to first stop the clock
+    //to ensure we don't have rollovers while we're
+    //writing:
+    writeData(0, 0x80);
+    //now, we'll write everything *except* the second
+    Wire.beginTransmission(DS1307_I2C_ADDRESS);
+    Wire.write((uint8_t)0x01);
+    Wire.write(_reg1_min);
+    Wire.write(_reg2_hour);
+    Wire.write(_reg3_day);
+    Wire.write(_reg4_date);
+    Wire.write(_reg5_month);
+    Wire.write(_reg6_year);
+    Wire.endTransmission();
+    //now, we'll write the seconds; we didn't have to keep
+    //track of whether the clock was already running, because
+    //_reg0_sec already knows what we want it to be. This
+    //will restart the clock as it writes the new seconds value.
+    writeData(0, _reg0_sec);
 }
+
+void RealTimeClockDS1307::setTime()
+{
+    //to be paranoid, we're going to first stop the clock
+    //to ensure we don't have rollovers while we're
+    //writing:
+    writeData(0, 0x80);
+    //now, we'll write everything *except* the second
+    Wire.beginTransmission(DS1307_I2C_ADDRESS);
+    Wire.write((uint8_t)0x01);
+    Wire.write(_reg1_min);
+    Wire.write(_reg2_hour);
+    Wire.endTransmission();
+    //now, we'll write the seconds; we didn't have to keep
+    //track of whether the clock was already running, because
+    //_reg0_sec already knows what we want it to be. This
+    //will restart the clock as it writes the new seconds value.
+    writeData(0, _reg0_sec);
+}
+
+
+void RealTimeClockDS1307::setDate()
+{
+    //now, we'll write everything
+    Wire.beginTransmission(DS1307_I2C_ADDRESS);
+    Wire.write((uint8_t)0x03);
+    Wire.write(_reg3_day);
+    Wire.write(_reg4_date);
+    Wire.write(_reg5_month);
+    Wire.write(_reg6_year);
+    Wire.endTransmission();
+}
+
+
 
 void RealTimeClockDS1307::stop()
 {
@@ -260,18 +294,33 @@ int RealTimeClockDS1307::getDayOfWeek()
 void RealTimeClockDS1307::getFormatted(char * buffer)
 {
   int i=0;
-  //target string format: YY-MM-DD HH:II:SS
-  buffer[i++]=highNybbleToASCII(_reg6_year);
-  buffer[i++]=lowNybbleToASCII(_reg6_year);
+  ////target string format: YY-MM-DD HH:II:SS
+  //buffer[i++]=highNybbleToASCII(_reg6_year);
+  //buffer[i++]=lowNybbleToASCII(_reg6_year);
+  //i++;
+  ////buffer[i++]='-';
+  //buffer[i++]=highNybbleToASCII(_reg5_month & 0x1f);
+  //buffer[i++]=lowNybbleToASCII(_reg5_month);
+  //i++;
+  ////buffer[i++]='-';
+  //buffer[i++]=highNybbleToASCII(_reg4_date & 0x3f);
+  //buffer[i++]=lowNybbleToASCII(_reg4_date);
+  //i++;
+
+  //target string format: DD-MM-YY HH:II:SS
+  buffer[i++] = highNybbleToASCII(_reg4_date & 0x3f);
+  buffer[i++] = lowNybbleToASCII(_reg4_date);
   i++;
   //buffer[i++]='-';
   buffer[i++]=highNybbleToASCII(_reg5_month & 0x1f);
   buffer[i++]=lowNybbleToASCII(_reg5_month);
   i++;
   //buffer[i++]='-';
-  buffer[i++]=highNybbleToASCII(_reg4_date & 0x3f);
-  buffer[i++]=lowNybbleToASCII(_reg4_date);
+  buffer[i++] = highNybbleToASCII(_reg6_year);
+  buffer[i++] = lowNybbleToASCII(_reg6_year);
   i++;
+
+
   //buffer[i++]=' ';
   if(is12hour()) {
     buffer[i++]=highNybbleToASCII(_reg2_hour & 0x1f);

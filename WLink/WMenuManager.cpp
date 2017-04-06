@@ -60,6 +60,8 @@ static unsigned long GL_ParamIndex_UL = 0;
 
 static String GL_WMenuTextRevisionId_Str = "";
 
+static unsigned long GL_AbsoluteTime_UL = 0;
+
 /* ******************************************************************************** */
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
@@ -175,14 +177,21 @@ void InitMenuItem(void) {
 
     /* 0. Welcom Screen */
     GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].Type_E = WMENU_ITEM_TYPE_INFO;
-    GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
+    GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_IDLE_SCREEN]);
     GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_WELCOME_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
     GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN].ppText_UB[1] = GL_WMenuTextRevisionId_Str.c_str();
+
+    /* 0. Idle Screen */
+    GL_pWMenuItem_X[WMENU_ITEM_IDLE_SCREEN].Type_E = WMENU_ITEM_TYPE_INFO;
+    GL_pWMenuItem_X[WMENU_ITEM_IDLE_SCREEN].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
+    GL_pWMenuItem_X[WMENU_ITEM_IDLE_SCREEN].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_IDLE_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_IDLE_SCREEN].AdditionalParam_UL = WMENU_ITEM_IDLE_SCREEN;
+
 
     /* 0.0. Settings */
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].Type_E = WMENU_ITEM_TYPE_MENU;
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].NavIndex_UL = 0;
-    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppOnNavItem[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_IDLE_SCREEN]);
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppOnNavItem[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS][GL_GlobalConfig_X.Language_E].c_str();
     GL_pWMenuItem_X[WMENU_ITEM_SETTINGS].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_NULL][GL_GlobalConfig_X.Language_E].c_str();
@@ -267,17 +276,19 @@ void InitMenuItem(void) {
 void ProcessIdle(void) {
     if (GL_WMenuManagerEnabled_B) {
         InitMenuItem();
+        GL_AbsoluteTime_UL = millis();
         TransitionToWelcomeScreen();
     }
 }
 
 void ProcessWelcomeScreen(void) {
-    if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER]) {
 
-        // Enter Menu after Welcome Screen
+    if (((millis() - GL_AbsoluteTime_UL) >= 5000) || (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER])) {
+
+        // Enter Idle Screen after Welcome Screen
         GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_ENTER];
         WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
-        TransitionToMenu();
+        TransitionToInfo();
 
     }
 }
@@ -336,6 +347,24 @@ void ProcessMenu(void) {
 
 
 void ProcessInfo(void) {
+
+    /* =================================== */
+    /* Define Displaying according to Info */
+    /* =================================== */
+    switch (GL_pWMenuCurrentItem_X->AdditionalParam_UL) {
+
+    // Idle Screen
+    // -----------
+    case WMENU_ITEM_IDLE_SCREEN:
+        GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 19, (byte)0, 1);
+        GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 1, GL_GlobalData_X.Rtc_H.getDateTimeString());
+        break;
+
+
+    default:
+        break;   
+    
+    }
 
     // > BACK : Quit Screen
     if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_BACK]) {
@@ -435,6 +464,17 @@ void ProcessParam(void) {
         if (GL_KeyPressed_B) {
             GL_KeyPressed_B = false;
 
+            // Validate Input
+            switch (GL_ParamIndex_UL) {
+            case 0:     if (atoi(&GL_Key_UB) > 3)    GL_Key_UB = '3';                               break;
+            case 1:     if ((GL_pParam_UB[0] == 3) && (atoi(&GL_Key_UB) > 1))  GL_Key_UB = '1';     break;
+            case 2:     if (atoi(&GL_Key_UB) > 1)    GL_Key_UB = '1';                               break;
+            case 3:     if ((GL_pParam_UB[2] == 1) && (atoi(&GL_Key_UB) > 2))  GL_Key_UB = '2';     break;
+            case 4:     if (atoi(&GL_Key_UB) > 3)    GL_Key_UB = '3';                               break;
+            case 5:     break;
+            }
+
+            // Write on LCD and in Buffer
             GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL, (unsigned char *)(&GL_Key_UB), 1);
             GL_pParam_UB[GL_ParamIndex_UL++] = atoi(&GL_Key_UB);
 
@@ -449,7 +489,41 @@ void ProcessParam(void) {
     // Set Time
     // --------
     case WMENU_ITEM_SETTINGS_DATETIME_TIME_SET:
-        GL_KeyPressed_B = false;
+
+        // Manage cursor
+        switch (GL_ParamIndex_UL) {
+        case 0:   ColIdx_UL = 2; break;  // -> h 10
+        case 1:   ColIdx_UL = 3; break;  // -> h 1
+        case 2:   ColIdx_UL = 5; break;  // -> m 10
+        case 3:   ColIdx_UL = 6; break;  // -> m 1
+        case 4:   ColIdx_UL = 8; break;  // -> s 10
+        case 5:   ColIdx_UL = 9; break;  // -> s 1
+        }
+
+        GL_GlobalData_X.Lcd_H.enableCursor(LCD_DISPLAY_LINE2, ColIdx_UL);
+
+        if (GL_KeyPressed_B) {
+            GL_KeyPressed_B = false;
+
+            // Validate Input
+            switch (GL_ParamIndex_UL) {
+            case 0:     if (atoi(&GL_Key_UB) > 2)    GL_Key_UB = '2';                               break;
+            case 1:     if ((GL_pParam_UB[0] == 2) && (atoi(&GL_Key_UB) > 3))  GL_Key_UB = '3';     break;
+            case 2:     if (atoi(&GL_Key_UB) > 5)    GL_Key_UB = '5';                               break;
+            case 3:     break;
+            case 4:     if (atoi(&GL_Key_UB) > 5)    GL_Key_UB = '5';                               break;
+            case 5:     break;
+            }
+
+            // Write on LCD and in Buffer
+            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL, (unsigned char *)(&GL_Key_UB), 1);
+            GL_pParam_UB[GL_ParamIndex_UL++] = atoi(&GL_Key_UB);
+
+            // Rollback
+            if (GL_ParamIndex_UL == 6)
+                GL_ParamIndex_UL = 0;
+
+        }
         break;
 
 
@@ -467,8 +541,9 @@ void ProcessParam(void) {
     // > BACK : Quit Screen
     if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_BACK]) {
 
-        // Disable Cursor on LCD
+        // Disable Cursor on LCD and Reset Parameters
         GL_GlobalData_X.Lcd_H.disableCursor();
+        GL_ParamIndex_UL = 0;
 
         if (GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_BACK]->Type_E != WMENU_ITEM_TYPE_NULL) {
             GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_BACK];
@@ -485,8 +560,9 @@ void ProcessParam(void) {
     } // > ENTER : Quit Screen
     else if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER]) {
 
-        // Disable Cursor on LCD
+        // Disable Cursor on LCD and Reset Parameters
         GL_GlobalData_X.Lcd_H.disableCursor();
+        GL_ParamIndex_UL = 0;
 
         if (GL_pWMenuCurrentItem_X->ppOnNavItem[WMENU_NAVBUTTON_ENTER]->Type_E != WMENU_ITEM_TYPE_NULL) {
 

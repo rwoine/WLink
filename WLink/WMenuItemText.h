@@ -23,6 +23,7 @@
 typedef enum {
     WMENU_ITEM_NULL = 0,
     WMENU_ITEM_WELCOME_SCREEN,
+    WMENU_ITEM_IDLE_SCREEN,
     WMENU_ITEM_SETTINGS,    
     WMENU_ITEM_SETTINGS_LANGUAGE,
     WMENU_ITEM_SETTINGS_LANGUAGE_SELECT,
@@ -46,6 +47,7 @@ const String GL_ppWMenuItemText_Str[][3] = {
 //      EN                          FR                          NL
     { "                    ",     "                    ",     "                    " },
     { "--- W-Link ---  (EN)",     "--- W-Link ---  (FR)",     "--- W-Link ---  (NL)" },
+    { "       W-Link       ",     "       W-Link       ",     "       W-Link       " },
     { "  Settings          ",     "  Reglages          ",     "  Instellingen      " },
     { "  Languages         ",     "  Langues           ",     "  Talen             " },
     { "1=EN - 2=FR - 3=NL  ",     "1=EN - 2=FR - 3=NL  ",     "1=EN - 2=FR - 3=NL  " },
@@ -53,7 +55,7 @@ const String GL_ppWMenuItemText_Str[][3] = {
     { "  Date              ",     "  Date              ",     "  Datum             " },
     { "  DD/MM/YY          ",     "  JJ/MM/AA          ",     "  DD/MM/JJ          " },
     { "  Time              ",     "  Heure             ",     "  Tijd              " },
-    { "  hh:mm             ",     "  hh:mm             ",     "  uu:mm             " },
+    { "  hh:mm:ss          ",     "  hh:mm:ss          ",     "  uu:mm:ss          " },
     { "  LCD               ",     "  LCD               ",     "  LCD               " },
     { "  Backlight         ",     "  Retroeclairage    ",     "  Tegenlicht        " },
 };

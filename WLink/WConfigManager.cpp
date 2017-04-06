@@ -64,6 +64,19 @@ unsigned long GL_pPortComSpeedLut_UL[] = { 1200, 2400, 4800, 9600, 19200, 38400,
 static const String GL_pLanguageLut_str[] = { "EN", "FR", "NL" };
 static const String GL_pWCmdMediumLut_str[] = { "None", "COM0", "COM1", "COM2", "COM3", "UDP Server", "TCP Server", "GSM Server" };
 
+/* ******************************************************************************** */
+/* LCD Special Char
+/* ******************************************************************************** */
+byte GL_LcdWLinkLogo[8] = {
+    B11111,
+    B10001,
+    B01010,
+    B10001,
+    B10001,
+    B10001,
+    B11111,
+    B00000
+};
 
 /* ******************************************************************************** */
 /* General Configuration
@@ -345,6 +358,7 @@ WCFG_STATUS WConfigManager_Process() {
                 GL_GlobalData_X.Lcd_H.init(&GL_LcdObject_X, PIN_LCD_BACKLIGHT);
                 GL_GlobalData_X.Lcd_H.clearDisplay();
                 GL_GlobalData_X.Lcd_H.setBacklight(255);	// Max value for Backlight by default
+                GL_GlobalData_X.Lcd_H.createChar(0, GL_LcdWLinkLogo);
 
                 if (!GL_GlobalData_X.Lcd_H.isInitialized()) {
                     DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "LCD cannot be initialized");
@@ -951,9 +965,41 @@ void WConfig_SetLanguage(unsigned char * pLanguage_UB) {
 
 void WConfig_SetDate(unsigned char * pDate_UB) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Set date");
+
+    RTC_DATE_STRUCT Date_X;
+    Date_X.Day_UB = pDate_UB[0] * 10 + pDate_UB[1];
+    Date_X.Month_UB = pDate_UB[2] * 10 + pDate_UB[3];
+    Date_X.Year_UB = pDate_UB[4] * 10 + pDate_UB[5];
+
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Date sets to : ");
+    DBG_PRINTDATA(Date_X.Day_UB);
+    DBG_PRINTDATA("/");
+    DBG_PRINTDATA(Date_X.Month_UB);
+    DBG_PRINTDATA("/");
+    DBG_PRINTDATA(Date_X.Year_UB);
+    DBG_ENDSTR();
+
+    // Call low-level function
+    GL_GlobalData_X.Rtc_H.setDate(Date_X);
 }
 
 
 void WConfig_SetTime(unsigned char * pTime_UB) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Set time");
+
+    RTC_TIME_STRUCT Time_X;
+    Time_X.Hour_UB = pTime_UB[0] * 10 + pTime_UB[1];
+    Time_X.Min_UB = pTime_UB[2] * 10 + pTime_UB[3];
+    Time_X.Sec_UB = pTime_UB[4] * 10 + pTime_UB[5];;
+
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Time sets to : ");
+    DBG_PRINTDATA(Time_X.Hour_UB);
+    DBG_PRINTDATA(":");
+    DBG_PRINTDATA(Time_X.Min_UB);
+    DBG_PRINTDATA(":");
+    DBG_PRINTDATA(Time_X.Sec_UB);
+    DBG_ENDSTR();
+
+    // Call low-level function
+    GL_GlobalData_X.Rtc_H.setTime(Time_X);
 }
