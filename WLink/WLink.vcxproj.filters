@@ -58,6 +58,12 @@
     <Filter Include="Source Files\Network\ExternalLib">
       <UniqueIdentifier>{8aeaf360-7fcd-4a3c-b7e9-c4560296b009}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Applications">
+      <UniqueIdentifier>{72aa6a17-29aa-42f7-90a2-bb5dc1116391}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Applications\KipControl">
+      <UniqueIdentifier>{57d34942-f0ae-481e-9b7d-e81f19b009db}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="WLink.ino" />
@@ -177,6 +183,15 @@
     <ClInclude Include="FONAPlatStd.h">
       <Filter>Source Files\Network\ExternalLib</Filter>
     </ClInclude>
+    <ClInclude Include="KipControlMenuItemText.h">
+      <Filter>Source Files\Applications\KipControl</Filter>
+    </ClInclude>
+    <ClInclude Include="KipControlMenuManager.h">
+      <Filter>Source Files\Applications\KipControl</Filter>
+    </ClInclude>
+    <ClInclude Include="KipControlManager.h">
+      <Filter>Source Files\Applications\KipControl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -265,6 +280,12 @@
     </ClCompile>
     <ClCompile Include="Adafruit_FONA.cpp">
       <Filter>Source Files\Network\ExternalLib</Filter>
+    </ClCompile>
+    <ClCompile Include="KipControlMenuManager.cpp">
+      <Filter>Source Files\Applications\KipControl</Filter>
+    </ClCompile>
+    <ClCompile Include="KipControlManager.cpp">
+      <Filter>Source Files\Applications\KipControl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

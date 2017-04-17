@@ -49,6 +49,8 @@
 
 #include "WLinkManager.h"
 
+#include "KipControlManager.h"
+
 #include "Debug.h"
 
 /* ******************************************************************************** */
@@ -147,6 +149,15 @@ typedef struct {
     unsigned long NbFct_UL;
 } WCMD_CONFIG_STRUCT;
 
+typedef struct {
+    boolean hasApplication_B;
+    void (*pFctInit)(void);
+    void (*pFctEnable)(void);
+    void (*pFctDisable)(void);
+    boolean(*pFctIsEnabled)(void);
+    void (*pFctProcess)(void);
+} WAPP_STRUCT;
+
 // Global Configuration Structure
 typedef struct {
     unsigned char MajorRev_UB;
@@ -158,6 +169,7 @@ typedef struct {
     boolean HasMemoryCard_B;
     COM_PORT_CONFIG_STRUCT pComPortConfig_X[4];
     ETHERNET_CONFIG_STRUCT EthConfig_X;
+    WAPP_STRUCT App_X;
 } GLOBAL_CONFIG_STRUCT;
 
 #endif // __WLINK_H__

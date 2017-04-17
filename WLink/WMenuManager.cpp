@@ -114,7 +114,7 @@ void WMenuManager_Init() {
     // Initialize Navigation Button Flags
     WMenuCallback_ResetFlags();
 
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "W-Link Manager Initialized");
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "W-Link Menu Manager Initialized");
 }
 
 void WMenuManager_Enable() {

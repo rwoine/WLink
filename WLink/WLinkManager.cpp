@@ -135,6 +135,11 @@ void ProcessWLink(void) {
     if (GL_GlobalConfig_X.WCmdConfig_X.Medium_E != WLINK_WCMD_MEDIUM_NONE)      WCommandInterpreter_Process();
     if (GL_GlobalData_X.FlatPanel_H.isInitialized())                            FlatPanelManager_Process(); 
     WMenuManager_Process();
+
+    // Call application
+    if (GL_GlobalConfig_X.App_X.hasApplication_B) {
+        if (GL_GlobalConfig_X.App_X.pFctIsEnabled())                            GL_GlobalConfig_X.App_X.pFctProcess();
+    }
 }
 
 void ProcessError(void) {
@@ -156,7 +161,14 @@ void TransitionToConfig(void) {
 
 void TransitionToProcessWLink(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To PROCESS W-LINK");
+
+    // Enable WMenu
     WMenuManager_Enable();
+
+    // Enable Application if any
+    if (GL_GlobalConfig_X.App_X.hasApplication_B)
+        GL_GlobalConfig_X.App_X.pFctEnable();
+
     GL_WLinkManager_CurrentState_E = W_STATE::W_PROCESS_WLINK;
 }
 

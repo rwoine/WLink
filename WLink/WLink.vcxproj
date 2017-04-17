@@ -93,6 +93,9 @@
     <ClInclude Include="Indicator.h" />
     <ClInclude Include="IndicatorInterface.h" />
     <ClInclude Include="IndicatorManager.h" />
+    <ClInclude Include="KipControlManager.h" />
+    <ClInclude Include="KipControlMenuItemText.h" />
+    <ClInclude Include="KipControlMenuManager.h" />
     <ClInclude Include="LcdDisplay.h" />
     <ClInclude Include="LD5218.h" />
     <ClInclude Include="MemoryCard.h" />
@@ -127,6 +130,8 @@
     <ClCompile Include="Indicator.cpp" />
     <ClCompile Include="IndicatorInterface.cpp" />
     <ClCompile Include="IndicatorManager.cpp" />
+    <ClCompile Include="KipControlManager.cpp" />
+    <ClCompile Include="KipControlMenuManager.cpp" />
     <ClCompile Include="LcdDisplay.cpp" />
     <ClCompile Include="LD5218.cpp" />
     <ClCompile Include="MemoryCard.cpp" />
