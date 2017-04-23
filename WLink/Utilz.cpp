@@ -40,6 +40,8 @@ String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, Stri
             Temp_Str += Separator_Str;
     }
 
+    Temp_Str.toUpperCase();
+
     return Temp_Str;
 }
 

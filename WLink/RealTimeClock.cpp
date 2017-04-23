@@ -27,6 +27,7 @@ static TwoWire * GL_pRtcWire_H;
 static RealTimeClockDS1307 GL_RtcDevice_H;
 static unsigned char GL_PinSquareOut_UB;
 static char GL_pRTCFormatString_UB[] = "00/00/00 00:00:00x";
+static char GL_pRTCTimestampFormatString_UB[] = "0000-00-00+00:00:00x";
 
 /* ******************************************************************************** */
 /* Constructor
@@ -116,8 +117,14 @@ RTC_DATETIME_STRUCT RealTimeClock::getDateTime(void) {
 
 String RealTimeClock::getDateTimeString(void) {
     getDateTime();
-    GL_RtcDevice_H.getFormatted(GL_pRTCFormatString_UB);
+    GL_RtcDevice_H.getFormatted(GL_pRTCFormatString_UB, false);
     return GL_pRTCFormatString_UB;
+}
+
+String RealTimeClock::getTimestamp(void) {
+    getDateTime();
+    GL_RtcDevice_H.getFormatted2k(GL_pRTCTimestampFormatString_UB);
+    return GL_pRTCTimestampFormatString_UB;
 }
 
 

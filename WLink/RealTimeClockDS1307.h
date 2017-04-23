@@ -84,7 +84,7 @@ class RealTimeClockDS1307
     //getFormatted writes into a char array provided by you. Format is:
     // YY-MM-DD HH:II:SS   ... plus "A" or "P" if in 12-hour mode
     //and of course a NULL terminator. So, [18] for 24h or [19] for 12h
-    void getFormatted(char *);//see comment above
+    void getFormatted(char *, boolean);//see comment above
     void getFormatted2k(char *);//as getFormatted, but with "20" prepended
 
     //must also call setClock() after any of these

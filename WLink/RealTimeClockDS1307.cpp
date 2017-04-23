@@ -291,34 +291,37 @@ int RealTimeClockDS1307::getDayOfWeek()
   return bcdToDec(_reg3_day);
 }
 
-void RealTimeClockDS1307::getFormatted(char * buffer)
+void RealTimeClockDS1307::getFormatted(char * buffer, boolean Inverted_B)
 {
   int i=0;
-  ////target string format: YY-MM-DD HH:II:SS
-  //buffer[i++]=highNybbleToASCII(_reg6_year);
-  //buffer[i++]=lowNybbleToASCII(_reg6_year);
-  //i++;
-  ////buffer[i++]='-';
-  //buffer[i++]=highNybbleToASCII(_reg5_month & 0x1f);
-  //buffer[i++]=lowNybbleToASCII(_reg5_month);
-  //i++;
-  ////buffer[i++]='-';
-  //buffer[i++]=highNybbleToASCII(_reg4_date & 0x3f);
-  //buffer[i++]=lowNybbleToASCII(_reg4_date);
-  //i++;
-
-  //target string format: DD-MM-YY HH:II:SS
-  buffer[i++] = highNybbleToASCII(_reg4_date & 0x3f);
-  buffer[i++] = lowNybbleToASCII(_reg4_date);
-  i++;
-  //buffer[i++]='-';
-  buffer[i++]=highNybbleToASCII(_reg5_month & 0x1f);
-  buffer[i++]=lowNybbleToASCII(_reg5_month);
-  i++;
-  //buffer[i++]='-';
-  buffer[i++] = highNybbleToASCII(_reg6_year);
-  buffer[i++] = lowNybbleToASCII(_reg6_year);
-  i++;
+  if (Inverted_B) {
+      //target string format: YY-MM-DD HH:II:SS
+      buffer[i++]=highNybbleToASCII(_reg6_year);
+      buffer[i++]=lowNybbleToASCII(_reg6_year);
+      i++;
+      //buffer[i++]='-';
+      buffer[i++]=highNybbleToASCII(_reg5_month & 0x1f);
+      buffer[i++]=lowNybbleToASCII(_reg5_month);
+      i++;
+      //buffer[i++]='-';
+      buffer[i++]=highNybbleToASCII(_reg4_date & 0x3f);
+      buffer[i++]=lowNybbleToASCII(_reg4_date);
+      i++;
+  }
+  else {
+      //target string format: DD-MM-YY HH:II:SS
+      buffer[i++] = highNybbleToASCII(_reg4_date & 0x3f);
+      buffer[i++] = lowNybbleToASCII(_reg4_date);
+      i++;
+      //buffer[i++]='-';
+      buffer[i++] = highNybbleToASCII(_reg5_month & 0x1f);
+      buffer[i++] = lowNybbleToASCII(_reg5_month);
+      i++;
+      //buffer[i++]='-';
+      buffer[i++] = highNybbleToASCII(_reg6_year);
+      buffer[i++] = lowNybbleToASCII(_reg6_year);
+      i++;
+  }
 
 
   //buffer[i++]=' ';
@@ -350,7 +353,7 @@ void RealTimeClockDS1307::getFormatted2k(char * buffer)
 {
   buffer[0]='2';
   buffer[1]='0';
-  getFormatted(&buffer[2]);
+  getFormatted(&buffer[2], true);
 }
 
 /**** SETTERS *****/
