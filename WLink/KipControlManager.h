@@ -17,6 +17,7 @@
 /* Include
 /* ******************************************************************************** */
 #include "WLink.h"
+#include "RealTimeClock.h"
 
 /* ******************************************************************************** */
 /* Define
@@ -25,6 +26,15 @@
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
+typedef struct {
+    unsigned char ReferenceDataId_UB;   // ID of the reference data table
+    unsigned char MaxDataNb_UB;         // Total number of data stored in the table
+    unsigned char StartIdx_UB;          // Index at which the recording should start
+    RTC_DATE_STRUCT StartDate_X;        // Start date of recording
+    unsigned char CurrentIdx_UB;        // Current index
+    unsigned long TotalValue_UL;        // Total value (addition of all current data)
+    unsigned long ValueNb_UL;           // Number of values in the total value field
+} KC_HANDLE_STRUCT;
 
 /* ******************************************************************************** */
 /* Functions Prototypes
