@@ -57,10 +57,11 @@ typedef struct {
 
 typedef enum {
 	INDICATOR_LD5218,
+    INDICATOR_GI400,
 	INDICATOR_INTERFACE_DEVICES_NUM
 } INDICATOR_INTERFACE_DEVICES_ENUM;
 
-const String pIndicatorInterfaceDeviceLut_Str[INDICATOR_INTERFACE_DEVICES_NUM] = {"LD5218"};
+const String pIndicatorInterfaceDeviceLut_Str[INDICATOR_INTERFACE_DEVICES_NUM] = {"LD5218", "GI400"};
 
 typedef enum {
 	INDICATOR_INTERFACE_FRAME_ASK_WEIGHT,

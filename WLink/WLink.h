@@ -118,6 +118,7 @@ typedef struct {
     boolean isDebug_B;
     unsigned char Config_UB;
     unsigned long Baudrate_UL;
+    void(*pFctCommEvent)(void);
 } COM_PORT_CONFIG_STRUCT;
 
 

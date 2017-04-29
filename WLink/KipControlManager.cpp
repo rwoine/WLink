@@ -33,13 +33,15 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* Define
 /* ******************************************************************************** */
 #define KC_WORKING_AREA_OFFSET      0x0400
-#define KC_REFERENCE_DATA_ID_ADDR   (KC_WORKING_AREA_OFFSET + 0x0000)
-#define KC_MAX_DATA_NB_ADDR         (KC_WORKING_AREA_OFFSET + 0x0001)
-#define KC_START_IDX_ADDR           (KC_WORKING_AREA_OFFSET + 0x0002)
-#define KC_START_DATE_ADDR          (KC_WORKING_AREA_OFFSET + 0x0003)
-#define KC_CURRENT_IDX_ADDR         (KC_WORKING_AREA_OFFSET + 0x0006)
-#define KC_TOTAL_VALUE_ADDR         (KC_WORKING_AREA_OFFSET + 0x0007)
-#define KC_VALUE_NB_ADDR            (KC_WORKING_AREA_OFFSET + 0x000B)
+#define KC_GLOBAL_DATA_ADDR         (KC_WORKING_AREA_OFFSET + 0x0000)
+#define KC_TOLERANCE_ADDR           (KC_WORKING_AREA_OFFSET + 0x0001)
+#define KC_REFERENCE_DATA_ID_ADDR   (KC_WORKING_AREA_OFFSET + 0x0002)
+#define KC_MAX_DATA_NB_ADDR         (KC_WORKING_AREA_OFFSET + 0x0003)
+#define KC_START_IDX_ADDR           (KC_WORKING_AREA_OFFSET + 0x0004)
+#define KC_START_DATE_ADDR          (KC_WORKING_AREA_OFFSET + 0x0005)
+#define KC_CURRENT_IDX_ADDR         (KC_WORKING_AREA_OFFSET + 0x0008)
+#define KC_TOTAL_VALUE_ADDR         (KC_WORKING_AREA_OFFSET + 0x0009)
+#define KC_VALUE_NB_ADDR            (KC_WORKING_AREA_OFFSET + 0x000D)
 #define KC_AVERAGE_TABLE_ADDR       (KC_WORKING_AREA_OFFSET + 0x0100)
 
 
@@ -48,6 +50,7 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* ******************************************************************************** */
 enum KC_STATE {
     KC_IDLE,
+    KC_GET_CONFIG,
     KC_CONNECTING,
     KC_RUNNING
 };
@@ -57,23 +60,27 @@ static boolean GL_KipControlManagerEnabled_B = false;
 
 unsigned char GL_pBuffer_UB[16];
 
-
-EthernetClient KipClient_H;
+KC_HANDLE_STRUCT KipControl_H;
 
 /* ******************************************************************************** */
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
 static void ProcessIdle(void);
+static void ProcessGetConfig(void);
 static void ProcessConnecting(void);
 static void ProcessRunning(void);
 
 static void TransitionToIdle(void);
+static void TransitionToGetConfig(void);
 static void TransitionToConnecting(void);
 static void TransitionToRunning(void);
 
 /* ******************************************************************************** */
 /* Prototypes for Getters & Setters
 /* ******************************************************************************** */
+static boolean GetConfiguredFlag(void);
+static boolean GetRunningFlag(void);
+static unsigned char GetTolerance(void);
 static unsigned char GetReferenceDataId(void);
 static unsigned char GetMaxDataNb(void);
 static unsigned char GetStartIdx(void);
@@ -82,6 +89,7 @@ static unsigned char GetCurrentIdx(void);
 static unsigned long GetTotalValue(void);
 static unsigned long GetValueNb(void);
 
+static void SetRunningFlag(boolean Running_B);
 static void SetReferenceDataId(unsigned char ReferenceDataId_UB);
 static void SetMaxDataNb(unsigned char MaxDataNb_UB);
 static void SetStartIdx(unsigned char StartIdx_UB);
@@ -118,6 +126,10 @@ void KipControlManager_Process() {
         ProcessIdle();
         break;
 
+    case KC_GET_CONFIG:
+        ProcessGetConfig();
+        break;
+
     case KC_CONNECTING:
         ProcessConnecting();
         break;
@@ -138,33 +150,28 @@ boolean KipControlManager_IsEnabled() {
 /* ******************************************************************************** */
 
 void ProcessIdle(void) {
-    if (GL_KipControlManagerEnabled_B)
-        TransitionToConnecting();
+    if (GL_KipControlManagerEnabled_B && GetConfiguredFlag())
+        TransitionToGetConfig();
+}
+
+void ProcessGetConfig(void) {
+    KipControl_H.IsConfigured_B = GetConfiguredFlag();
+    KipControl_H.IsRunning_B = GetRunningFlag();
+    KipControl_H.Tolerance_UB = GetTolerance();
+    KipControl_H.ReferenceDataId_UB = GetReferenceDataId();
+    KipControl_H.MaxDataNb_UB = GetMaxDataNb();
+    KipControl_H.StartIdx_UB = GetStartIdx();
+    KipControl_H.StartDate_X = GetStartDate();
+    KipControl_H.CurrentIdx_UB = GetCurrentIdx();
+    KipControl_H.TotalValue_UL = GetTotalValue();
+    KipControl_H.ValueNb_UL = GetValueNb();
 }
 
 void ProcessConnecting(void) {
 
-    if (GL_GlobalData_X.Network_H.isConnected()) {
-        if (KipClient_H.connect("www.balthinet.be", 80)) {
-
-            KipClient_H.print("GET /kipcontrol/import?");
-            KipClient_H.print("data[0][Weight]=70&data[0][BalanceSerial]=02000001000C&data[0][DateTime]=2017-04-20+15:30:24");
-            KipClient_H.println("&submitted=1&action=validate HTTP/1.1");
-            KipClient_H.println("Host: www.balthinet.be");
-            KipClient_H.println("Connection: close");
-            KipClient_H.println();
-
-            TransitionToRunning();
-        }
-    }
-
 }
 
 void ProcessRunning(void) {
-    
-    while (KipClient_H.available()) {
-        Serial.print((char)(KipClient_H.read()));
-    }
 
 }
 
@@ -172,6 +179,11 @@ void ProcessRunning(void) {
 void TransitionToIdle(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
     GL_KipControlManager_CurrentState_E = KC_STATE::KC_IDLE;
+}
+
+void TransitionToGetConfig(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET CONFIG");
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_GET_CONFIG;
 }
 
 void TransitionToConnecting(void) {
@@ -187,6 +199,28 @@ void TransitionToRunning(void) {
 /* ******************************************************************************** */
 /* Getters & Setters
 /* ******************************************************************************** */
+
+boolean GetConfiguredFlag(void) {
+    if (GL_GlobalData_X.Eeprom_H.read(KC_GLOBAL_DATA_ADDR, GL_pBuffer_UB, 1) == 1)
+        return ((GL_pBuffer_UB[0] && 0x01) == 0x01);
+    else
+        return false;
+}
+
+boolean GetRunningFlag(void) {
+    if (GL_GlobalData_X.Eeprom_H.read(KC_GLOBAL_DATA_ADDR, GL_pBuffer_UB, 1) == 1)
+        return ((GL_pBuffer_UB[0] && 0x02) == 0x02);
+    else
+        return false;
+}
+
+unsigned char GetTolerance(void) {
+    if (GL_GlobalData_X.Eeprom_H.read(KC_TOLERANCE_ADDR, GL_pBuffer_UB, 1) == 1)
+        return GL_pBuffer_UB[0];
+    else
+        return 0;
+}
+
 unsigned char GetReferenceDataId(void) {
     if (GL_GlobalData_X.Eeprom_H.read(KC_REFERENCE_DATA_ID_ADDR, GL_pBuffer_UB, 1) == 1)
         return GL_pBuffer_UB[0];
@@ -246,6 +280,16 @@ unsigned long GetValueNb(void) {
         return 0;
 }
 
+
+void SetRunningFlag(boolean Running_B) {
+    if (GL_GlobalData_X.Eeprom_H.read(KC_GLOBAL_DATA_ADDR, GL_pBuffer_UB, 1) == 1) {
+        if (Running_B)
+            GL_pBuffer_UB[0] |= 0x02;
+        else
+            GL_pBuffer_UB[0] &= ~0x02;
+        GL_GlobalData_X.Eeprom_H.write(KC_GLOBAL_DATA_ADDR, GL_pBuffer_UB, 1);
+    }
+}
 
 void SetReferenceDataId(unsigned char ReferenceDataId_UB) {
     GL_GlobalData_X.Eeprom_H.write(KC_REFERENCE_DATA_ID_ADDR, &ReferenceDataId_UB, 1);

@@ -28,6 +28,7 @@
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
+void Nop(void);
 String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str);
 void DefaultKeyEvents(char * Key_UB);
 void DefaultOnValidateFct(unsigned char * pParam_UB);

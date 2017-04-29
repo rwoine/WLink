@@ -68,6 +68,8 @@ public:
 	unsigned int getWeightUnsignedValue();
 	unsigned int getAlibiValue();
 
+    void commEvent(void);
+
 
 	INDICATOR_PARAM GL_IndicatorParam_X;
 };

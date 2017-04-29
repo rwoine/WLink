@@ -192,6 +192,9 @@
     <ClInclude Include="KipControlManager.h">
       <Filter>Source Files\Applications\KipControl</Filter>
     </ClInclude>
+    <ClInclude Include="GI400.h">
+      <Filter>Source Files\Indicator\Devices</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -286,6 +289,9 @@
     </ClCompile>
     <ClCompile Include="KipControlManager.cpp">
       <Filter>Source Files\Applications\KipControl</Filter>
+    </ClCompile>
+    <ClCompile Include="GI400.cpp">
+      <Filter>Source Files\Indicator\Devices</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

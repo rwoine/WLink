@@ -1,63 +1,39 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* Utilz.cpp														                */
+/* GI400.h																			*/
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Describes some utility functions                                  			*/
+/*		Header file for GI400.cpp													*/
 /*                                                                                  */
-/* History :  	28/02/2017  (RW)	Creation of this file                           */
+/* History :  	29/04/2017  (RW)	Creation of this file							*/
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#define MODULE_NAME		"Utilz"
+#ifndef __GI400_H__
+#define __GI400_H__
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-#include "Debug.h"
+#include "IndicatorInterface.h"
 
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
 
 /* ******************************************************************************** */
-/* Local Variables
+/* Structure & Enumeration
 /* ******************************************************************************** */
+const INDICATOR_INTERFACE_FRAME_STRUCT GL_pGI400Frames_X[] = {  { 3, { 'S', 'B', 0x0D }, 9 },        // ASK_WEIGHT
+                                                                { 0, { 0x00 }, 0 },		            // ASK_WEIGHT_ALIBI - not supported
+                                                                { 0, { 0x00 }, 0 },		            // ASK_LAST_ALIBI - not supported
+                                                                { 0, { 0x00 }, 0 },		            // ASK_WEIGHT_MSA - not supported
+                                                                { 3, { 'S', 'C', 0x0D }, 0 }			// SET_TO_ZERO
+                                                                };
 
 /* ******************************************************************************** */
 /* Functions
 /* ******************************************************************************** */
+void GI400_ProcessFrame(unsigned char * pBuffer_UB, INDICATOR_INTERFACE_FRAME_ENUM Frame_E, INDICATOR_WEIGHT_STRUCT * pWeight_X);
 
-void Nop(void) {
-    // Empty function
-}
-
-String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str) {
-    String Temp_Str = "";
-    unsigned int Temp_UW = 0;
-
-    for (int i = 0; i < ItemNb_UL; i++) {
-        Temp_UW = pHexArray[i];
-        Temp_Str += String((Temp_UW / 128), HEX);
-        Temp_Str += String((Temp_UW % 128), HEX);
-        if (i < ItemNb_UL - 1)
-            Temp_Str += Separator_Str;
-    }
-
-    Temp_Str.toUpperCase();
-
-    return Temp_Str;
-}
-
-
-void DefaultKeyEvents(char * Key_UB) {
-    DBG_PRINT(DEBUG_SEVERITY_WARNING, "[");
-    DBG_PRINTDATA((*Key_UB));
-    DBG_PRINTDATA("] key pressed -> No callback assigned!");
-    DBG_ENDSTR();
-}
-
-
-void DefaultOnValidateFct(unsigned char * pParam_UB) {
-    DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "No function on Validate");
-}
+#endif // __GI400_H__

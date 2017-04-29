@@ -27,6 +27,9 @@
 /* Structure & Enumeration
 /* ******************************************************************************** */
 typedef struct {
+    boolean IsConfigured_B;             // Configured flag
+    boolean IsRunning_B;                // Running flag
+    unsigned char Tolerance_UB;         // Tolerance in [%]
     unsigned char ReferenceDataId_UB;   // ID of the reference data table
     unsigned char MaxDataNb_UB;         // Total number of data stored in the table
     unsigned char StartIdx_UB;          // Index at which the recording should start

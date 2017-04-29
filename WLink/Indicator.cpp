@@ -181,3 +181,8 @@ unsigned int Indicator::getWeightUnsignedValue() {
 unsigned int Indicator::getAlibiValue() {
 	return GL_IndicatorParam_X.Weight_X.Alibi_UI;
 }
+
+void Indicator::commEvent() {
+    if (isResponseAvailable(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT))
+        processFrame(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT);
+}

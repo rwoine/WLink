@@ -604,6 +604,9 @@ WCFG_STATUS WConfigManager_Process() {
                     DBG_ENDSTR();
                 }
 
+                // Assign empty function as CommEvent
+                GL_GlobalConfig_X.pComPortConfig_X[i].pFctCommEvent = Nop;
+
             }
 
             // Configure Debug COM port in last

@@ -89,6 +89,7 @@
     <ClInclude Include="FONAExtIncludes.h" />
     <ClInclude Include="FONAPlatform.h" />
     <ClInclude Include="FONAPlatStd.h" />
+    <ClInclude Include="GI400.h" />
     <ClInclude Include="Hardware.h" />
     <ClInclude Include="Indicator.h" />
     <ClInclude Include="IndicatorInterface.h" />
@@ -127,6 +128,7 @@
     <ClCompile Include="EepromWire.cpp" />
     <ClCompile Include="FlatPanel.cpp" />
     <ClCompile Include="FlatPanelManager.cpp" />
+    <ClCompile Include="GI400.cpp" />
     <ClCompile Include="Indicator.cpp" />
     <ClCompile Include="IndicatorInterface.cpp" />
     <ClCompile Include="IndicatorManager.cpp" />

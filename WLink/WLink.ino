@@ -34,7 +34,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "17042501";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "17042901";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -187,10 +187,10 @@ void BlinkingLedManager_Process(void) {
 /* ******************************************************************************** */
 
 /* Serial Event */
-//void serialEvent() { GL_PortComEventMap_X[PORT_COM0].EventHandler(); }
-//void serialEvent1() { GL_pPortComEventMap_X[PORT_COM1].EventHandler(); }
-//void serialEvent2() { GL_PortComEventMap_X[PORT_COM2].EventHandler(); }
-//void serialEvent3() { GL_PortComEventMap_X[PORT_COM3].EventHandler(); }
+void serialEvent() { GL_GlobalConfig_X.pComPortConfig_X[PORT_COM0].pFctCommEvent(); }
+void serialEvent1() { GL_GlobalConfig_X.pComPortConfig_X[PORT_COM1].pFctCommEvent(); }
+void serialEvent2() { GL_GlobalConfig_X.pComPortConfig_X[PORT_COM2].pFctCommEvent(); }
+void serialEvent3() { GL_GlobalConfig_X.pComPortConfig_X[PORT_COM3].pFctCommEvent(); }
 
 /* Keypad Event */
 //void ManageKeyToLcd(char Key_UB) { GL_GlobalData_X.FlatPanel_H.manageKeytoLcd(Key_UB); }
