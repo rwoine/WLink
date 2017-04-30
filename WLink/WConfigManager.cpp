@@ -25,6 +25,7 @@
 #include <SD.h>
 
 #include "Utilz.h"
+#include "CommEvent.h"
 
 #include "WConfigManager.h"
 #include "SerialHandler.h"
@@ -55,6 +56,8 @@
 #define WCONFIG_ADDR_ETH                0x001C
 #define WCONFIG_ADDR_TCP_SERVER         0x0034
 #define WCONFIG_ADDR_UDP_SERVER         0x0038
+#define WCONFIG_ADDR_TCP_CLIENT         0x003C
+#define WCONFIG_ADDR_INDICATOR          0x0040
 
 
 /* ******************************************************************************** */
@@ -118,6 +121,8 @@ enum WCFG_STATE {
     WCFG_GET_ETH_CONFIG,
     WCFG_GET_TCP_SERVER_CONFIG,
     WCFG_GET_UDP_SERVER_CONFIG,
+    WCFG_GET_TCP_CLIENT_CONFIG,
+    WCFG_GET_INDICATOR_CONFIG,
     WCFG_CONFIG_DONE,
     WCFG_ERROR_READING,
     WCFG_BAD_PARAM,
@@ -821,6 +826,50 @@ WCFG_STATUS WConfigManager_Process() {
                 GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.isEnabled_B = false;
             }
 
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET TCP CLIENT CONFIG");
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_TCP_CLIENT_CONFIG;
+        }
+        else {
+            TransitionToErrorReading();
+        }
+
+        break;
+
+
+
+    /* GET TCP CLIENT CONFIG */
+    /* > Retreive TCP Client configuration. */
+    case WCFG_GET_TCP_CLIENT_CONFIG:
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive TCP Client configuration");
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_TCP_CLIENT, GL_pWConfigBuffer_UB, 4) == 4) {
+
+            DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "NOT YET IMPLEMENTED..");
+
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET INDICATOR CONFIG");
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_INDICATOR_CONFIG;
+        }
+        else {
+            TransitionToErrorReading();
+        }
+
+        break;
+
+
+
+    /* GET INDICATOR CONFIG */
+    /* > Retreive Indicator configuration */
+    case WCFG_GET_INDICATOR_CONFIG:
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive Indicators configuration");
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_INDICATOR, GL_pWConfigBuffer_UB, 16) == 16) {
+
+            DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Configure Indicator: FIXED CONFIG for now");
+            GL_GlobalData_X.Indicator_H.init(GetSerialHandle(PORT_COM0), 115200, false);
+            GL_GlobalData_X.Indicator_H.setIndicatorDevice(INDICATOR_GI400);
+            GL_GlobalConfig_X.pComPortConfig_X[PORT_COM0].pFctCommEvent = CommEvent_Indicator;
+
             TransitionToConfigDone();
         }
         else {
@@ -828,6 +877,7 @@ WCFG_STATUS WConfigManager_Process() {
         }
 
         break;
+
 
 
     ///* GET XXX CONFIG */

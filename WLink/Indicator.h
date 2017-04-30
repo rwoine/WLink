@@ -39,8 +39,8 @@ public:
 	Indicator();
 
 	// Functions
-	void init(HardwareSerial * pSerial_H);
-	void init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL);
+	void init(HardwareSerial * pSerial_H, boolean Begin_B);
+	void init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL, boolean Begin_B);
 
 	void setIndicatorDevice(INDICATOR_INTERFACE_DEVICES_ENUM Device_E);
 
@@ -67,8 +67,6 @@ public:
 	signed int getWeightValue();
 	unsigned int getWeightUnsignedValue();
 	unsigned int getAlibiValue();
-
-    void commEvent(void);
 
 
 	INDICATOR_PARAM GL_IndicatorParam_X;

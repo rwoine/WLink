@@ -24,11 +24,11 @@
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
-const INDICATOR_INTERFACE_FRAME_STRUCT GL_pGI400Frames_X[] = {  { 3, { 'S', 'B', 0x0D }, 9 },        // ASK_WEIGHT
+const INDICATOR_INTERFACE_FRAME_STRUCT GL_pGI400Frames_X[] = {  { 3, { 'S', 'B', 0x0D }, 9 },       // ASK_WEIGHT
                                                                 { 0, { 0x00 }, 0 },		            // ASK_WEIGHT_ALIBI - not supported
                                                                 { 0, { 0x00 }, 0 },		            // ASK_LAST_ALIBI - not supported
                                                                 { 0, { 0x00 }, 0 },		            // ASK_WEIGHT_MSA - not supported
-                                                                { 3, { 'S', 'C', 0x0D }, 0 }			// SET_TO_ZERO
+                                                                { 3, { 'S', 'C', 0x0D }, 0 }		// SET_TO_ZERO
                                                                 };
 
 /* ******************************************************************************** */

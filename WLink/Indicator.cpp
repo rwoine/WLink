@@ -52,16 +52,20 @@ Indicator::Indicator() {
 /* ******************************************************************************** */
 /* Functions
 /* ******************************************************************************** */
-void Indicator::init(HardwareSerial * pSerial_H) {
+void Indicator::init(HardwareSerial * pSerial_H, boolean Begin_B) {
 	GL_pIndicatorSerial_H = pSerial_H;
-	GL_pIndicatorSerial_H->begin(INDICATOR_DEFAULT_BAUDRATE);
+	if(Begin_B) GL_pIndicatorSerial_H->begin(INDICATOR_DEFAULT_BAUDRATE);
+    GL_IndicatorParam_X.HasEcho_B = false;
+    GL_IndicatorParam_X.IsAlibi_B = false;
 	GL_IndicatorParam_X.IsInitialized_B = true;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Indicator Initialized");
 }
 
-void Indicator::init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL) {
+void Indicator::init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL, boolean Begin_B) {
 	GL_pIndicatorSerial_H = pSerial_H;
-	GL_pIndicatorSerial_H->begin(BaudRate_UL);
+    if (Begin_B) GL_pIndicatorSerial_H->begin(BaudRate_UL);
+    GL_IndicatorParam_X.HasEcho_B = false;
+    GL_IndicatorParam_X.IsAlibi_B = false;
 	GL_IndicatorParam_X.IsInitialized_B = true;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Indicator Initialized");
 }
@@ -180,9 +184,4 @@ unsigned int Indicator::getWeightUnsignedValue() {
 
 unsigned int Indicator::getAlibiValue() {
 	return GL_IndicatorParam_X.Weight_X.Alibi_UI;
-}
-
-void Indicator::commEvent() {
-    if (isResponseAvailable(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT))
-        processFrame(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT);
 }

@@ -165,6 +165,8 @@ void ProcessGetConfig(void) {
     KipControl_H.CurrentIdx_UB = GetCurrentIdx();
     KipControl_H.TotalValue_UL = GetTotalValue();
     KipControl_H.ValueNb_UL = GetValueNb();
+
+    TransitionToRunning();
 }
 
 void ProcessConnecting(void) {
