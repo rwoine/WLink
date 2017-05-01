@@ -72,6 +72,11 @@ public:
     void resetIrq(void);
     boolean isInterruptReceived(void);
 
+    void fifoPush(signed int Value_SI);
+    signed int fifoPop(void);
+    boolean isFifoEmpty(void);
+    boolean isFifoFull(void);
+
 
 	INDICATOR_PARAM GL_IndicatorParam_X;
 };

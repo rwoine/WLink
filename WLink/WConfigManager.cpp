@@ -866,9 +866,13 @@ WCFG_STATUS WConfigManager_Process() {
         if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_INDICATOR, GL_pWConfigBuffer_UB, 16) == 16) {
 
             DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Configure Indicator: FIXED CONFIG for now");
+
+            IndicatorInterface_Init();
             GL_GlobalData_X.Indicator_H.init(GetSerialHandle(PORT_COM0), 115200, false);
             GL_GlobalData_X.Indicator_H.setIndicatorDevice(INDICATOR_GI400);
             GL_GlobalConfig_X.pComPortConfig_X[PORT_COM0].pFctCommEvent = CommEvent_Indicator;
+            IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
+            IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT, true);
 
             TransitionToConfigDone();
         }

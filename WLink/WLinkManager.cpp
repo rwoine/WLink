@@ -132,7 +132,16 @@ void ProcessWLink(void) {
     if (GL_GlobalConfig_X.EthConfig_X.isEnabled_B)                              NetworkAdapterManager_Process();
     if (GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.isEnabled_B)            TCPServerManager_Process();
     if (GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.isEnabled_B)            UDPServerManager_Process();
-    if (GL_GlobalConfig_X.WCmdConfig_X.Medium_E != WLINK_WCMD_MEDIUM_NONE)      WCommandInterpreter_Process();
+
+
+
+
+    //if (GL_GlobalConfig_X.WCmdConfig_X.Medium_E != WLINK_WCMD_MEDIUM_NONE)      WCommandInterpreter_Process();
+    IndicatorManager_Process();
+
+
+
+
     if (GL_GlobalData_X.FlatPanel_H.isInitialized())                            FlatPanelManager_Process(); 
     WMenuManager_Process();
 

@@ -149,6 +149,15 @@ void ProcessWaitInterrupt(void) {
             // Get frame
             if (GL_pIndicator_H->isResponseAvailable(GL_IndicatorManagerParam_X.FrameType_E)) {
                 GL_pIndicator_H->processFrame(GL_IndicatorManagerParam_X.FrameType_E);
+
+                // Push into FIFO if not full
+                if (!(GL_pIndicator_H->isFifoFull())) {
+                    DBG_PRINT(DEBUG_SEVERITY_INFO, "Push new value into FIFO : ");
+                    DBG_PRINTDATA(GL_pIndicator_H->getWeightValue());
+                    DBG_ENDSTR();
+                    GL_pIndicator_H->fifoPush(GL_pIndicator_H->getWeightValue());
+                }
+
             }
             // Reset interrupt flag
             GL_pIndicator_H->resetIrq();

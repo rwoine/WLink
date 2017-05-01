@@ -23,6 +23,11 @@
 #include "Debug.h"
 
 /* ******************************************************************************** */
+/* Define
+/* ******************************************************************************** */
+#define INDICATOR_FIFO_MAX_NB       64
+
+/* ******************************************************************************** */
 /* Local Variables
 /* ******************************************************************************** */
 
@@ -32,6 +37,10 @@ static HardwareSerial * GL_pIndicatorEcho_H;
 static INDICATOR_INTERFACE_DEVICES_ENUM GL_IndicatorDevice_E;
 
 static unsigned char GL_pIndicatorBuffer_UB[INDICATOR_INTERFACE_MAX_RESP_SIZE];
+
+static unsigned long GL_IndicatorFifoPushIndex_UL = 0;
+static unsigned long GL_IndicatorFifoPopIndex_UL = 0;
+static signed int GL_pIndicatorFifo_SI[INDICATOR_FIFO_MAX_NB];
 
 extern INDICATOR_INTERFACE_STRUCT GL_pIndicatorInterface_X[INDICATOR_INTERFACE_DEVICES_NUM];
 
@@ -47,6 +56,8 @@ Indicator::Indicator() {
 	GL_IndicatorParam_X.Weight_X.Sign_E = INDICATOR_WEIGHT_SIGN_UNDEFINED;
 	GL_IndicatorParam_X.Weight_X.Value_UI = 0;
 	GL_IndicatorParam_X.Weight_X.Alibi_UI = 0;
+    GL_IndicatorFifoPushIndex_UL = 0;
+    GL_IndicatorFifoPopIndex_UL = 0;
 }
 
 /* ******************************************************************************** */
@@ -58,6 +69,8 @@ void Indicator::init(HardwareSerial * pSerial_H, boolean Begin_B) {
     GL_IndicatorParam_X.HasEcho_B = false;
     GL_IndicatorParam_X.IsAlibi_B = false;
 	GL_IndicatorParam_X.IsInitialized_B = true;
+    GL_IndicatorFifoPushIndex_UL = 0;
+    GL_IndicatorFifoPopIndex_UL = 0;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Indicator Initialized");
 }
 
@@ -67,6 +80,8 @@ void Indicator::init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL, bool
     GL_IndicatorParam_X.HasEcho_B = false;
     GL_IndicatorParam_X.IsAlibi_B = false;
 	GL_IndicatorParam_X.IsInitialized_B = true;
+    GL_IndicatorFifoPushIndex_UL = 0;
+    GL_IndicatorFifoPopIndex_UL = 0;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Indicator Initialized");
 }
 
@@ -197,4 +212,43 @@ void Indicator::resetIrq(void) {
 
 boolean Indicator::isInterruptReceived(void) {
     return GL_IndicatorParam_X.IrqReceived_B;
+}
+
+void Indicator::fifoPush(signed int Value_SI) {
+    if (!isFifoFull()) {
+        GL_pIndicatorFifo_SI[GL_IndicatorFifoPushIndex_UL] = Value_SI;
+        GL_IndicatorFifoPushIndex_UL = (GL_IndicatorFifoPushIndex_UL + 1) % INDICATOR_FIFO_MAX_NB;
+    }
+}
+
+signed int Indicator::fifoPop(void) {
+    signed int Value_SI = 0;
+    if (!isFifoEmpty()) {
+        Value_SI = GL_pIndicatorFifo_SI[GL_IndicatorFifoPopIndex_UL];
+        GL_IndicatorFifoPopIndex_UL = (GL_IndicatorFifoPopIndex_UL + 1) % INDICATOR_FIFO_MAX_NB;
+    }
+    return Value_SI;
+}
+
+boolean Indicator::isFifoEmpty(void) {
+    return ((GL_IndicatorFifoPopIndex_UL == GL_IndicatorFifoPushIndex_UL) ? true : false);
+}
+
+boolean Indicator::isFifoFull(void) {
+    if (GL_IndicatorFifoPushIndex_UL >= GL_IndicatorFifoPopIndex_UL) {
+        if ((GL_IndicatorFifoPushIndex_UL - GL_IndicatorFifoPopIndex_UL) >= (INDICATOR_FIFO_MAX_NB - 1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    else {
+        if ((GL_IndicatorFifoPushIndex_UL + INDICATOR_FIFO_MAX_NB - GL_IndicatorFifoPopIndex_UL) >= (INDICATOR_FIFO_MAX_NB - 1)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 }
