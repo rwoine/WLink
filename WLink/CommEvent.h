@@ -36,8 +36,7 @@ static void CommEvent_BadgeReader(void) {
 }
 
 static void CommEvent_Indicator(void) {
-    if (GL_GlobalData_X.Indicator_H.isResponseAvailable(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT))
-        GL_GlobalData_X.Indicator_H.processFrame(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT);
+    GL_GlobalData_X.Indicator_H.setIrq();
 }
 
 #endif // __COMM_EVENT_H__

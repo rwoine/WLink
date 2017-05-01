@@ -68,6 +68,10 @@ public:
 	unsigned int getWeightUnsignedValue();
 	unsigned int getAlibiValue();
 
+    void setIrq(void);
+    void resetIrq(void);
+    boolean isInterruptReceived(void);
+
 
 	INDICATOR_PARAM GL_IndicatorParam_X;
 };

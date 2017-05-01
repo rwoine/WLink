@@ -185,3 +185,16 @@ unsigned int Indicator::getWeightUnsignedValue() {
 unsigned int Indicator::getAlibiValue() {
 	return GL_IndicatorParam_X.Weight_X.Alibi_UI;
 }
+
+
+void Indicator::setIrq(void) {
+    GL_IndicatorParam_X.IrqReceived_B = true;
+}
+
+void Indicator::resetIrq(void) {
+    GL_IndicatorParam_X.IrqReceived_B = false;
+}
+
+boolean Indicator::isInterruptReceived(void) {
+    return GL_IndicatorParam_X.IrqReceived_B;
+}

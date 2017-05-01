@@ -64,6 +64,9 @@
     <Filter Include="Source Files\Applications\KipControl">
       <UniqueIdentifier>{57d34942-f0ae-481e-9b7d-e81f19b009db}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Utilities">
+      <UniqueIdentifier>{c943b7cf-2fde-46bd-bc91-e3e200f247ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="WLink.ino" />
@@ -159,9 +162,6 @@
     <ClInclude Include="SerialHandler.h">
       <Filter>Source Files\Serial</Filter>
     </ClInclude>
-    <ClInclude Include="Utilz.h">
-      <Filter>Source Files\WManager</Filter>
-    </ClInclude>
     <ClInclude Include="WMenuManager.h">
       <Filter>Source Files\WManager</Filter>
     </ClInclude>
@@ -194,6 +194,9 @@
     </ClInclude>
     <ClInclude Include="GI400.h">
       <Filter>Source Files\Indicator\Devices</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilz.h">
+      <Filter>Source Files\Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -275,9 +278,6 @@
     <ClCompile Include="SerialHandler.cpp">
       <Filter>Source Files\Serial</Filter>
     </ClCompile>
-    <ClCompile Include="Utilz.cpp">
-      <Filter>Source Files\WManager</Filter>
-    </ClCompile>
     <ClCompile Include="WMenuManager.cpp">
       <Filter>Source Files\WManager</Filter>
     </ClCompile>
@@ -292,6 +292,9 @@
     </ClCompile>
     <ClCompile Include="GI400.cpp">
       <Filter>Source Files\Indicator\Devices</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilz.cpp">
+      <Filter>Source Files\Utilities</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

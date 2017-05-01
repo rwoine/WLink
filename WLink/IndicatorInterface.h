@@ -51,6 +51,7 @@ typedef struct {
 	boolean HasEcho_B;
 	boolean IsAlibi_B;
 	boolean IsMsa_B;
+    boolean IrqReceived_B;
 	INDICATOR_WEIGHT_STRUCT Weight_X;
 } INDICATOR_PARAM;
 
