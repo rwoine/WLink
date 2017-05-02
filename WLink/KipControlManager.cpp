@@ -19,6 +19,9 @@
 #include "KipControlMenuManager.h"
 #include "EepromWire.h"
 
+#include "EthernetClient.h"
+#include "Utilz.h"
+
 #include "Debug.h"
 
 
@@ -52,7 +55,9 @@ enum KC_STATE {
     KC_IDLE,
     KC_GET_CONFIG,
     KC_CONNECTING,
-    KC_RUNNING
+    KC_WAIT_INDICATOR,
+    KC_SEND_PACKET,
+    KC_GET_SERVER_RESPONSE
 };
 
 static KC_STATE GL_KipControlManager_CurrentState_E = KC_STATE::KC_IDLE;
@@ -61,6 +66,7 @@ static boolean GL_KipControlManagerEnabled_B = false;
 unsigned char GL_pBuffer_UB[16];
 
 KC_HANDLE_STRUCT KipControl_H;
+EthernetClient KipClient_H;
 
 /* ******************************************************************************** */
 /* Prototypes for Internal Functions
@@ -68,12 +74,16 @@ KC_HANDLE_STRUCT KipControl_H;
 static void ProcessIdle(void);
 static void ProcessGetConfig(void);
 static void ProcessConnecting(void);
-static void ProcessRunning(void);
+static void ProcessWaitIndicator(void);
+static void ProcessSendPacket(void);
+static void ProcessGetServerResponse(void);
 
 static void TransitionToIdle(void);
 static void TransitionToGetConfig(void);
 static void TransitionToConnecting(void);
-static void TransitionToRunning(void);
+static void TransitionToWaitIndicator(void);
+static void TransitionToSendPacket(void);
+static void TransitionToGetServerResponse(void);
 
 /* ******************************************************************************** */
 /* Prototypes for Getters & Setters
@@ -109,7 +119,6 @@ static void IncValueNb(void);
 void KipControlManager_Init() {
     GL_KipControlManagerEnabled_B = false;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "KipControl Manager Initialized");
-
 }
 
 void KipControlManager_Enable() {
@@ -134,8 +143,16 @@ void KipControlManager_Process() {
         ProcessConnecting();
         break;
 
-    case KC_RUNNING:
-        ProcessRunning();
+    case KC_WAIT_INDICATOR:
+        ProcessWaitIndicator();
+        break;
+
+    case KC_SEND_PACKET:
+        ProcessSendPacket();
+        break;
+
+    case KC_GET_SERVER_RESPONSE:
+        ProcessGetServerResponse();
         break;
     }
 }
@@ -166,15 +183,79 @@ void ProcessGetConfig(void) {
     KipControl_H.TotalValue_UL = GetTotalValue();
     KipControl_H.ValueNb_UL = GetValueNb();
 
-    TransitionToRunning();
+    TransitionToConnecting();
 }
 
 void ProcessConnecting(void) {
-
+    if (GL_GlobalData_X.Network_H.isConnected())
+        TransitionToWaitIndicator();
 }
 
-void ProcessRunning(void) {
+void ProcessWaitIndicator(void) {
+    if (!(GL_GlobalData_X.Indicator_H.isFifoEmpty())) {
+        TransitionToSendPacket();
+    }
+}
 
+void ProcessSendPacket(void) {
+
+    signed int Weigh_SI = 0;
+    String MacAddr_Str = "";
+    String TimeStamp_Str = "";
+
+    MacAddr_Str.reserve(20);
+    TimeStamp_Str.reserve(80);
+
+
+    Weigh_SI = GL_GlobalData_X.Indicator_H.fifoPop();
+    MacAddr_Str = HexArrayToString(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB), ":");
+    TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive information before sending:");
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "- ");
+    DBG_PRINTDATA(Weigh_SI);
+    DBG_ENDSTR();
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "- ");
+    DBG_PRINTDATA(MacAddr_Str);
+    DBG_ENDSTR();
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "- ");
+    DBG_PRINTDATA(TimeStamp_Str);
+    DBG_ENDSTR();
+
+    if (KipClient_H.connect("www.balthinet.be", 80)) {
+
+        KipClient_H.print("GET /kipcontrol/import?");
+        KipClient_H.print("data[0][Weight]=");
+        KipClient_H.print(Weigh_SI);
+        KipClient_H.print("&data[0][Name]=");
+        //KipClient_H.print(MacAddr_Str);
+        KipClient_H.print("serial");
+        KipClient_H.print("&data[0][DateTime]=");
+        KipClient_H.print(TimeStamp_Str);
+        KipClient_H.println("&submitted=1&action=validate HTTP/1.1");
+        KipClient_H.println("Host: www.balthinet.be");
+        KipClient_H.println("Connection: close");
+        KipClient_H.println();
+    }
+    else {
+        DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Cannot connect to portail..");
+    }
+
+    TransitionToGetServerResponse();
+}
+
+void ProcessGetServerResponse(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Print out Server respone :");
+
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "");
+    while (KipClient_H.available())
+        DBG_PRINTDATA((char)(KipClient_H.read()));
+    DBG_ENDSTR();
+
+    DBG_ENDSTR();
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Server response");
+
+    TransitionToWaitIndicator();
 }
 
 
@@ -193,10 +274,21 @@ void TransitionToConnecting(void) {
     GL_KipControlManager_CurrentState_E = KC_STATE::KC_CONNECTING;
 }
 
-void TransitionToRunning(void) {
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To RUNNING");
-    GL_KipControlManager_CurrentState_E = KC_STATE::KC_RUNNING;
+void TransitionToWaitIndicator(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT INDICATOR");
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_WAIT_INDICATOR;
 }
+
+void TransitionToSendPacket(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To SEND PACKET");
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_SEND_PACKET;
+}
+
+void TransitionToGetServerResponse(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET SERVER RESPONSE");
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_GET_SERVER_RESPONSE;
+}
+
 
 /* ******************************************************************************** */
 /* Getters & Setters
