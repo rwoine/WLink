@@ -39,6 +39,12 @@ typedef struct {
     unsigned long ValueNb_UL;           // Number of values in the total value field
 } KC_HANDLE_STRUCT;
 
+typedef struct {
+    signed int Weigh_SI;
+    String MacAddr_Str;
+    String TimeStamp_Str;
+} KC_DATA_TO_SEND_STRUCT;
+
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */

@@ -47,6 +47,8 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 #define KC_VALUE_NB_ADDR            (KC_WORKING_AREA_OFFSET + 0x000D)
 #define KC_AVERAGE_TABLE_ADDR       (KC_WORKING_AREA_OFFSET + 0x0100)
 
+#define KC_WAIT_SERVER_DELAY_MS     3000
+
 
 /* ******************************************************************************** */
 /* Local Variables
@@ -57,6 +59,7 @@ enum KC_STATE {
     KC_CONNECTING,
     KC_WAIT_INDICATOR,
     KC_SEND_PACKET,
+    KC_WAIT_SERVER_DELAY,
     KC_GET_SERVER_RESPONSE
 };
 
@@ -64,8 +67,10 @@ static KC_STATE GL_KipControlManager_CurrentState_E = KC_STATE::KC_IDLE;
 static boolean GL_KipControlManagerEnabled_B = false;
 
 unsigned char GL_pBuffer_UB[16];
+unsigned long GL_ServerDelayAbsoluteTime_UL = 0;
 
 KC_HANDLE_STRUCT KipControl_H;
+KC_DATA_TO_SEND_STRUCT KipControlData_X;
 EthernetClient KipClient_H;
 
 /* ******************************************************************************** */
@@ -76,6 +81,7 @@ static void ProcessGetConfig(void);
 static void ProcessConnecting(void);
 static void ProcessWaitIndicator(void);
 static void ProcessSendPacket(void);
+static void ProcessWaitServerDelay(void);
 static void ProcessGetServerResponse(void);
 
 static void TransitionToIdle(void);
@@ -83,6 +89,7 @@ static void TransitionToGetConfig(void);
 static void TransitionToConnecting(void);
 static void TransitionToWaitIndicator(void);
 static void TransitionToSendPacket(void);
+static void TransitionToWaitServerDelay(void);
 static void TransitionToGetServerResponse(void);
 
 /* ******************************************************************************** */
@@ -118,6 +125,9 @@ static void IncValueNb(void);
 
 void KipControlManager_Init() {
     GL_KipControlManagerEnabled_B = false;
+    KipControlData_X.Weigh_SI = 0;
+    KipControlData_X.MacAddr_Str = "";
+    KipControlData_X.TimeStamp_Str = "";
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "KipControl Manager Initialized");
 }
 
@@ -149,6 +159,10 @@ void KipControlManager_Process() {
 
     case KC_SEND_PACKET:
         ProcessSendPacket();
+        break;
+
+    case KC_WAIT_SERVER_DELAY:
+        ProcessWaitServerDelay();
         break;
 
     case KC_GET_SERVER_RESPONSE:
@@ -199,61 +213,71 @@ void ProcessWaitIndicator(void) {
 
 void ProcessSendPacket(void) {
 
-    signed int Weigh_SI = 0;
-    String MacAddr_Str = "";
-    String TimeStamp_Str = "";
-
-    MacAddr_Str.reserve(20);
-    TimeStamp_Str.reserve(80);
-
-
-    Weigh_SI = GL_GlobalData_X.Indicator_H.fifoPop();
-    MacAddr_Str = HexArrayToString(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB), ":");
-    TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
-
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive information before sending:");
-    DBG_PRINT(DEBUG_SEVERITY_INFO, "- ");
-    DBG_PRINTDATA(Weigh_SI);
-    DBG_ENDSTR();
-    DBG_PRINT(DEBUG_SEVERITY_INFO, "- ");
-    DBG_PRINTDATA(MacAddr_Str);
-    DBG_ENDSTR();
-    DBG_PRINT(DEBUG_SEVERITY_INFO, "- ");
-    DBG_PRINTDATA(TimeStamp_Str);
-    DBG_ENDSTR();
-
     if (KipClient_H.connect("www.balthinet.be", 80)) {
 
         KipClient_H.print("GET /kipcontrol/import?");
         KipClient_H.print("data[0][Weight]=");
-        KipClient_H.print(Weigh_SI);
-        KipClient_H.print("&data[0][Name]=");
-        //KipClient_H.print(MacAddr_Str);
-        KipClient_H.print("serial");
+        KipClient_H.print(KipControlData_X.Weigh_SI);
+        KipClient_H.print("&data[0][BalanceSerial]=");
+        KipClient_H.print(KipControlData_X.MacAddr_Str);
         KipClient_H.print("&data[0][DateTime]=");
-        KipClient_H.print(TimeStamp_Str);
+        KipClient_H.print(KipControlData_X.TimeStamp_Str);
         KipClient_H.println("&submitted=1&action=validate HTTP/1.1");
         KipClient_H.println("Host: www.balthinet.be");
         KipClient_H.println("Connection: close");
         KipClient_H.println();
+        delay(1);
+        KipClient_H.flush();
     }
     else {
         DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Cannot connect to portail..");
     }
 
-    TransitionToGetServerResponse();
+    TransitionToWaitServerDelay();
+}
+
+void ProcessWaitServerDelay(void) {
+    if ((millis() - GL_ServerDelayAbsoluteTime_UL) >= KC_WAIT_SERVER_DELAY_MS)
+        TransitionToGetServerResponse();
 }
 
 void ProcessGetServerResponse(void) {
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Print out Server respone :");
 
-    DBG_PRINT(DEBUG_SEVERITY_INFO, "");
-    while (KipClient_H.available())
-        DBG_PRINTDATA((char)(KipClient_H.read()));
+    int i = 0;
+    unsigned long Size_UL = 0;
+    char pBuffer_UB[30];
+    boolean GetFirstLine_B = false;
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Print out Server response :");
+    while (KipClient_H.available()) {
+        if (GetFirstLine_B == false) {
+            pBuffer_UB[i] = (char)(KipClient_H.read());
+            DBG_PRINTDATA(pBuffer_UB[i]);
+            if (i > 1) {
+                if ((pBuffer_UB[i - 1] == 0x0D) && (pBuffer_UB[i] == 0x0A)) {
+                    GetFirstLine_B = true;
+                    Size_UL = i - 1;
+                }
+            }
+            i++;
+        }
+        else {
+            DBG_PRINTDATA((char)(KipClient_H.read()));
+        }
+    }
     DBG_ENDSTR();
 
-    DBG_ENDSTR();
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of Server response");
+
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Check first line : ");
+    for (i = 0; i < Size_UL; i++)
+        DBG_PRINTDATA(pBuffer_UB[i]);
+    DBG_ENDSTR();
+
+    if ((pBuffer_UB[Size_UL - 2] == 'O') && (pBuffer_UB[Size_UL - 1] == 'K'))
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Record stored correctly in portal");
+    else
+        DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Failed status from portal");
 
     TransitionToWaitIndicator();
 }
@@ -276,12 +300,39 @@ void TransitionToConnecting(void) {
 
 void TransitionToWaitIndicator(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT INDICATOR");
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Stop EthernetClient");
+    KipClient_H.stop();
+
     GL_KipControlManager_CurrentState_E = KC_STATE::KC_WAIT_INDICATOR;
 }
 
 void TransitionToSendPacket(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To SEND PACKET");
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive information before sending:");
+    KipControlData_X.Weigh_SI = GL_GlobalData_X.Indicator_H.fifoPop();
+    KipControlData_X.MacAddr_Str = HexArrayToString(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB), ":");
+    KipControlData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
+
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "- Weigh = ");
+    DBG_PRINTDATA(KipControlData_X.Weigh_SI);
+    DBG_PRINTDATA("[g]");
+    DBG_ENDSTR();
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "- MAC = ");
+    DBG_PRINTDATA(KipControlData_X.MacAddr_Str);
+    DBG_ENDSTR();
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "- Timestamp = ");
+    DBG_PRINTDATA(KipControlData_X.TimeStamp_Str);
+    DBG_ENDSTR();
+
     GL_KipControlManager_CurrentState_E = KC_STATE::KC_SEND_PACKET;
+}
+
+void TransitionToWaitServerDelay(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT SERVER DELAY");
+    GL_ServerDelayAbsoluteTime_UL = millis();
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_WAIT_SERVER_DELAY;
 }
 
 void TransitionToGetServerResponse(void) {
