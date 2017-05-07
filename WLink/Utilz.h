@@ -16,6 +16,7 @@
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
+#include "RealTimeClock.h"
 
 /* ******************************************************************************** */
 /* Define
@@ -32,6 +33,8 @@ void Nop(void);
 String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str);
 void DefaultKeyEvents(char * Key_UB);
 void DefaultOnValidateFct(unsigned char * pParam_UB);
+boolean isLeap(unsigned int Year_UI);
+unsigned long getDeltaDay(RTC_DATE_STRUCT FromDate_X, RTC_DATE_STRUCT ToDate_X);
 
 
 #endif // __UTILZ_H__

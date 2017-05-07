@@ -64,10 +64,11 @@ public:
     void setDateTime(RTC_DATETIME_STRUCT DateTime_X);
 
     RTC_DATE_STRUCT getDate(void);
+    RTC_DATE_STRUCT getLastDate(void);
     RTC_TIME_STRUCT getTime(void);
     RTC_DATETIME_STRUCT getDateTime(void);
     String getDateTimeString(void);
-    String getTimestamp(void);
+    String getTimestamp(void);    
 
 	RTC_PARAM GL_RealTimeClockParam_X;
 };

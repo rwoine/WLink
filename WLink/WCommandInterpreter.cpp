@@ -160,8 +160,14 @@ void ProcessCheckCmd(void) {
 			DBG_PRINTDATA(GL_WCmdParam_X.ParamNb_UL);
 			DBG_ENDSTR();
 
-			for (int i = 0; i < GL_WCmdParam_X.ParamNb_UL; i++)
-				GL_WCmdParam_X.pParamBuffer_UB[i] = WCmdMedium_ReadByte();
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Param List = ");
+            for (int i = 0; i < GL_WCmdParam_X.ParamNb_UL; i++) {
+                //DBG_PRINTDATA(i);
+                //DBG_PRINTDATA(" - ");
+                GL_WCmdParam_X.pParamBuffer_UB[i] = WCmdMedium_ReadByte();
+                //DBG_PRINTDATABASE(GL_WCmdParam_X.pParamBuffer_UB[i], HEX);
+                //DBG_ENDSTR();
+            }
 		}
 
 		// Check for End Of Transmit byte

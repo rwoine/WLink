@@ -43,6 +43,7 @@ typedef struct {
     signed int Weigh_SI;
     String MacAddr_Str;
     String TimeStamp_Str;
+    RTC_DATE_STRUCT CurrentDate_X;
 } KC_DATA_TO_SEND_STRUCT;
 
 /* ******************************************************************************** */

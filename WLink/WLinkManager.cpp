@@ -136,7 +136,7 @@ void ProcessWLink(void) {
 
 
 
-    //if (GL_GlobalConfig_X.WCmdConfig_X.Medium_E != WLINK_WCMD_MEDIUM_NONE)      WCommandInterpreter_Process();
+    if (GL_GlobalConfig_X.WCmdConfig_X.Medium_E != WLINK_WCMD_MEDIUM_NONE)      WCommandInterpreter_Process();
     IndicatorManager_Process();
 
 

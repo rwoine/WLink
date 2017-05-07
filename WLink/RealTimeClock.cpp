@@ -94,6 +94,16 @@ RTC_DATE_STRUCT RealTimeClock::getDate(void) {
     return Date_X;
 }
 
+RTC_DATE_STRUCT RealTimeClock::getLastDate(void) {
+    RTC_DATE_STRUCT Date_X;
+
+    Date_X.Day_UB = GL_RtcDevice_H.getDay();
+    Date_X.Month_UB = GL_RtcDevice_H.getMonth();
+    Date_X.Year_UB = GL_RtcDevice_H.getYear();
+
+    return Date_X;
+}
+
 RTC_TIME_STRUCT RealTimeClock::getTime(void) {
     RTC_TIME_STRUCT Time_X;
 

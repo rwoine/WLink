@@ -34,7 +34,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "17050301";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "17050701";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -150,7 +150,6 @@ void setup() {
     /* W-Link Manager Initialization */
     WLinkManager_Init();
     WLinkManager_Enable();
-
 
 
 	/* Record Absolute Time */

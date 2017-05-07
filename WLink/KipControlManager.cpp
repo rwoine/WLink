@@ -35,19 +35,24 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define KC_WORKING_AREA_OFFSET      0x0400
-#define KC_GLOBAL_DATA_ADDR         (KC_WORKING_AREA_OFFSET + 0x0000)
-#define KC_TOLERANCE_ADDR           (KC_WORKING_AREA_OFFSET + 0x0001)
-#define KC_REFERENCE_DATA_ID_ADDR   (KC_WORKING_AREA_OFFSET + 0x0002)
-#define KC_MAX_DATA_NB_ADDR         (KC_WORKING_AREA_OFFSET + 0x0003)
-#define KC_START_IDX_ADDR           (KC_WORKING_AREA_OFFSET + 0x0004)
-#define KC_START_DATE_ADDR          (KC_WORKING_AREA_OFFSET + 0x0005)
-#define KC_CURRENT_IDX_ADDR         (KC_WORKING_AREA_OFFSET + 0x0008)
-#define KC_TOTAL_VALUE_ADDR         (KC_WORKING_AREA_OFFSET + 0x0009)
-#define KC_VALUE_NB_ADDR            (KC_WORKING_AREA_OFFSET + 0x000D)
-#define KC_AVERAGE_TABLE_ADDR       (KC_WORKING_AREA_OFFSET + 0x0100)
+#define KC_WORKING_AREA_OFFSET          0x0400
+#define KC_GLOBAL_DATA_ADDR             (KC_WORKING_AREA_OFFSET + 0x0000)
+#define KC_TOLERANCE_ADDR               (KC_WORKING_AREA_OFFSET + 0x0001)
+#define KC_REFERENCE_DATA_ID_ADDR       (KC_WORKING_AREA_OFFSET + 0x0002)
+#define KC_MAX_DATA_NB_ADDR             (KC_WORKING_AREA_OFFSET + 0x0003)
+#define KC_START_IDX_ADDR               (KC_WORKING_AREA_OFFSET + 0x0004)
+#define KC_START_DATE_ADDR              (KC_WORKING_AREA_OFFSET + 0x0005)
+#define KC_CURRENT_IDX_ADDR             (KC_WORKING_AREA_OFFSET + 0x0008)
+#define KC_TOTAL_VALUE_ADDR             (KC_WORKING_AREA_OFFSET + 0x0009)
+#define KC_VALUE_NB_ADDR                (KC_WORKING_AREA_OFFSET + 0x000D)
+#define KC_AVERAGE_TABLE_ADDR           (KC_WORKING_AREA_OFFSET + 0x0100)
 
-#define KC_WAIT_SERVER_DELAY_MS     3000
+#define KC_REFERENCE_TABLE_START_ADDR   0x0800
+#define KC_REFERENCE_TABLE_OFFSET       0x0100
+
+#define KC_WAIT_SERVER_DELAY_MS     2000UL
+#define KC_MAX_DATA_NB              256
+
 
 
 /* ******************************************************************************** */
@@ -59,6 +64,7 @@ enum KC_STATE {
     KC_CONNECTING,
     KC_WAIT_INDICATOR,
     KC_SEND_PACKET,
+    KC_CHECK_WEIGH,
     KC_WAIT_SERVER_DELAY,
     KC_GET_SERVER_RESPONSE
 };
@@ -66,11 +72,13 @@ enum KC_STATE {
 static KC_STATE GL_KipControlManager_CurrentState_E = KC_STATE::KC_IDLE;
 static boolean GL_KipControlManagerEnabled_B = false;
 
-unsigned char GL_pBuffer_UB[16];
+unsigned char GL_pBuffer_UB[128];
 unsigned long GL_ServerDelayAbsoluteTime_UL = 0;
 
 KC_HANDLE_STRUCT KipControl_H;
 KC_DATA_TO_SEND_STRUCT KipControlData_X;
+unsigned int GL_pReferenceData_UI[KC_MAX_DATA_NB];
+
 EthernetClient KipClient_H;
 
 /* ******************************************************************************** */
@@ -81,6 +89,7 @@ static void ProcessGetConfig(void);
 static void ProcessConnecting(void);
 static void ProcessWaitIndicator(void);
 static void ProcessSendPacket(void);
+static void ProcessCheckWeigh(void);
 static void ProcessWaitServerDelay(void);
 static void ProcessGetServerResponse(void);
 
@@ -89,6 +98,7 @@ static void TransitionToGetConfig(void);
 static void TransitionToConnecting(void);
 static void TransitionToWaitIndicator(void);
 static void TransitionToSendPacket(void);
+static void TransitionToCheckWeigh(void);
 static void TransitionToWaitServerDelay(void);
 static void TransitionToGetServerResponse(void);
 
@@ -161,6 +171,10 @@ void KipControlManager_Process() {
         ProcessSendPacket();
         break;
 
+    case KC_CHECK_WEIGH:
+        ProcessCheckWeigh();
+        break;
+
     case KC_WAIT_SERVER_DELAY:
         ProcessWaitServerDelay();
         break;
@@ -186,6 +200,7 @@ void ProcessIdle(void) {
 }
 
 void ProcessGetConfig(void) {
+    /*
     KipControl_H.IsConfigured_B = GetConfiguredFlag();
     KipControl_H.IsRunning_B = GetRunningFlag();
     KipControl_H.Tolerance_UB = GetTolerance();
@@ -196,6 +211,40 @@ void ProcessGetConfig(void) {
     KipControl_H.CurrentIdx_UB = GetCurrentIdx();
     KipControl_H.TotalValue_UL = GetTotalValue();
     KipControl_H.ValueNb_UL = GetValueNb();
+    */
+
+
+    /* Forced variables -> TO CHANGE */
+    KipControl_H.StartDate_X = {7, 4, 17};  // Start on 07/04/2017
+    KipControl_H.Tolerance_UB = 5;          // Tolerance of 5[%]
+    KipControl_H.ReferenceDataId_UB = 17;   // ID #17 for reference data
+
+
+    /* Get Reference Table */ 
+    GL_GlobalData_X.Eeprom_H.read(KC_REFERENCE_TABLE_START_ADDR + ((KipControl_H.ReferenceDataId_UB - 1) * KC_REFERENCE_TABLE_OFFSET), GL_pBuffer_UB, 2);
+
+    if (GL_pBuffer_UB[0] == KipControl_H.ReferenceDataId_UB) {
+        DBG_PRINT(DEBUG_SEVERITY_INFO, "Reference table found, ID = ");
+        DBG_PRINTDATA(KipControl_H.ReferenceDataId_UB);
+        DBG_ENDSTR();
+
+        KipControl_H.MaxDataNb_UB = GL_pBuffer_UB[1];
+        DBG_PRINT(DEBUG_SEVERITY_INFO, "Number of reference data = ");
+        DBG_PRINTDATA(KipControl_H.MaxDataNb_UB);
+        DBG_ENDSTR();
+
+        GL_GlobalData_X.Eeprom_H.read(KC_REFERENCE_TABLE_START_ADDR + ((KipControl_H.ReferenceDataId_UB - 1) * KC_REFERENCE_TABLE_OFFSET) + 2, GL_pBuffer_UB, 2 * KipControl_H.MaxDataNb_UB);
+        for (int i = 0; i < KipControl_H.MaxDataNb_UB; i++) {
+            GL_pReferenceData_UI[i] = (GL_pBuffer_UB[2 * i] << 8) + (GL_pBuffer_UB[2 * i + 1]);
+            //DBG_PRINTDATABASE(GL_pReferenceData_UI[i], HEX);
+            //DBG_ENDSTR();
+        }
+
+    }
+    else {
+        DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Reference table NOT found !");
+    }
+
 
     TransitionToConnecting();
 }
@@ -231,6 +280,39 @@ void ProcessSendPacket(void) {
     }
     else {
         DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Cannot connect to portail..");
+    }
+
+    TransitionToCheckWeigh();
+}
+
+void ProcessCheckWeigh(void) {
+
+    unsigned long DeltaDay_UL = getDeltaDay(KipControl_H.StartDate_X, KipControlData_X.CurrentDate_X);
+
+    /* Get Days since Start Date */
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Day #");
+    DBG_PRINTDATA(DeltaDay_UL + 1);
+    DBG_PRINTDATA(" -> ");
+    DBG_PRINTDATA("Reference Weigh is ");
+    DBG_PRINTDATA(GL_pReferenceData_UI[DeltaDay_UL]);
+    DBG_PRINTDATA("[g]");
+    DBG_ENDSTR();
+
+    /* Check if Weigh is in Tolerance */
+    float LimitHigh_F = (float)GL_pReferenceData_UI[DeltaDay_UL] * (1 + (float)KipControl_H.Tolerance_UB / 100);
+    float LimitLow_F = (float)GL_pReferenceData_UI[DeltaDay_UL] * (1 - (float)KipControl_H.Tolerance_UB / 100);
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Weigh should be within [");
+    DBG_PRINTDATA(LimitHigh_F);
+    DBG_PRINTDATA(":");
+    DBG_PRINTDATA(LimitLow_F);
+    DBG_PRINTDATA("]");
+    DBG_ENDSTR();
+
+    if ((KipControlData_X.Weigh_SI <= LimitHigh_F) && (KipControlData_X.Weigh_SI >= LimitLow_F)) {
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weigh within boundaries -> taken into account to calculate average.");
+    }
+    else {
+        DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Weigh outside boundaries -> ignored!");
     }
 
     TransitionToWaitServerDelay();
@@ -314,6 +396,7 @@ void TransitionToSendPacket(void) {
     KipControlData_X.Weigh_SI = GL_GlobalData_X.Indicator_H.fifoPop();
     KipControlData_X.MacAddr_Str = HexArrayToString(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB), ":");
     KipControlData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
+    KipControlData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
 
     DBG_PRINT(DEBUG_SEVERITY_INFO, "- Weigh = ");
     DBG_PRINTDATA(KipControlData_X.Weigh_SI);
@@ -327,6 +410,11 @@ void TransitionToSendPacket(void) {
     DBG_ENDSTR();
 
     GL_KipControlManager_CurrentState_E = KC_STATE::KC_SEND_PACKET;
+}
+
+void TransitionToCheckWeigh(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CHECK WEIGH");
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_CHECK_WEIGH;
 }
 
 void TransitionToWaitServerDelay(void) {
