@@ -64,7 +64,7 @@ enum KC_STATE {
     KC_CONNECTING,
     KC_WAIT_INDICATOR,
     KC_SEND_PACKET,
-    KC_CHECK_WEIGH,
+    KC_CHECK_WEIGHT,
     KC_WAIT_SERVER_DELAY,
     KC_GET_SERVER_RESPONSE
 };
@@ -89,7 +89,7 @@ static void ProcessGetConfig(void);
 static void ProcessConnecting(void);
 static void ProcessWaitIndicator(void);
 static void ProcessSendPacket(void);
-static void ProcessCheckWeigh(void);
+static void ProcessCheckWeight(void);
 static void ProcessWaitServerDelay(void);
 static void ProcessGetServerResponse(void);
 
@@ -98,7 +98,7 @@ static void TransitionToGetConfig(void);
 static void TransitionToConnecting(void);
 static void TransitionToWaitIndicator(void);
 static void TransitionToSendPacket(void);
-static void TransitionToCheckWeigh(void);
+static void TransitionToCheckWeight(void);
 static void TransitionToWaitServerDelay(void);
 static void TransitionToGetServerResponse(void);
 
@@ -135,7 +135,7 @@ static void IncValueNb(void);
 
 void KipControlManager_Init() {
     GL_KipControlManagerEnabled_B = false;
-    KipControlData_X.Weigh_SI = 0;
+    KipControlData_X.Weight_SI = 0;
     KipControlData_X.MacAddr_Str = "";
     KipControlData_X.TimeStamp_Str = "";
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "KipControl Manager Initialized");
@@ -171,8 +171,8 @@ void KipControlManager_Process() {
         ProcessSendPacket();
         break;
 
-    case KC_CHECK_WEIGH:
-        ProcessCheckWeigh();
+    case KC_CHECK_WEIGHT:
+        ProcessCheckWeight();
         break;
 
     case KC_WAIT_SERVER_DELAY:
@@ -214,10 +214,16 @@ void ProcessGetConfig(void) {
     */
 
 
+    /* Get fixed data */
+    KipControlData_X.MacAddr_Str = HexArrayToString(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB), ":");
+
+
     /* Forced variables -> TO CHANGE */
+    KipControl_H.StartIdx_UB = 5;           // Start the recording at day 5
     KipControl_H.StartDate_X = {7, 4, 17};  // Start on 07/04/2017
     KipControl_H.Tolerance_UB = 5;          // Tolerance of 5[%]
     KipControl_H.ReferenceDataId_UB = 17;   // ID #17 for reference data
+    KipControl_H.EnableRecording_B = true;  // Allow recording
 
 
     /* Get Reference Table */ 
@@ -256,7 +262,26 @@ void ProcessConnecting(void) {
 
 void ProcessWaitIndicator(void) {
     if (!(GL_GlobalData_X.Indicator_H.isFifoEmpty())) {
-        TransitionToSendPacket();
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Weight from Indicator");
+        KipControlData_X.Weight_SI = GL_GlobalData_X.Indicator_H.fifoPop();
+
+        if (KipControlData_X.Weight_SI != 0) {
+            if (KipControl_H.EnableRecording_B) {
+                KipControlData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
+                KipControlData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
+
+                KipControl_H.CurrentIdx_UB = getDeltaDay(KipControl_H.StartDate_X, KipControlData_X.CurrentDate_X) + KipControl_H.StartIdx_UB;
+
+                TransitionToSendPacket();
+            }
+            else {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Recording is disabled -> do not send the data");
+            }
+        }
+        else {
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weight equals 0 -> do not process !");
+        }
     }
 }
 
@@ -266,9 +291,15 @@ void ProcessSendPacket(void) {
 
         KipClient_H.print("GET /kipcontrol/import?");
         KipClient_H.print("data[0][Weight]=");
-        KipClient_H.print(KipControlData_X.Weigh_SI);
+        KipClient_H.print(KipControlData_X.Weight_SI);
         KipClient_H.print("&data[0][BalanceSerial]=");
         KipClient_H.print(KipControlData_X.MacAddr_Str);
+        KipClient_H.print("&data[0][Batch]=");
+        KipClient_H.print(KipControl_H.BatchId_UL);
+        KipClient_H.print("&data[0][Tolerance]=");
+        KipClient_H.print(KipControl_H.Tolerance_UB);
+        KipClient_H.print("&data[0][Age]=");
+        KipClient_H.print(KipControl_H.CurrentIdx_UB + 1);
         KipClient_H.print("&data[0][DateTime]=");
         KipClient_H.print(KipControlData_X.TimeStamp_Str);
         KipClient_H.println("&submitted=1&action=validate HTTP/1.1");
@@ -282,37 +313,35 @@ void ProcessSendPacket(void) {
         DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Cannot connect to portail..");
     }
 
-    TransitionToCheckWeigh();
+    TransitionToCheckWeight();
 }
 
-void ProcessCheckWeigh(void) {
-
-    unsigned long DeltaDay_UL = getDeltaDay(KipControl_H.StartDate_X, KipControlData_X.CurrentDate_X);
+void ProcessCheckWeight(void) {
 
     /* Get Days since Start Date */
     DBG_PRINT(DEBUG_SEVERITY_INFO, "Day #");
-    DBG_PRINTDATA(DeltaDay_UL + 1);
+    DBG_PRINTDATA(KipControl_H.CurrentIdx_UB + 1);
     DBG_PRINTDATA(" -> ");
-    DBG_PRINTDATA("Reference Weigh is ");
-    DBG_PRINTDATA(GL_pReferenceData_UI[DeltaDay_UL]);
+    DBG_PRINTDATA("Reference Weight is ");
+    DBG_PRINTDATA(GL_pReferenceData_UI[KipControl_H.CurrentIdx_UB]);
     DBG_PRINTDATA("[g]");
     DBG_ENDSTR();
 
-    /* Check if Weigh is in Tolerance */
-    float LimitHigh_F = (float)GL_pReferenceData_UI[DeltaDay_UL] * (1 + (float)KipControl_H.Tolerance_UB / 100);
-    float LimitLow_F = (float)GL_pReferenceData_UI[DeltaDay_UL] * (1 - (float)KipControl_H.Tolerance_UB / 100);
-    DBG_PRINT(DEBUG_SEVERITY_INFO, "Weigh should be within [");
+    /* Check if Weight is in Tolerance */
+    float LimitHigh_F = (float)GL_pReferenceData_UI[KipControl_H.CurrentIdx_UB] * (1 + (float)KipControl_H.Tolerance_UB / 100);
+    float LimitLow_F = (float)GL_pReferenceData_UI[KipControl_H.CurrentIdx_UB] * (1 - (float)KipControl_H.Tolerance_UB / 100);
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Weight should be within [");
     DBG_PRINTDATA(LimitHigh_F);
     DBG_PRINTDATA(":");
     DBG_PRINTDATA(LimitLow_F);
     DBG_PRINTDATA("]");
     DBG_ENDSTR();
 
-    if ((KipControlData_X.Weigh_SI <= LimitHigh_F) && (KipControlData_X.Weigh_SI >= LimitLow_F)) {
-        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weigh within boundaries -> taken into account to calculate average.");
+    if ((KipControlData_X.Weight_SI <= LimitHigh_F) && (KipControlData_X.Weight_SI >= LimitLow_F)) {
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weight within boundaries -> taken into account to calculate average.");
     }
     else {
-        DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Weigh outside boundaries -> ignored!");
+        DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Weight outside boundaries -> ignored!");
     }
 
     TransitionToWaitServerDelay();
@@ -392,14 +421,8 @@ void TransitionToWaitIndicator(void) {
 void TransitionToSendPacket(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To SEND PACKET");
 
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive information before sending:");
-    KipControlData_X.Weigh_SI = GL_GlobalData_X.Indicator_H.fifoPop();
-    KipControlData_X.MacAddr_Str = HexArrayToString(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB), ":");
-    KipControlData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
-    KipControlData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
-
-    DBG_PRINT(DEBUG_SEVERITY_INFO, "- Weigh = ");
-    DBG_PRINTDATA(KipControlData_X.Weigh_SI);
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "- Weight = ");
+    DBG_PRINTDATA(KipControlData_X.Weight_SI);
     DBG_PRINTDATA("[g]");
     DBG_ENDSTR();
     DBG_PRINT(DEBUG_SEVERITY_INFO, "- MAC = ");
@@ -412,9 +435,9 @@ void TransitionToSendPacket(void) {
     GL_KipControlManager_CurrentState_E = KC_STATE::KC_SEND_PACKET;
 }
 
-void TransitionToCheckWeigh(void) {
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CHECK WEIGH");
-    GL_KipControlManager_CurrentState_E = KC_STATE::KC_CHECK_WEIGH;
+void TransitionToCheckWeight(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CHECK WEIGHT");
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_CHECK_WEIGHT;
 }
 
 void TransitionToWaitServerDelay(void) {

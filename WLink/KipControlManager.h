@@ -29,6 +29,7 @@
 typedef struct {
     boolean IsConfigured_B;             // Configured flag
     boolean IsRunning_B;                // Running flag
+    unsigned long BatchId_UL;            // ID of the current batch
     unsigned char Tolerance_UB;         // Tolerance in [%]
     unsigned char ReferenceDataId_UB;   // ID of the reference data table
     unsigned char MaxDataNb_UB;         // Total number of data stored in the table
@@ -37,10 +38,11 @@ typedef struct {
     unsigned char CurrentIdx_UB;        // Current index
     unsigned long TotalValue_UL;        // Total value (addition of all current data)
     unsigned long ValueNb_UL;           // Number of values in the total value field
+    boolean EnableRecording_B;          // Flag to enable or not the recording of data
 } KC_HANDLE_STRUCT;
 
 typedef struct {
-    signed int Weigh_SI;
+    signed int Weight_SI;
     String MacAddr_Str;
     String TimeStamp_Str;
     RTC_DATE_STRUCT CurrentDate_X;
