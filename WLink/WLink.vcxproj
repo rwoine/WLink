@@ -87,6 +87,7 @@
     <ClInclude Include="FlatPanelManager.h" />
     <ClInclude Include="FONAConfig.h" />
     <ClInclude Include="FONAExtIncludes.h" />
+    <ClInclude Include="FonaModule.h" />
     <ClInclude Include="FONAPlatform.h" />
     <ClInclude Include="FONAPlatStd.h" />
     <ClInclude Include="GI400.h" />
@@ -128,6 +129,7 @@
     <ClCompile Include="EepromWire.cpp" />
     <ClCompile Include="FlatPanel.cpp" />
     <ClCompile Include="FlatPanelManager.cpp" />
+    <ClCompile Include="FonaModule.cpp" />
     <ClCompile Include="GI400.cpp" />
     <ClCompile Include="Indicator.cpp" />
     <ClCompile Include="IndicatorInterface.cpp" />
