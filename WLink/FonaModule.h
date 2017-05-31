@@ -52,10 +52,19 @@ public:
     void init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL, boolean Begin_B, unsigned char PinRst_UB, unsigned char PinKey_UB, unsigned char PinPower_UB);
     boolean isInitialized();
 
+    void setPinRst(void);
+    void setPinKey(void);
+    void resetPinRst(void);
+    void resetPinKey(void);
+    boolean isPowered(void);
+
+    void flush(void);
+    unsigned long readLine(void);
+    void sendAtCommand(char * pData_UB);
+    void sendAtCommand(String Data_Str);
+    boolean checkAtResponse(char * pData_UB);
+    boolean checkAtResponse(String Data_Str);
     void begin(void);
-
-    // add get/set for pin
-
 
     FONA_MODULE_PARAM GL_FonaModuleParam_X;
 };

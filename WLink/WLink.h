@@ -42,6 +42,8 @@
 #include "NetworkAdapter.h"
 #include "NetworkAdapterManager.h"
 
+#include "FonaModule.h"
+
 #include "TCPServer.h"
 #include "TCPServerManager.h"
 #include "UDPServer.h"
@@ -105,6 +107,7 @@ typedef struct {
     FlatPanel FlatPanel_H;
     MemoryCard MemCard_H;
     NetworkAdapter Network_H;
+    FonaModule Fona_H;
     ETHERNET_ACCESS_POINT_STRUCT EthAP_X;
     Indicator Indicator_H;          // Not yet managed
     BadgeReader BadgeReader_H;      // Not yet managed
