@@ -34,7 +34,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "17050701";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "17060401";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -84,8 +84,10 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
     { WCMD_RTC_GET_DATETIME, WCmdProcess_RtcGetDateTime },
 
 	{ WCMD_COMPORT_OPEN, WCmdProcess_ComPortOpen },
-	{ WCMD_COMPORT_CLOSE, WCmdProcess_ComPortClose },
-	{ WCMD_COMPORT_WRITE, WCmdProcess_ComPortWrite },
+    { WCMD_COMPORT_CLOSE, WCmdProcess_ComPortClose },
+    { WCMD_COMPORT_WRITE, WCmdProcess_ComPortWrite },
+    { WCMD_COMPORT_ENABLE_TUNNEL, WCmdProcess_ComPortEnableTunnel },
+    { WCMD_COMPORT_DISABLE_TUNNEL, WCmdProcess_ComPortDisableTunnel },
 
 	{ WCMD_TEST_CMD, WCmdProcess_TestCommand }
 

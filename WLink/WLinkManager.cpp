@@ -127,21 +127,23 @@ void ProcessConfig(void) {
 
 void ProcessWLink(void) {
 
-    // If Interface is enabled -> call process() from Interface Manager
+    // Always run SerialManager
+    SerialManager_Process();
 
+
+    // If Interface is enabled -> call process() from Interface Manager
     if (GL_GlobalConfig_X.EthConfig_X.isEnabled_B)                              NetworkAdapterManager_Process();
     if (GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.isEnabled_B)            TCPServerManager_Process();
     if (GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.isEnabled_B)            UDPServerManager_Process();
-
-
-
-
+    
+    // W-Link Command Manager
     if (GL_GlobalConfig_X.WCmdConfig_X.Medium_E != WLINK_WCMD_MEDIUM_NONE)      WCommandInterpreter_Process();
+
+    // High-level devices
     IndicatorManager_Process();
 
 
-
-
+    // Menu Management
     if (GL_GlobalData_X.FlatPanel_H.isInitialized())                            FlatPanelManager_Process(); 
     WMenuManager_Process();
 

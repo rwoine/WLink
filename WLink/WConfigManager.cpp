@@ -636,6 +636,10 @@ WCFG_STATUS WConfigManager_Process() {
             }
 
 
+            // Init SerialManager
+            SerialManager_Init();
+
+
             if (BadParam_B) {
                 TransitionToBadParam();
             }

@@ -48,6 +48,8 @@
 #define WCMD_COMPORT_OPEN					0x50
 #define WCMD_COMPORT_CLOSE					0x51
 #define WCMD_COMPORT_WRITE					0x52
+#define WCMD_COMPORT_ENABLE_TUNNEL          0x55
+#define WCMD_COMPORT_DISABLE_TUNNEL         0x56
 #define WCMD_TEST_CMD						0x70
 
 /* ******************************************************************************** */
@@ -105,6 +107,8 @@ WCMD_FCT_STS WCmdProcess_RtcGetDateTime(const unsigned char * pParam_UB, unsigne
 WCMD_FCT_STS WCmdProcess_ComPortOpen(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_ComPortClose(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_ComPortWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_ComPortEnableTunnel(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_ComPortDisableTunnel(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 
 WCMD_FCT_STS WCmdProcess_TestCommand(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 

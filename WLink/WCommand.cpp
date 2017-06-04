@@ -10,6 +10,7 @@
 /*				17/10/2016	(RW)	Add port COM functions							*/
 /*									Add EEPROM functions							*/
 /*              25/01/2017  (RW)    Add RTC functions                               */
+/*              04/06/2017  (RW)    Add COM port tunnel functions                   */
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -469,6 +470,40 @@ WCMD_FCT_STS WCmdProcess_ComPortWrite(const unsigned char * pParam_UB, unsigned 
         GetSerialHandle(pParam_UB[0])->write(pParam_UB[2+i]);
 
 	return WCMD_FCT_STS_OK;
+}
+
+
+WCMD_FCT_STS WCmdProcess_ComPortEnableTunnel(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_ComPortEnableTunnel");
+    *pAnsNb_UL = 0;
+
+    // At least 2 parameters: Port COM A, Port COM B
+    if (ParamNb_UL < 2)
+        return WCMD_FCT_STS_BAD_PARAM_NB;
+
+    // Check if port number A is < 4
+    if (pParam_UB[0] >= 4)
+        return WCMD_FCT_STS_BAD_DATA;
+
+    // Check if port number B is < 4
+    if (pParam_UB[1] >= 4)
+        return WCMD_FCT_STS_BAD_DATA;
+
+    // Call low-level function
+    SerialManager_SetTunnel((unsigned long)pParam_UB[0], (unsigned long)pParam_UB[1]);
+
+    return WCMD_FCT_STS_OK;
+}
+
+
+WCMD_FCT_STS WCmdProcess_ComPortDisableTunnel(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_ComPortDisableTunnel");
+    *pAnsNb_UL = 0;
+
+    // Call low-level function
+    SerialManager_StopTunnel();    
+
+    return WCMD_FCT_STS_OK;
 }
 
 

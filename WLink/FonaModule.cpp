@@ -146,14 +146,13 @@ boolean FonaModule::checkAtResponse(char * pData_UB) {
 }
 
 boolean FonaModule::checkAtResponse(String Data_Str) {
-    checkAtResponse(Data_Str.c_str());
+    return checkAtResponse(Data_Str.c_str());
 }
 
 
 void FonaModule::begin(void) {
 
-    boolean NoError_B = false;
-   
+    boolean NoError_B = false;   
 
     // Open Communication with AT
     sendAtCommand("AT");
@@ -188,7 +187,7 @@ void FonaModule::begin(void) {
 
     // Turn-off echo
     if (NoError_B) {
-        sendAtCommand("ATE");
+        sendAtCommand("ATE0");
         readLine();
         if (checkAtResponse("OK")) {
             NoError_B = true;

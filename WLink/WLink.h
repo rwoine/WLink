@@ -23,6 +23,8 @@
 #include "Utilz.h"
 
 #include "SerialHandler.h"
+#include "SerialManager.h"
+
 #include "EepromWire.h"
 #include "RealTimeClock.h"
 #include "LcdDisplay.h"
