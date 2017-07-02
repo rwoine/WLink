@@ -152,6 +152,58 @@ boolean FonaModule::checkAtResponse(String Data_Str) {
 
 void FonaModule::begin(void) {
 
+    /*
+    
+    Sequence : 
+
+    PowerKey -> Set High ~2[s]
+    Monitoring PS input
+    PowerKey -> Set High ~2[s]
+    Monitoring PS input => should be HIGH for proper operation
+
+    Reset -> Set High ~100[ms]
+    delay(500)
+
+
+    AT\r\n
+
+    AT\r
+    \r\n
+    OK\r\n
+    
+
+    ATZ\r\n
+
+    ATZ\r
+    \r\n
+    OK\r\n
+
+
+    ATE0\r\n
+
+    ATE0\r
+    \r\n
+    OK\r\n
+
+
+    ATI\r\n
+
+    \r\n
+    SIM800 R13.08\r\n
+    \r\n
+    OK\r\n
+
+
+    AT\r\n
+    
+    \r\n
+    OK\r\n
+    
+    
+    */
+
+
+
     boolean NoError_B = false;   
 
     // Open Communication with AT

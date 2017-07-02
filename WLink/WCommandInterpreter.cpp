@@ -160,7 +160,7 @@ void ProcessCheckCmd(void) {
 			DBG_PRINTDATA(GL_WCmdParam_X.ParamNb_UL);
 			DBG_ENDSTR();
 
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Param List = ");
+            //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Param List = ");
             for (int i = 0; i < GL_WCmdParam_X.ParamNb_UL; i++) {
                 //DBG_PRINTDATA(i);
                 //DBG_PRINTDATA(" - ");

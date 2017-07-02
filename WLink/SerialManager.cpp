@@ -105,12 +105,18 @@ static void ProcessTunnel(void) {
     if (GL_SerialManagerParam_X.IsTunnelEnabled_B) {
 
         // Forward A to B
-        while (GL_SerialManagerParam_X.pSerialA_H->available())
+        while (GL_SerialManagerParam_X.pSerialA_H->available()) {
+            //DBG_PRINTDATA("A = ");
+            //DBG_PRINTDATA((char)GL_SerialManagerParam_X.pSerialA_H->read());
             GL_SerialManagerParam_X.pSerialB_H->write(GL_SerialManagerParam_X.pSerialA_H->read());
+        }
 
         // Forward B to A
-        while (GL_SerialManagerParam_X.pSerialB_H->available())
+        while (GL_SerialManagerParam_X.pSerialB_H->available()) {
+            //DBG_PRINTDATA("B = ");
+            //DBG_PRINTDATA((char)GL_SerialManagerParam_X.pSerialB_H->read());
             GL_SerialManagerParam_X.pSerialA_H->write(GL_SerialManagerParam_X.pSerialB_H->read());
+        }
 
     }
     else {
