@@ -47,20 +47,28 @@ void FonaModule::init(HardwareSerial * pSerial_H, boolean Begin_B, unsigned char
 void FonaModule::init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL, boolean Begin_B, unsigned char PinRst_UB, unsigned char PinKey_UB, unsigned char PinPower_UB) {
     GL_pFonaSerial_H = pSerial_H;
     if (Begin_B) GL_pFonaSerial_H->begin(BaudRate_UL);
-    GL_FonaModuleParam_X.IsInitialized_B = true;
 
     // Assign pins and define mode
+
+    // Notes : 
+    //      > Output pins are connected on the NO output of the relay.
+    //      > The common connection is tied to the GND.
+    //      > Setting the pin to HIGH closes the relay and force the output to the GND.
+    //      > Pull-up resistors are already present on the FONA module to tie the signal to VCC when relay is not activated (W-Link output = LOW).
+    //      > The strap connection between the PowerKey and the GND should be removed on the FONA module.
+
     GL_FonaModuleParam_X.PinRst_UB = PinRst_UB;
     pinMode(GL_FonaModuleParam_X.PinRst_UB, OUTPUT);
-    digitalWrite(GL_FonaModuleParam_X.PinRst_UB, HIGH); // tie low for at least 100[ms] for clean reset
+    digitalWrite(GL_FonaModuleParam_X.PinRst_UB, LOW);  // tie low for at least 100[ms] for clean reset
 
     GL_FonaModuleParam_X.PinKey_UB = PinKey_UB;
     pinMode(GL_FonaModuleParam_X.PinKey_UB, OUTPUT);
-    digitalWrite(GL_FonaModuleParam_X.PinKey_UB, HIGH); // tie low for at least 2[s] to switch state between ON and OFF
+    digitalWrite(GL_FonaModuleParam_X.PinKey_UB, LOW);  // tie low for at least 2[s] to switch state between ON and OFF
 
     GL_FonaModuleParam_X.PinPower_UB = PinPower_UB;
     pinMode(GL_FonaModuleParam_X.PinPower_UB, INPUT);   // Low = OFF - High = ON
 
+    GL_FonaModuleParam_X.IsInitialized_B = true;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "FONA Module Initialized");
 }
 
@@ -70,19 +78,19 @@ boolean FonaModule::isInitialized(void) {
 
 
 void FonaModule::setPinRst(void) {
-    digitalWrite(GL_FonaModuleParam_X.PinRst_UB, HIGH);
-}
-
-void FonaModule::setPinKey(void) {
-    digitalWrite(GL_FonaModuleParam_X.PinKey_UB, HIGH);
-}
-
-void FonaModule::resetPinRst(void) {
     digitalWrite(GL_FonaModuleParam_X.PinRst_UB, LOW);
 }
 
-void FonaModule::resetPinKey(void) {
+void FonaModule::setPinKey(void) {
     digitalWrite(GL_FonaModuleParam_X.PinKey_UB, LOW);
+}
+
+void FonaModule::clearPinRst(void) {
+    digitalWrite(GL_FonaModuleParam_X.PinRst_UB, HIGH);
+}
+
+void FonaModule::clearPinKey(void) {
+    digitalWrite(GL_FonaModuleParam_X.PinKey_UB, HIGH);
 }
 
 boolean FonaModule::isPowered(void) {
@@ -92,7 +100,9 @@ boolean FonaModule::isPowered(void) {
 
 void FonaModule::flush(void) {
     // Flush output
-    GL_pFonaSerial_H->flush(); 
+    GL_pFonaSerial_H->flush();
+
+    delay(500);
     
     // Flush input
     while (GL_pFonaSerial_H->available()) {
@@ -103,7 +113,7 @@ void FonaModule::flush(void) {
 
 void FonaModule::sendAtCommand(char * pData_UB) {
     flush();
-    delay(1);
+    delay(5);
     GL_pFonaSerial_H->println(pData_UB);
 }
 
@@ -112,7 +122,9 @@ void FonaModule::sendAtCommand(String Data_Str) {
 }
 
 
-unsigned long FonaModule::readLine(void) {
+unsigned long FonaModule::readLine(boolean DebugPrint_B) {
+
+    delay(500);
 
     char c;
     unsigned long Index_UL = 0;
@@ -137,6 +149,14 @@ unsigned long FonaModule::readLine(void) {
 
     GL_pReceiveBuffer_UB[Index_UL] = 0; // NULL termination
 
+    if (DebugPrint_B) {
+        //DBG_PRINT(DEBUG_SEVERITY_INFO, "Print out reply from FONA Module (");
+        //DBG_PRINTDATA(Index_UL);
+        //DBG_PRINTDATA(" chars) :");
+        //DBG_ENDSTR();
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, GL_pReceiveBuffer_UB);
+    }
+
     return Index_UL;
 }
 
@@ -152,18 +172,9 @@ boolean FonaModule::checkAtResponse(String Data_Str) {
 
 void FonaModule::begin(void) {
 
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "FONA Module correctly powered -> start begin sequence..");
+
     /*
-    
-    Sequence : 
-
-    PowerKey -> Set High ~2[s]
-    Monitoring PS input
-    PowerKey -> Set High ~2[s]
-    Monitoring PS input => should be HIGH for proper operation
-
-    Reset -> Set High ~100[ms]
-    delay(500)
-
 
     AT\r\n
 
@@ -197,8 +208,7 @@ void FonaModule::begin(void) {
     AT\r\n
     
     \r\n
-    OK\r\n
-    
+    OK\r\n    
     
     */
 
@@ -206,7 +216,7 @@ void FonaModule::begin(void) {
 
     boolean NoError_B = false;   
 
-    // Open Communication with AT
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Open Communication with AT");
     sendAtCommand("AT");
     flush();
     sendAtCommand("AT");
@@ -224,8 +234,10 @@ void FonaModule::begin(void) {
 
     // Restore factory settings
     if (NoError_B) {
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reset Factory settings..");
         sendAtCommand("ATZ");
-        readLine();
+        readLine(); // Should reply ATZ
+        readLine(); // Should reply OK
         if (checkAtResponse("OK")) {
             NoError_B = true;
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Factory settings restored");
@@ -239,8 +251,10 @@ void FonaModule::begin(void) {
 
     // Turn-off echo
     if (NoError_B) {
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Turn off echo..");
         sendAtCommand("ATE0");
-        readLine();
+        readLine(); // Should reply ATE0
+        readLine(); // Should reply OK
         if (checkAtResponse("OK")) {
             NoError_B = true;
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Echo turned off");
@@ -254,17 +268,52 @@ void FonaModule::begin(void) {
 
     // Get module information
     if (NoError_B) {
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get module information..");
         sendAtCommand("ATI");
-        readLine();
+        readLine(true); // Should reply module information
+        readLine(); // Should reply OK
         if (checkAtResponse("OK")) {
             NoError_B = true;
-
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Properly identified module");
         }
         else {
             NoError_B = false;
-
+            DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Could not get module information");
         }
     }
 
+
+    // Get IMEI
+    if (NoError_B) {
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get IMEI..");
+        sendAtCommand("AT+GSN");
+        readLine(true); // Should reply IMEI
+        readLine();     // Should reply OK
+        if (checkAtResponse("OK")) {
+            NoError_B = true;
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Properly get IMEI");
+        }
+        else {
+            NoError_B = false;
+            DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Could not get IMEI");
+        }
+    }
+
+
+    // Send last AT command to validate communication without Echo
+    if (NoError_B) {
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Send last 'AT'..");
+        sendAtCommand("AT");
+        readLine(); // Should reply OK
+
+        if (checkAtResponse("OK")) {
+            NoError_B = true;
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "FONA module ready for duty !");
+        }
+        else {
+            NoError_B = false;
+            DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "FONA module not ready -> reset needed");
+        }
+    }
 
 }

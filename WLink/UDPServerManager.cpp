@@ -40,8 +40,6 @@ static UDP_SERVER_MANAGER_STATE GL_UDPServerManager_CurrentState_E = UDP_SERVER_
 static NetworkAdapter * GL_pNetworkAdapter_H;
 static UDPServer * GL_pUdpServer_H;
 
-static unsigned char GL_UdpIsCableConnectedTryCnt_UB = 0;
-static unsigned long GL_UdpAbsoluteTime_UL = 0;
 static boolean GL_UdpServerManagerEnabled_B = false;
 
 
@@ -55,8 +53,6 @@ static void ProcessRunning(void);
 static void TransitionToIdle(void);
 static void TransitionToConnecting(void);
 static void TransitionToRunning(void);
-
-static boolean IsEthernetStillLinked(void);
 
 
 /* ******************************************************************************** */

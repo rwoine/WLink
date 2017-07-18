@@ -45,6 +45,7 @@
 #include "NetworkAdapterManager.h"
 
 #include "FonaModule.h"
+#include "FonaModuleManager.h"
 
 #include "TCPServer.h"
 #include "TCPServerManager.h"
@@ -133,7 +134,7 @@ typedef struct {
     unsigned int LocalPort_UI;
 } SERVER_CONFIG_STRUCT;
 
-// > Dedicated Strucure for Ethernet Configuration
+// > Dedicated Structure for Ethernet Configuration
 typedef struct {
     boolean isEnabled_B;
     boolean isDhcp_B;
@@ -147,7 +148,12 @@ typedef struct {
     SERVER_CONFIG_STRUCT UdpServerConfig_X;
 } ETHERNET_CONFIG_STRUCT;
 
-// > Dedicated Strucure for WCommand Configuration
+// > Dedicated Structure for GSM Module Configuration
+typedef struct {
+    boolean isEnabled_B;
+} GSM_CONFIG_STRUCT;
+
+// > Dedicated Structure for WCommand Configuration
 typedef struct {
     WLINK_WCMD_MEDIUM_ENUM Medium_E;
     boolean isMonoClient_B;
@@ -175,6 +181,7 @@ typedef struct {
     boolean HasMemoryCard_B;
     COM_PORT_CONFIG_STRUCT pComPortConfig_X[4];
     ETHERNET_CONFIG_STRUCT EthConfig_X;
+    GSM_CONFIG_STRUCT GsmConfig_X;
     WAPP_STRUCT App_X;
 } GLOBAL_CONFIG_STRUCT;
 

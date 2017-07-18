@@ -54,12 +54,12 @@ public:
 
     void setPinRst(void);
     void setPinKey(void);
-    void resetPinRst(void);
-    void resetPinKey(void);
+    void clearPinRst(void);
+    void clearPinKey(void);
     boolean isPowered(void);
 
     void flush(void);
-    unsigned long readLine(void);
+    unsigned long readLine(boolean DebugPrint_B = false);
     void sendAtCommand(char * pData_UB);
     void sendAtCommand(String Data_Str);
     boolean checkAtResponse(char * pData_UB);

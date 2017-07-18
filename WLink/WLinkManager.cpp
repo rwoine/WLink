@@ -135,6 +135,7 @@ void ProcessWLink(void) {
     if (GL_GlobalConfig_X.EthConfig_X.isEnabled_B)                              NetworkAdapterManager_Process();
     if (GL_GlobalConfig_X.EthConfig_X.TcpServerConfig_X.isEnabled_B)            TCPServerManager_Process();
     if (GL_GlobalConfig_X.EthConfig_X.UdpServerConfig_X.isEnabled_B)            UDPServerManager_Process();
+    if (GL_GlobalConfig_X.GsmConfig_X.isEnabled_B)                              FonaModuleManager_Process();
     
     // W-Link Command Manager
     if (GL_GlobalConfig_X.WCmdConfig_X.Medium_E != WLINK_WCMD_MEDIUM_NONE)      WCommandInterpreter_Process();

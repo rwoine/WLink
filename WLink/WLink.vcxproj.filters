@@ -204,6 +204,9 @@
     <ClInclude Include="SerialManager.h">
       <Filter>Source Files\Serial</Filter>
     </ClInclude>
+    <ClInclude Include="FonaModuleManager.h">
+      <Filter>Source Files\Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -307,6 +310,9 @@
     </ClCompile>
     <ClCompile Include="SerialManager.cpp">
       <Filter>Source Files\Serial</Filter>
+    </ClCompile>
+    <ClCompile Include="FonaModuleManager.cpp">
+      <Filter>Source Files\Network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
