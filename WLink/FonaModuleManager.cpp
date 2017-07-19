@@ -23,9 +23,10 @@
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define FONA_MODULE_MANAGER_WAIT_REACTION_DELAY_MS      500
+#define FONA_MODULE_MANAGER_WAIT_REACTION_DELAY_MS      2000
 #define FONA_MODULE_MANAGER_POWER_PULSE_LENGTH_MS       2000
 #define FONA_MODULE_MANAGER_RESET_PULSE_LENGTH_MS       100
+#define FONA_MODULE_MANAGER_RSSI_POLLING_INTERVAL_MS    5000
 
 
 /* ******************************************************************************** */
@@ -37,6 +38,8 @@ enum FONA_MODULE_MANAGER_STATE {
     FONA_MODULE_MANAGER_APPLY_POWER_PULSE,
     FONA_MODULE_MANAGER_APPLY_RESET_PULSE,
     FONA_MODULE_MANAGER_CHECK_POWER_PIN,
+    FONA_MODULE_MANAGER_BEGIN,
+    FONA_MODULE_MANAGER_UNLOCK_SIM,
     FONA_MODULE_MANAGER_RUNNING,
     FONA_MODULE_MANAGER_ERROR
 };
@@ -45,6 +48,8 @@ static FONA_MODULE_MANAGER_STATE GL_FonaModuleManager_CurrentState_E = FONA_MODU
 static FONA_MODULE_MANAGER_STATE GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_IDLE;
 
 static FonaModule * GL_pFona_H;
+static signed int GL_FonaModuleManagerRssi_SI = 0;
+static signed int GL_FonaModuleManagerRssiOld_SI = 0;
 
 static unsigned long GL_FonaManagerPowerSequenceNb_UL = 0;
 static unsigned long GL_FonaAbsoluteTime_UL = 0;
@@ -59,6 +64,8 @@ static void ProcessWaitReaction(void);
 static void ProcessApplyPowerPulse(void);
 static void ProcessApplyResetPulse(void);
 static void ProcessCheckPowerPin(void);
+static void ProcessBegin(void);
+static void ProcessUnlockSim(void);
 static void ProcessRunning(void);
 static void ProcessError(void);
 
@@ -67,6 +74,8 @@ static void TransitionToWaitReaction(void);
 static void TransitionToApplyPowerPulse(void);
 static void TransitionToApplyResetPulse(void);
 static void TransitionToCheckPowerPin(void);
+static void TransitionToBegin(void);
+static void TransitionToUnlockSim(void);
 static void TransitionToRunning(void);
 static void TransitionToError(void);
 
@@ -117,6 +126,14 @@ void FonaModuleManager_Process() {
         ProcessCheckPowerPin();
         break;
 
+    case FONA_MODULE_MANAGER_BEGIN:
+        ProcessBegin();
+        break;
+
+    case FONA_MODULE_MANAGER_UNLOCK_SIM:
+        ProcessUnlockSim();
+        break;
+
     case FONA_MODULE_MANAGER_RUNNING:
         ProcessRunning();
         break;
@@ -146,6 +163,8 @@ void ProcessWaitReaction(void) {
         case FONA_MODULE_MANAGER_APPLY_POWER_PULSE: TransitionToApplyPowerPulse();  break;
         case FONA_MODULE_MANAGER_APPLY_RESET_PULSE: TransitionToApplyResetPulse();  break;
         case FONA_MODULE_MANAGER_CHECK_POWER_PIN:   TransitionToCheckPowerPin();    break;
+        case FONA_MODULE_MANAGER_BEGIN:             TransitionToBegin();            break;
+        case FONA_MODULE_MANAGER_UNLOCK_SIM:        TransitionToUnlockSim();        break;
         case FONA_MODULE_MANAGER_RUNNING:           TransitionToRunning();          break;
         default:                                    TransitionToIdle();             break;
         }
@@ -163,7 +182,7 @@ void ProcessApplyPowerPulse(void) {
 void ProcessApplyResetPulse(void) {
     if ((millis() - GL_FonaAbsoluteTime_UL) >= FONA_MODULE_MANAGER_RESET_PULSE_LENGTH_MS) {
         GL_pFona_H->setPinRst();    // default state for Reset pin
-        GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_RUNNING;
+        GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_BEGIN;
         TransitionToWaitReaction();
     }
 }
@@ -186,8 +205,38 @@ void ProcessCheckPowerPin(void) {
     }
 }
 
+void ProcessBegin(void) {
+    GL_pFona_H->begin();
+    GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_UNLOCK_SIM;
+    TransitionToWaitReaction();
+}
+
+void ProcessUnlockSim(void) {
+    if (GL_pFona_H->enterPinCode())
+        TransitionToRunning();
+    else
+        TransitionToError();
+}
+
 void ProcessRunning(void) {
     // Keep running
+
+    // Poll RSSI
+    if ((millis() - GL_FonaAbsoluteTime_UL) >= FONA_MODULE_MANAGER_RSSI_POLLING_INTERVAL_MS) {
+        
+        GL_FonaModuleManagerRssi_SI = GL_pFona_H->getSignalStrength();
+
+        // Print Debug only if signal strength is different
+        if (GL_FonaModuleManagerRssiOld_SI != GL_FonaModuleManagerRssi_SI) {
+            GL_FonaModuleManagerRssiOld_SI = GL_FonaModuleManagerRssi_SI;
+            DBG_PRINT(DEBUG_SEVERITY_INFO, "RSSI Value : ");
+            DBG_PRINTDATA(GL_FonaModuleManagerRssi_SI);
+            DBG_PRINTDATA("[dBm]");
+            DBG_ENDSTR();
+        }
+
+        GL_FonaAbsoluteTime_UL = millis();
+    }
 }
 
 void ProcessError(void) {
@@ -230,9 +279,19 @@ void TransitionToCheckPowerPin(void) {
     GL_FonaModuleManager_CurrentState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_CHECK_POWER_PIN;
 }
 
+void TransitionToBegin(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To BEGIN");
+    GL_FonaModuleManager_CurrentState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_BEGIN;
+}
+
+void TransitionToUnlockSim(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To UNLOCK SIM");
+    GL_FonaModuleManager_CurrentState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_UNLOCK_SIM;
+}
+
 void TransitionToRunning(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To RUNNING");
-    GL_pFona_H->begin();
+    GL_FonaAbsoluteTime_UL = millis();
     GL_FonaModuleManager_CurrentState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_RUNNING;
 }
 

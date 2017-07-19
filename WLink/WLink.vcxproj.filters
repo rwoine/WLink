@@ -67,6 +67,9 @@
     <Filter Include="Source Files\Utilities">
       <UniqueIdentifier>{c943b7cf-2fde-46bd-bc91-e3e200f247ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\WMenu">
+      <UniqueIdentifier>{17c9770d-801b-4e23-b97e-f8c7b72f00a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="WLink.ino" />
@@ -162,12 +165,6 @@
     <ClInclude Include="SerialHandler.h">
       <Filter>Source Files\Serial</Filter>
     </ClInclude>
-    <ClInclude Include="WMenuManager.h">
-      <Filter>Source Files\WManager</Filter>
-    </ClInclude>
-    <ClInclude Include="WMenuItemText.h">
-      <Filter>Source Files\WManager</Filter>
-    </ClInclude>
     <ClInclude Include="Adafruit_FONA.h">
       <Filter>Source Files\Network\ExternalLib</Filter>
     </ClInclude>
@@ -206,6 +203,12 @@
     </ClInclude>
     <ClInclude Include="FonaModuleManager.h">
       <Filter>Source Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="WMenuManager.h">
+      <Filter>Source Files\WMenu</Filter>
+    </ClInclude>
+    <ClInclude Include="WMenuItemText.h">
+      <Filter>Source Files\WMenu</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -287,9 +290,6 @@
     <ClCompile Include="SerialHandler.cpp">
       <Filter>Source Files\Serial</Filter>
     </ClCompile>
-    <ClCompile Include="WMenuManager.cpp">
-      <Filter>Source Files\WManager</Filter>
-    </ClCompile>
     <ClCompile Include="Adafruit_FONA.cpp">
       <Filter>Source Files\Network\ExternalLib</Filter>
     </ClCompile>
@@ -313,6 +313,9 @@
     </ClCompile>
     <ClCompile Include="FonaModuleManager.cpp">
       <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="WMenuManager.cpp">
+      <Filter>Source Files\WMenu</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

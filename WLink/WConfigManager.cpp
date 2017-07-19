@@ -873,7 +873,8 @@ WCFG_STATUS WConfigManager_Process() {
             DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "NOT YET IMPLEMENTED..");
             DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Configure FONA Module: FIXED CONFIG for now");
 
-            GL_GlobalData_X.Fona_H.init(GetSerialHandle(PORT_COM3), 4800, PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1, PIN_GPIO_INPUT0);
+            char pPinCode[] = {'5', '3', '7', '7', 0};
+            GL_GlobalData_X.Fona_H.init(GetSerialHandle(PORT_COM3), 4800, false, PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1, PIN_GPIO_INPUT0, pPinCode, 0);
             FonaModuleManager_Init(&(GL_GlobalData_X.Fona_H));
             FonaModuleManager_Enable();
             GL_GlobalConfig_X.GsmConfig_X.isEnabled_B = true;

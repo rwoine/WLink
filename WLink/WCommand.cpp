@@ -515,7 +515,7 @@ WCMD_FCT_STS WCmdProcess_TestCommand(const unsigned char * pParam_UB, unsigned l
 
 	/* --> Start of Test Code Section */
 
-
+    GL_GlobalData_X.Fona_H.disabeGprs();
 
 	/* <-- End of Test Code Section */
 

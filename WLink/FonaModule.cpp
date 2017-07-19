@@ -40,11 +40,7 @@ FonaModule::FonaModule() {
 /* ******************************************************************************** */
 /* Functions
 /* ******************************************************************************** */
-void FonaModule::init(HardwareSerial * pSerial_H, boolean Begin_B, unsigned char PinRst_UB, unsigned char PinKey_UB, unsigned char PinPower_UB) {
-    init(pSerial_H, FONA_MODULE_DEFAULT_BAUDRATE, Begin_B, PinRst_UB, PinKey_UB, PinPower_UB);
-}
-
-void FonaModule::init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL, boolean Begin_B, unsigned char PinRst_UB, unsigned char PinKey_UB, unsigned char PinPower_UB) {
+void FonaModule::init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL, boolean Begin_B, unsigned char PinRst_UB, unsigned char PinKey_UB, unsigned char PinPower_UB, char * pPinCode_UB, unsigned long ApnIdx_UL) {
     GL_pFonaSerial_H = pSerial_H;
     if (Begin_B) GL_pFonaSerial_H->begin(BaudRate_UL);
 
@@ -67,6 +63,13 @@ void FonaModule::init(HardwareSerial * pSerial_H, unsigned long BaudRate_UL, boo
 
     GL_FonaModuleParam_X.PinPower_UB = PinPower_UB;
     pinMode(GL_FonaModuleParam_X.PinPower_UB, INPUT);   // Low = OFF - High = ON
+
+    GL_FonaModuleParam_X.ApnIndex_UL = ApnIdx_UL;
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Network Access Point Name (APN) is : ");
+    DBG_PRINTDATA(GL_pFonaModuleApn_Str[GL_FonaModuleParam_X.ApnIndex_UL]);
+    DBG_ENDSTR();
+
+    memccpy(GL_FonaModuleParam_X.pPinCode_UB, pPinCode_UB, NULL, 5);
 
     GL_FonaModuleParam_X.IsInitialized_B = true;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "FONA Module Initialized");
@@ -119,6 +122,25 @@ void FonaModule::sendAtCommand(char * pData_UB) {
 
 void FonaModule::sendAtCommand(String Data_Str) {
     sendAtCommand(Data_Str.c_str());
+}
+
+void FonaModule::sendAtCommand(char * pData_UB, char * pSuffix_UB) {
+    flush();
+    delay(5);
+    GL_pFonaSerial_H->print(pData_UB);
+    GL_pFonaSerial_H->println(pSuffix_UB);
+}
+
+void FonaModule::sendAtCommand(char * pData_UB, String Suffix_Str) {
+    sendAtCommand(pData_UB, Suffix_Str.c_str());
+}
+
+void FonaModule::sendAtCommand(String Data_Str, String Suffix_Str) {
+    sendAtCommand(Data_Str.c_str(), Suffix_Str.c_str());
+}
+
+void FonaModule::sendAtCommand(String Data_Str, char * pSuffix_UB) {
+    sendAtCommand(Data_Str.c_str(), pSuffix_UB);
 }
 
 
@@ -315,5 +337,142 @@ void FonaModule::begin(void) {
             DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "FONA module not ready -> reset needed");
         }
     }
+
+}
+
+boolean FonaModule::enterPinCode(char * pPinCode_UB) {
+
+    boolean Status_B = false;
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get PIN requirement");
+    sendAtCommand("AT+CPIN?");
+
+    readLine(true); // Should reply requirement
+    
+    if (checkAtResponse("+CPIN: READY")) {
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "PIN code not requested");
+
+    }
+    else if (checkAtResponse("+CPIN: SIM PIN")) {
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "PIN code requested > Send PIN ****");
+
+        sendAtCommand("AT+CPIN=", pPinCode_UB);
+        readLine();
+        if (checkAtResponse("OK")) {
+            Status_B = true;
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "PIN code entered > SIM card unlocked");
+        }
+        else {
+            Status_B = false;
+            DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Wrong PIN > SIM card still locked");
+        }
+    }
+    else {
+
+        DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Problem with PIN > Card should be unlocked by other means..");
+
+    }
+
+    return Status_B;
+}
+
+boolean FonaModule::enterPinCode(String PinCode_Str) {
+    enterPinCode(PinCode_Str.c_str());
+}
+
+boolean FonaModule::enterPinCode(void) {
+    enterPinCode(GL_FonaModuleParam_X.pPinCode_UB);
+}
+
+signed int FonaModule::getSignalStrength(void) {
+
+    char pCharValue_UB[4] = { 0 };
+    int RawValue_SI = 0;
+    int DbmValue_SI = 0;
+
+    //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Received Signal Strength Indication (RSSI)");
+    //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Value from -155[dBm] to -52[dBm]");
+    sendAtCommand("AT+CSQ");
+    readLine();
+
+    // Response should be : +CSQ: rssi,ber
+    //              index = 0123456789
+    for (int i = 0; i < 4; i++) {
+        if (GL_pReceiveBuffer_UB[6 + i] == ',') {
+            // End of RSSI value
+            pCharValue_UB[i] = 0;   // NULL termination
+            break;
+        }
+        else {
+            pCharValue_UB[i] = GL_pReceiveBuffer_UB[6 + i];
+        }    
+    }
+
+    RawValue_SI = atoi(pCharValue_UB);
+    //DBG_PRINT(DEBUG_SEVERITY_INFO, "Raw value given by FONA module : ");
+    //DBG_PRINTDATA(RawValue_SI);
+    //DBG_ENDSTR();
+
+    if (RawValue_SI == 0) {
+        DbmValue_SI = -115;
+    }
+    else if (RawValue_SI == 1) {
+        DbmValue_SI = -111;
+    }
+    else if ((RawValue_SI >= 2) && (RawValue_SI <= 30)) {
+        DbmValue_SI = (RawValue_SI << 1) - 114;
+    }
+    else if (RawValue_SI == 31) {
+        DbmValue_SI = -52;
+    }
+    else {
+        DbmValue_SI = 0;    // Error
+    }
+
+    //DBG_PRINT(DEBUG_SEVERITY_INFO, "RSSI Value : ");
+    //DBG_PRINTDATA(DbmValue_SI);
+    //DBG_PRINTDATA("[dBm]");
+    //DBG_ENDSTR();
+
+    return DbmValue_SI;
+}
+
+
+boolean FonaModule::enableGprs(void) {
+    return false;
+}
+
+boolean FonaModule::disabeGprs(void) {
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Disconnect all Sockets");
+
+    sendAtCommand("AT+CIPSHUT");
+    delay(20000);
+    readLine(true);
+    if (!checkAtResponse("SHUT OK"))
+        return false;
+
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Deactivate Bearer Proile");
+
+    sendAtCommand("AT+SAPBR=0,1");
+    delay(10000);
+    readLine(true);
+    if (!checkAtResponse("OK"))
+        return false;
+
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Detatch from GPRS Network");
+
+    sendAtCommand("AT+CGATT=0");
+    delay(10000);
+    readLine(true);
+    if (!checkAtResponse("OK"))
+        return false;
+
+
+    return true;
 
 }
