@@ -114,59 +114,189 @@ void FonaModule::flush(void) {
 }
 
 
-void FonaModule::sendAtCommand(char * pData_UB) {
-    flush();
-    delay(5);
-    GL_pFonaSerial_H->println(pData_UB);
-}
-
-void FonaModule::sendAtCommand(String Data_Str) {
-    sendAtCommand(Data_Str.c_str());
-}
-
-void FonaModule::sendAtCommand(char * pData_UB, char * pSuffix_UB) {
+void FonaModule::sendAtCommand(char * pData_UB, boolean Completed_B) {
     flush();
     delay(5);
     GL_pFonaSerial_H->print(pData_UB);
-    GL_pFonaSerial_H->println(pSuffix_UB);
+
+    if (Completed_B)
+        GL_pFonaSerial_H->println();
 }
 
-void FonaModule::sendAtCommand(char * pData_UB, String Suffix_Str) {
-    sendAtCommand(pData_UB, Suffix_Str.c_str());
+void FonaModule::sendAtCommand(String Data_Str, boolean Completed_B) {
+    flush();
+    delay(5);
+    GL_pFonaSerial_H->print(Data_Str);
+
+    if (Completed_B)
+        GL_pFonaSerial_H->println();
 }
 
-void FonaModule::sendAtCommand(String Data_Str, String Suffix_Str) {
-    sendAtCommand(Data_Str.c_str(), Suffix_Str.c_str());
+void FonaModule::sendAtCommand(char * pData_UB, char * pSuffix_UB, boolean Quoted_B, boolean Completed_B) {
+    flush();
+    delay(5);
+    GL_pFonaSerial_H->print(pData_UB);
+
+    if (!Quoted_B) {
+        GL_pFonaSerial_H->print(pSuffix_UB);
+    }
+    else {
+        GL_pFonaSerial_H->print('"');
+        GL_pFonaSerial_H->print(pSuffix_UB);
+        GL_pFonaSerial_H->print('"');
+    }
+
+    if (Completed_B)
+        GL_pFonaSerial_H->println();
 }
 
-void FonaModule::sendAtCommand(String Data_Str, char * pSuffix_UB) {
-    sendAtCommand(Data_Str.c_str(), pSuffix_UB);
+void FonaModule::sendAtCommand(char * pData_UB, String Suffix_Str, boolean Quoted_B, boolean Completed_B) {
+    flush();
+    delay(5);
+    GL_pFonaSerial_H->print(pData_UB);
+
+    if (!Quoted_B) {
+        GL_pFonaSerial_H->print(Suffix_Str);
+    }
+    else {
+        GL_pFonaSerial_H->print('"');
+        GL_pFonaSerial_H->print(Suffix_Str);
+        GL_pFonaSerial_H->print('"');
+    }
+
+    if (Completed_B)
+        GL_pFonaSerial_H->println();
+}
+
+void FonaModule::sendAtCommand(String Data_Str, String Suffix_Str, boolean Quoted_B, boolean Completed_B) {
+    flush();
+    delay(5);
+    GL_pFonaSerial_H->print(Data_Str);    
+    
+    if (!Quoted_B) {
+        GL_pFonaSerial_H->print(Suffix_Str);
+    }
+    else {
+        GL_pFonaSerial_H->print('"');
+        GL_pFonaSerial_H->print(Suffix_Str);
+        GL_pFonaSerial_H->print('"');
+    }
+
+    if (Completed_B)
+        GL_pFonaSerial_H->println();
+}
+
+void FonaModule::sendAtCommand(String Data_Str, char * pSuffix_UB, boolean Quoted_B, boolean Completed_B) {
+    flush();
+    delay(5);
+    GL_pFonaSerial_H->print(Data_Str);
+
+    if (!Quoted_B) {
+        GL_pFonaSerial_H->print(pSuffix_UB);
+    }
+    else {
+        GL_pFonaSerial_H->print('"');
+        GL_pFonaSerial_H->print(pSuffix_UB);
+        GL_pFonaSerial_H->print('"');
+    }
+
+    if (Completed_B)
+        GL_pFonaSerial_H->println();
+}
+
+void FonaModule::addAtData(int Data_SI, boolean Quoted_B, boolean Completed_B) {
+    if (!Quoted_B) {
+        GL_pFonaSerial_H->print(Data_SI);
+    }
+    else {
+        GL_pFonaSerial_H->print('"');
+        GL_pFonaSerial_H->print(Data_SI);
+        GL_pFonaSerial_H->print('"');
+    }
+
+    if (Completed_B)
+        GL_pFonaSerial_H->println();
+}
+
+void FonaModule::addAtData(char Data_UB, boolean Quoted_B, boolean Completed_B) {
+    if (!Quoted_B) {
+        GL_pFonaSerial_H->print(Data_UB);
+    }
+    else {
+        GL_pFonaSerial_H->print('"');
+        GL_pFonaSerial_H->print(Data_UB);
+        GL_pFonaSerial_H->print('"');
+    }
+
+    if (Completed_B)
+        GL_pFonaSerial_H->println();
+}
+
+void FonaModule::addAtData(char * pData_UB, boolean Quoted_B, boolean Completed_B) {
+    if (!Quoted_B) {
+        GL_pFonaSerial_H->print(pData_UB);
+    }
+    else {
+        GL_pFonaSerial_H->print('"');
+        GL_pFonaSerial_H->print(pData_UB);
+        GL_pFonaSerial_H->print('"');
+    }
+
+    if (Completed_B)
+        GL_pFonaSerial_H->println();
+}
+
+void FonaModule::addAtData(String Data_Str, boolean Quoted_B, boolean Completed_B) {
+    if (!Quoted_B) {
+        GL_pFonaSerial_H->print(Data_Str);
+    }
+    else {
+        GL_pFonaSerial_H->print('"');
+        GL_pFonaSerial_H->print(Data_Str);
+        GL_pFonaSerial_H->print('"');
+    }
+
+    if (Completed_B)
+        GL_pFonaSerial_H->println();
 }
 
 
-unsigned long FonaModule::readLine(boolean DebugPrint_B) {
-
-    delay(500);
+unsigned long FonaModule::readLine(boolean DebugPrint_B, unsigned long TimeoutMs_UL) {
 
     char c;
     unsigned long Index_UL = 0;
 
-    while (GL_pFonaSerial_H->available()) {
+    while (TimeoutMs_UL--) {
 
-        c = GL_pFonaSerial_H->read();
+        // Check for Data in Serial Buffer
+        while (GL_pFonaSerial_H->available()) {
 
-        if (c == 0x0D)
-            continue;
+            c = GL_pFonaSerial_H->read();
 
-        if (c == 0x0A) {
-            if (Index_UL == 0)
-                continue;   // Ignore first 0x0A
-            else
-                break;      // Break on 0x0A - Assume end of response
+            if (c == 0x0D)
+                continue;
+
+            if (c == 0x0A) {
+                if (Index_UL == 0)
+                    continue;           // Ignore first 0x0A
+                else {
+                    TimeoutMs_UL = 0;   // Reset timeout value to leave 1st while loop
+                    break;              // Break on 0x0A - Assume end of response
+                }
+            }
+
+            GL_pReceiveBuffer_UB[Index_UL++] = c;
+            delay(1);
         }
 
-        GL_pReceiveBuffer_UB[Index_UL++] = c;
         delay(1);
+        
+        if (TimeoutMs_UL == 0) {
+            if (Index_UL == 0)
+                DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Timeout while waiting for reply!");
+            break;
+        }
+
     }
 
     GL_pReceiveBuffer_UB[Index_UL] = 0; // NULL termination
@@ -189,6 +319,34 @@ boolean FonaModule::checkAtResponse(char * pData_UB) {
 
 boolean FonaModule::checkAtResponse(String Data_Str) {
     return checkAtResponse(Data_Str.c_str());
+}
+
+
+boolean FonaModule::parseResponse(char * pBuffer_UB, char * pPrefix_UB, int * pValue_SI, char Token_UB, unsigned int Index_UI) {
+
+    char * p = strstr(pBuffer_UB, pPrefix_UB);  // Get pointer to the Prefix
+
+    if (p == 0)
+        return false;
+
+    p += strlen(pPrefix_UB);    // Move pointer after the Prefix
+
+    // Get pointer to the right index, regarding the token
+    for (int i = 0; i < Index_UI; i++) {
+
+        p = strchr(p, Token_UB);    // get pointer to token
+        if (!p) return false;       // return if no more token
+        p++;                        // get char right after token
+    }
+
+    // Convert char array to int
+    *pValue_SI = atoi(p);
+
+    return true;
+}
+
+boolean FonaModule::parseResponse(char * pBuffer_UB, String Prefix_Str, int * pValue_SI, char Token_UB, unsigned int Index_UI) {
+    return parseResponse(pBuffer_UB, Prefix_Str.c_str(), pValue_SI, Token_UB, Index_UI);
 }
 
 
@@ -440,8 +598,82 @@ signed int FonaModule::getSignalStrength(void) {
 }
 
 
+unsigned int FonaModule::getBatteryLevel(void) {
+
+    int Level_SI = 0;
+
+    //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Battery remaining Capacity");
+    sendAtCommand("AT+CBC");
+    readLine();
+
+    // Response should be : +CBC: 0,64,3916
+
+    if (!parseResponse(GL_pReceiveBuffer_UB, "+CBC: ", &Level_SI, ',', 1))
+        return 0;
+
+    return Level_SI;
+}
+
+
 boolean FonaModule::enableGprs(void) {
-    return false;
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Disconnect all Sockets");
+
+    sendAtCommand("AT+CIPSHUT");
+    readLine(true, 20000);
+    if (!checkAtResponse("SHUT OK"))
+        return false;
+
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Attach to GPRS Service");
+
+    sendAtCommand("AT+CGATT=1");    // 1 = Attach
+    readLine(true, 10000);
+    if (!checkAtResponse("OK"))
+        return false;
+
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configure Bearer Profile - Type GPRS");
+
+    sendAtCommand("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"");  // 3 = Configure Bearer, 1 = Bearer Profile Identifier, Set Connection Type to GPRS
+    readLine(true, 10000);
+    if (!checkAtResponse("OK"))
+        return false;
+
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configure Bearer Profile - APN");
+
+    sendAtCommand("AT+SAPBR=3,1,\"APN\",", GL_pFonaModuleApn_Str[GL_FonaModuleParam_X.ApnIndex_UL], true);  // 3 = Configure Bearer, 1 = Bearer Profile Identifier, Set APN
+    readLine(true, 10000);
+    if (!checkAtResponse("OK"))
+        return false;
+
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Start Task and Set APN");
+
+    sendAtCommand("AT+CSTT=", GL_pFonaModuleApn_Str[GL_FonaModuleParam_X.ApnIndex_UL], true);     // Start Task with configured APN 
+    readLine(true, 10000);
+    if (!checkAtResponse("OK"))
+        return false;
+
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Open Bearer Profile");
+
+    sendAtCommand("AT+SAPBR=1,1");  // 1 = Open Bearer, 1 = Bearer Profile Identifier
+    readLine(true, 30000);
+    if (!checkAtResponse("OK"))
+        return false;
+
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Bring Up Wireless Connection with GPRS");
+
+    sendAtCommand("AT+CIICR"); 
+    readLine(true, 10000);
+    if (!checkAtResponse("OK"))
+        return false;
+
+
+    return true;
 }
 
 boolean FonaModule::disabeGprs(void) {
@@ -449,30 +681,107 @@ boolean FonaModule::disabeGprs(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Disconnect all Sockets");
 
     sendAtCommand("AT+CIPSHUT");
-    delay(20000);
-    readLine(true);
+    readLine(true, 20000);
     if (!checkAtResponse("SHUT OK"))
         return false;
 
 
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Deactivate Bearer Proile");
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Deactivate Bearer Profile");
 
-    sendAtCommand("AT+SAPBR=0,1");
-    delay(10000);
-    readLine(true);
+    sendAtCommand("AT+SAPBR=0,1");  // 0 = Close Bearer, 1 = Bearer Profile Identifier
+    readLine(true, 10000);
     if (!checkAtResponse("OK"))
         return false;
 
 
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Detatch from GPRS Network");
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Detatch from GPRS Service");
 
-    sendAtCommand("AT+CGATT=0");
-    delay(10000);
-    readLine(true);
+    sendAtCommand("AT+CGATT=0");    // 0 = Detach
+    readLine(true, 10000);
     if (!checkAtResponse("OK"))
         return false;
 
 
     return true;
 
+}
+
+boolean FonaModule::isGprsEnabled(void) {
+
+    //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get GPRS Service State");
+    sendAtCommand("AT+CGATT?");
+    readLine();
+
+    // Response should be : +CGATT: state
+    //              index = 012345678
+
+    if (GL_pReceiveBuffer_UB[8] == '1')
+        return true;
+    else
+        return false;
+}
+
+
+boolean FonaModule::httpInit(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize HTTP Service");
+    sendAtCommand("AT+HTTPINIT");
+    readLine(true);
+    return checkAtResponse("OK");
+}
+
+boolean FonaModule::httpTerm(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Terminate HTTP Service");
+    sendAtCommand("AT+HTTPTERM");
+    readLine(true);
+    return checkAtResponse("OK");
+}
+
+
+boolean FonaModule::httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, int Value_SI) {
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Set HTTP Parameters Value (int) : ");
+    DBG_PRINTDATA(GL_pFonaModuleHttpParam_Str[Param_E]);
+    DBG_PRINTDATA(",");
+    DBG_PRINTDATA(Value_SI);
+    DBG_ENDSTR();
+
+    sendAtCommand("AT+HTTPPARA=", GL_pFonaModuleHttpParam_Str[Param_E], true, false);   // Quoted Param Identifier
+    addAtData(",", false, false);
+    addAtData(Value_SI, false, true);  // Non-Quoted Value of Param
+    readLine(true);
+    return checkAtResponse("OK");
+}
+
+boolean FonaModule::httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, char * pParamValue_UB) {
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Set HTTP Parameters Value (char array) : ");
+    DBG_PRINTDATA(GL_pFonaModuleHttpParam_Str[Param_E]);
+    DBG_PRINTDATA(",");
+    DBG_PRINTDATA(pParamValue_UB);
+    DBG_ENDSTR();
+
+    sendAtCommand("AT+HTTPPARA=", GL_pFonaModuleHttpParam_Str[Param_E], true, false);   // Quoted Param Identifier
+    addAtData(",", false, false);
+    addAtData(pParamValue_UB, true, true);  // Quoted Value of Param
+    readLine(true);
+    return checkAtResponse("OK");
+}
+
+boolean FonaModule::httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, String ParamValue_Str) {
+    return httpParam(Param_E, ParamValue_Str.c_str());
+}
+
+boolean FonaModule::httpAction(FONA_MODULE_HTTP_ACTION_ENUM Action_E) {
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Set HTTP Mehod Action : ");
+    DBG_PRINTDATA(GL_pFonaModuleHttpAction_Str[Action_E]);
+    DBG_ENDSTR();
+
+    sendAtCommand("AT+HTTPACTION=0", (boolean)true);
+    //addAtData(",", false, false);
+    //addAtData(0, false, true);  // Non-Quoted Value of Param
+
+    readLine(true);
+    if (!checkAtResponse("OK"))
+        return false;
+
+    readLine(true, 30000);
+    return checkAtResponse("OK");
 }

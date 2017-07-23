@@ -515,7 +515,24 @@ WCMD_FCT_STS WCmdProcess_TestCommand(const unsigned char * pParam_UB, unsigned l
 
 	/* --> Start of Test Code Section */
 
-    GL_GlobalData_X.Fona_H.disabeGprs();
+
+    if (pParam_UB[0] == 0x00)
+        GL_GlobalData_X.Fona_H.disabeGprs();
+    else if (pParam_UB[0] == 0x01)
+        GL_GlobalData_X.Fona_H.enableGprs();
+    else if (pParam_UB[0] == 0x02) {
+        GL_GlobalData_X.Fona_H.enableGprs();
+        delay(2000);
+        GL_GlobalData_X.Fona_H.httpInit();
+        delay(2000);
+        GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_CID, 1);
+        GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_UA, "WLINK");
+        GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_URL, "http://www.adafruit.com/testwifi/index.html");
+        GL_GlobalData_X.Fona_H.httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET);
+        delay(2000);
+        GL_GlobalData_X.Fona_H.httpTerm();
+    }
+
 
 	/* <-- End of Test Code Section */
 

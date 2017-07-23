@@ -48,8 +48,12 @@ static FONA_MODULE_MANAGER_STATE GL_FonaModuleManager_CurrentState_E = FONA_MODU
 static FONA_MODULE_MANAGER_STATE GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_IDLE;
 
 static FonaModule * GL_pFona_H;
+static boolean GL_FonaModuleManagerToggle_B = false;
 static signed int GL_FonaModuleManagerRssi_SI = 0;
 static signed int GL_FonaModuleManagerRssiOld_SI = 0;
+static boolean GL_FonaModuleManagerGprsState_B = false;
+static boolean GL_FonaModuleManagerGprsStateOld_B = false;
+static unsigned int GL_FonaModuleManagerBatteryLeve_UI = 0;
 
 static unsigned long GL_FonaManagerPowerSequenceNb_UL = 0;
 static unsigned long GL_FonaAbsoluteTime_UL = 0;
@@ -234,6 +238,31 @@ void ProcessRunning(void) {
             DBG_PRINTDATA("[dBm]");
             DBG_ENDSTR();
         }
+
+
+        GL_FonaModuleManagerGprsState_B = GL_pFona_H->isGprsEnabled();
+
+        // Print Debug only if GPRS state has changed
+        if (GL_FonaModuleManagerGprsStateOld_B != GL_FonaModuleManagerGprsState_B) {
+            GL_FonaModuleManagerGprsStateOld_B = GL_FonaModuleManagerGprsState_B;
+            if (GL_FonaModuleManagerGprsState_B)
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "GPRS Enabled");
+            else
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "GPRS Disabled");
+        }
+
+        if (GL_FonaModuleManagerToggle_B) {
+            GL_FonaModuleManagerToggle_B = false;
+            GL_FonaModuleManagerBatteryLeve_UI = GL_pFona_H->getBatteryLevel();
+            DBG_PRINT(DEBUG_SEVERITY_INFO, "Battery Capacity : ");
+            DBG_PRINTDATA(GL_FonaModuleManagerBatteryLeve_UI);
+            DBG_PRINTDATA("[%]");
+            DBG_ENDSTR();
+        }
+        else {
+            GL_FonaModuleManagerToggle_B = true;
+        }
+
 
         GL_FonaAbsoluteTime_UL = millis();
     }
