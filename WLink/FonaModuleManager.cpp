@@ -54,6 +54,7 @@ static signed int GL_FonaModuleManagerRssiOld_SI = 0;
 static boolean GL_FonaModuleManagerGprsState_B = false;
 static boolean GL_FonaModuleManagerGprsStateOld_B = false;
 static unsigned int GL_FonaModuleManagerBatteryLeve_UI = 0;
+static int GL_NetworkStatus_SI = 0;
 
 static unsigned long GL_FonaManagerPowerSequenceNb_UL = 0;
 static unsigned long GL_FonaAbsoluteTime_UL = 0;
@@ -261,7 +262,9 @@ void ProcessRunning(void) {
         }
         else {
             GL_FonaModuleManagerToggle_B = true;
+            GL_pFona_H->getNetworkStatus(&GL_NetworkStatus_SI);
         }
+
 
 
         GL_FonaAbsoluteTime_UL = millis();

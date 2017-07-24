@@ -49,14 +49,16 @@ typedef enum {
     FONA_MODULE_HTTP_PARAM_URL,
     FONA_MODULE_HTTP_PARAM_UA,
     FONA_MODULE_HTTP_PARAM_CONTENT,
-    FONA_MODULE_HTTP_PARAM_USERDATA
+    FONA_MODULE_HTTP_PARAM_USERDATA,
+    FONA_MODULE_HTTP_PARAM_REDIR
 } FONA_MODULE_HTTP_PARAM_ENUM;
 
 const String GL_pFonaModuleHttpParam_Str[] = {  "CID",
                                                 "URL",
                                                 "UA",
                                                 "CONTENT",
-                                                "USERDATA"
+                                                "USERDATA",
+                                                "REDIR"
                                                 };
 
 typedef enum {
@@ -69,6 +71,14 @@ const String GL_pFonaModuleHttpAction_Str[] = { "GET",
                                                 "POST",
                                                 "HEAD"
                                                 };
+
+const String GL_pFonaModuleNetworkStatus_Str[] = {  "Not registered",
+                                                    "Registered (home)",
+                                                    "Not registered (searching)",
+                                                    "Denied",
+                                                    "Unknown",
+                                                    "Registered roaming"
+                                                    };
 
 
 /* ******************************************************************************** */
@@ -122,6 +132,7 @@ public:
     boolean enableGprs(void);
     boolean disabeGprs(void);
     boolean isGprsEnabled(void);
+    boolean getNetworkStatus(int * pStatus_SI);
 
     boolean httpInit(void);
     boolean httpTerm(void);
@@ -129,6 +140,7 @@ public:
     boolean httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, char * pParamValue_UB);
     boolean httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, String ParamValue_Str);
     boolean httpAction(FONA_MODULE_HTTP_ACTION_ENUM Action_E);
+    boolean httpRead(unsigned long DataLength_UL);
 
 
     FONA_MODULE_PARAM GL_FonaModuleParam_X;

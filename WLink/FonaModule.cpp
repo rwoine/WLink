@@ -665,6 +665,15 @@ boolean FonaModule::enableGprs(void) {
         return false;
 
 
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Check Bearer Status");
+
+    sendAtCommand("AT+SAPBR=2,1");  // 1 = Open Bearer, 1 = Bearer Profile Identifier
+    readLine(true, 30000);          // Should reply information
+    readLine(true);
+    if (!checkAtResponse("OK"))
+        return false;
+
+
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Bring Up Wireless Connection with GPRS");
 
     sendAtCommand("AT+CIICR"); 
@@ -721,6 +730,22 @@ boolean FonaModule::isGprsEnabled(void) {
         return false;
 }
 
+boolean FonaModule::getNetworkStatus(int * pStatus_SI) {
+
+    //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Network Status");
+    sendAtCommand("AT+CREG?");
+    readLine();
+
+    if (!parseResponse(GL_pReceiveBuffer_UB, "+CREG: ", pStatus_SI, ',', 1))
+        return false;
+
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Network Status = ");
+    DBG_PRINTDATA(GL_pFonaModuleNetworkStatus_Str[*pStatus_SI]);
+    DBG_ENDSTR();
+
+    return true;
+}
+
 
 boolean FonaModule::httpInit(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize HTTP Service");
@@ -770,6 +795,10 @@ boolean FonaModule::httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, String ParamV
 }
 
 boolean FonaModule::httpAction(FONA_MODULE_HTTP_ACTION_ENUM Action_E) {
+
+    int ServerResponse_SI = 0;
+    int ServerDataSize_SI = 0;
+
     DBG_PRINT(DEBUG_SEVERITY_INFO, "Set HTTP Mehod Action : ");
     DBG_PRINTDATA(GL_pFonaModuleHttpAction_Str[Action_E]);
     DBG_ENDSTR();
@@ -778,10 +807,41 @@ boolean FonaModule::httpAction(FONA_MODULE_HTTP_ACTION_ENUM Action_E) {
     //addAtData(",", false, false);
     //addAtData(0, false, true);  // Non-Quoted Value of Param
 
-    readLine(true);
+
+    readLine(true, 10000);
     if (!checkAtResponse("OK"))
         return false;
 
-    readLine(true, 30000);
-    return checkAtResponse("OK");
+
+    readLine(true, 30000); // Should reply +HTTPACTION: 0,302,14
+    if (!parseResponse(GL_pReceiveBuffer_UB, "+HTTPACTION: ", &ServerResponse_SI, ',', 1))
+        return false;
+    if (!parseResponse(GL_pReceiveBuffer_UB, "+HTTPACTION: ", &ServerDataSize_SI, ',', 2))
+        return false;
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Print out Server information : ");
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "- Response = ");
+    DBG_PRINTDATA(ServerResponse_SI);
+    DBG_ENDSTR();
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "- Data Size = ");
+    DBG_PRINTDATA(ServerDataSize_SI);
+    DBG_ENDSTR();
+
+    return true;
+}
+
+boolean FonaModule::httpRead(unsigned long DataLength_UL) {
+
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Read the HTTP Server Response : ");
+    DBG_PRINTDATA(DataLength_UL);
+    DBG_PRINTDATA("[bytes]");
+    DBG_ENDSTR();
+
+    sendAtCommand("AT+HTTPREAD", (boolean)true);
+
+    readLine(true);
+    readLine(true);
+    readLine(true);
+
+    return true;
 }
