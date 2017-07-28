@@ -786,6 +786,7 @@ boolean FonaModule::httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, char * pParam
     sendAtCommand("AT+HTTPPARA=", GL_pFonaModuleHttpParam_Str[Param_E], true, false);   // Quoted Param Identifier
     addAtData(",", false, false);
     addAtData(pParamValue_UB, true, true);  // Quoted Value of Param
+
     readLine(true);
     return checkAtResponse("OK");
 }
@@ -794,18 +795,14 @@ boolean FonaModule::httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, String ParamV
     return httpParam(Param_E, ParamValue_Str.c_str());
 }
 
-boolean FonaModule::httpAction(FONA_MODULE_HTTP_ACTION_ENUM Action_E) {
-
-    int ServerResponse_SI = 0;
-    int ServerDataSize_SI = 0;
+boolean FonaModule::httpAction(FONA_MODULE_HTTP_ACTION_ENUM Action_E, int * pServerResponse_SI, int * pDataSize_SI) {
 
     DBG_PRINT(DEBUG_SEVERITY_INFO, "Set HTTP Mehod Action : ");
     DBG_PRINTDATA(GL_pFonaModuleHttpAction_Str[Action_E]);
     DBG_ENDSTR();
 
-    sendAtCommand("AT+HTTPACTION=0", (boolean)true);
-    //addAtData(",", false, false);
-    //addAtData(0, false, true);  // Non-Quoted Value of Param
+    sendAtCommand("AT+HTTPACTION=", (boolean)(false));
+    addAtData((int)(Action_E), false, true);            // Non-Quoted Value of Param
 
 
     readLine(true, 10000);
@@ -814,34 +811,52 @@ boolean FonaModule::httpAction(FONA_MODULE_HTTP_ACTION_ENUM Action_E) {
 
 
     readLine(true, 30000); // Should reply +HTTPACTION: 0,302,14
-    if (!parseResponse(GL_pReceiveBuffer_UB, "+HTTPACTION: ", &ServerResponse_SI, ',', 1))
+    if (!parseResponse(GL_pReceiveBuffer_UB, "+HTTPACTION: ", pServerResponse_SI, ',', 1))
         return false;
-    if (!parseResponse(GL_pReceiveBuffer_UB, "+HTTPACTION: ", &ServerDataSize_SI, ',', 2))
+    if (!parseResponse(GL_pReceiveBuffer_UB, "+HTTPACTION: ", pDataSize_SI, ',', 2))
         return false;
 
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Print out Server information : ");
     DBG_PRINT(DEBUG_SEVERITY_INFO, "- Response = ");
-    DBG_PRINTDATA(ServerResponse_SI);
+    DBG_PRINTDATA(*pServerResponse_SI);
     DBG_ENDSTR();
     DBG_PRINT(DEBUG_SEVERITY_INFO, "- Data Size = ");
-    DBG_PRINTDATA(ServerDataSize_SI);
+    DBG_PRINTDATA(*pDataSize_SI);
     DBG_ENDSTR();
 
     return true;
 }
 
-boolean FonaModule::httpRead(unsigned long DataLength_UL) {
+boolean FonaModule::httpRead(void) {
 
-    DBG_PRINT(DEBUG_SEVERITY_INFO, "Read the HTTP Server Response : ");
-    DBG_PRINTDATA(DataLength_UL);
-    DBG_PRINTDATA("[bytes]");
-    DBG_ENDSTR();
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Read the HTTP Server Response (all data present)");
 
     sendAtCommand("AT+HTTPREAD", (boolean)true);
 
-    readLine(true);
-    readLine(true);
-    readLine(true);
+    readLine(true); // Response with data length
+    readLine(true); // data
+    readLine(true); // OK
 
-    return true;
+    return checkAtResponse("OK");
+}
+
+boolean FonaModule::httpRead(unsigned long StartAddr_UL, unsigned long DataLength_UL) {
+
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Read the HTTP Server Response : ");
+    DBG_PRINTDATA(DataLength_UL);
+    DBG_PRINTDATA("[bytes], from offset : ");
+    DBG_PRINTDATA(StartAddr_UL);
+    DBG_PRINTDATA("[bytes]");
+    DBG_ENDSTR();
+
+    sendAtCommand("AT+HTTPREAD=", (boolean)(false));
+    addAtData((int)(StartAddr_UL), false, false);
+    addAtData(",", false, false);
+    addAtData((int)(DataLength_UL), false, true);
+
+    readLine(true); // Response with data length
+    readLine(true); // data
+    readLine(true); // OK
+
+    return checkAtResponse("OK");
 }

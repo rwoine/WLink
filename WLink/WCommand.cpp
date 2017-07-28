@@ -515,6 +515,9 @@ WCMD_FCT_STS WCmdProcess_TestCommand(const unsigned char * pParam_UB, unsigned l
 
 	/* --> Start of Test Code Section */
 
+    int ServerResponse_SI = 0;
+    int DataSize_SI = 0;
+
 
 
     if (pParam_UB[0] == 0x00)
@@ -535,8 +538,8 @@ WCMD_FCT_STS WCmdProcess_TestCommand(const unsigned char * pParam_UB, unsigned l
         GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_REDIR, 1);
         GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_UA, "WLINK");
         GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_URL, "http://www.m2msupport.net/m2msupport/http_get_test.php");
-        GL_GlobalData_X.Fona_H.httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET);
-        GL_GlobalData_X.Fona_H.httpRead(14);
+        GL_GlobalData_X.Fona_H.httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET, &ServerResponse_SI, &DataSize_SI);
+        GL_GlobalData_X.Fona_H.httpRead();
 
     }
     else {
@@ -551,8 +554,8 @@ WCMD_FCT_STS WCmdProcess_TestCommand(const unsigned char * pParam_UB, unsigned l
         GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_REDIR, 1);
         GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_UA, "WLINK");
         GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_URL, "http://www.balthinet.be/kipcontrol/import?data[0][Weight]=5678&data[0][BalanceSerial]=02:00:00:01:00:0C&data[0][Batch]=1234&data[0][Tolerance]=5&data[0][Age]=5&data[0][DateTime]=2017-05-23+20:35:24&submitted=1&action=validate");
-        GL_GlobalData_X.Fona_H.httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET);
-        GL_GlobalData_X.Fona_H.httpRead(14);
+        GL_GlobalData_X.Fona_H.httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET, &ServerResponse_SI, &DataSize_SI);
+        GL_GlobalData_X.Fona_H.httpRead();
         delay(2000);
         GL_GlobalData_X.Fona_H.httpTerm();
         delay(2000);
