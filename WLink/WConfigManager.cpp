@@ -58,7 +58,7 @@
 #define WCONFIG_ADDR_UDP_SERVER         0x0038
 #define WCONFIG_ADDR_TCP_CLIENT         0x003C
 #define WCONFIG_ADDR_FONA_MODULE        0x0040
-#define WCONFIG_ADDR_INDICATOR          0x0044
+#define WCONFIG_ADDR_INDICATOR          0x0050
 
 
 /* ******************************************************************************** */
@@ -67,6 +67,8 @@
 unsigned long GL_pPortComSpeedLut_UL[] = { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 };
 static const String GL_pLanguageLut_str[] = { "EN", "FR", "NL" };
 static const String GL_pWCmdMediumLut_str[] = { "None", "COM0", "COM1", "COM2", "COM3", "UDP Server", "TCP Server", "GSM Server" };
+static const int GL_pInputLut_SI[] = { PIN_GPIO_INPUT0, PIN_GPIO_INPUT1, PIN_GPIO_INPUT2, PIN_GPIO_INPUT3 };
+static const int GL_pOutputLut_SI[] = { PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1,PIN_GPIO_OUTPUT2,PIN_GPIO_OUTPUT3 };
 
 /* ******************************************************************************** */
 /* LCD Special Char
@@ -868,17 +870,59 @@ WCFG_STATUS WConfigManager_Process() {
     case WCFG_GET_FONA_MODULE_CONFIG:
 
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive FONA Module configuration");
-        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_FONA_MODULE, GL_pWConfigBuffer_UB, 4) == 4) {
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_FONA_MODULE, GL_pWConfigBuffer_UB, 16) == 16) {
 
-            DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "NOT YET IMPLEMENTED..");
-            DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Configure FONA Module: FIXED CONFIG for now");
+            if ((GL_pWConfigBuffer_UB[0] & 0x01) == 0x01) {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "FONA Module enabled");
+                GL_GlobalConfig_X.GsmConfig_X.isEnabled_B = true;
 
-            char pPinCode[] = {'5', '3', '7', '7', 0};
-            GL_GlobalData_X.Fona_H.init(GetSerialHandle(PORT_COM3), 4800, false, PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1, PIN_GPIO_INPUT0, pPinCode, 0);
-            FonaModuleManager_Init(&(GL_GlobalData_X.Fona_H));
-            FonaModuleManager_Enable();
-            GL_GlobalConfig_X.GsmConfig_X.isEnabled_B = true;
+                // Get COM Index
+                GL_GlobalConfig_X.GsmConfig_X.ComIndex_UB = (GL_pWConfigBuffer_UB[0] & 0x30) >> 4;
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "- Port COM Index = ");
+                DBG_PRINTDATA((int)(GL_GlobalConfig_X.GsmConfig_X.ComIndex_UB));
+                DBG_ENDSTR();
 
+                // Get Pinout
+                GL_GlobalConfig_X.GsmConfig_X.PinRst_UB = (GL_pWConfigBuffer_UB[1] & 0x03) >> 0;
+                GL_GlobalConfig_X.GsmConfig_X.PinKey_UB = (GL_pWConfigBuffer_UB[1] & 0x0C) >> 2;
+                GL_GlobalConfig_X.GsmConfig_X.PinPower_UB = (GL_pWConfigBuffer_UB[1] & 0x30) >> 4;
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "- Pin Reset = OUT");
+                DBG_PRINTDATA((int)(GL_GlobalConfig_X.GsmConfig_X.PinRst_UB));
+                DBG_ENDSTR();
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "- Pin Key = OUT");
+                DBG_PRINTDATA((int)(GL_GlobalConfig_X.GsmConfig_X.PinKey_UB));
+                DBG_ENDSTR();
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "- Pin Power = IN");
+                DBG_PRINTDATA((int)(GL_GlobalConfig_X.GsmConfig_X.PinPower_UB));
+                DBG_ENDSTR();
+
+                // Get PIN Code
+                GL_GlobalConfig_X.GsmConfig_X.pPinCode_UB[0] = (char)(GL_pWConfigBuffer_UB[2]);
+                GL_GlobalConfig_X.GsmConfig_X.pPinCode_UB[1] = (char)(GL_pWConfigBuffer_UB[3]);
+                GL_GlobalConfig_X.GsmConfig_X.pPinCode_UB[2] = (char)(GL_pWConfigBuffer_UB[4]);
+                GL_GlobalConfig_X.GsmConfig_X.pPinCode_UB[3] = (char)(GL_pWConfigBuffer_UB[5]);
+                GL_GlobalConfig_X.GsmConfig_X.pPinCode_UB[4] = 0;
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "- PIN Code = ");
+                DBG_PRINTDATA(GL_GlobalConfig_X.GsmConfig_X.pPinCode_UB);
+                DBG_ENDSTR();
+
+                // Get APN Index
+                GL_GlobalConfig_X.GsmConfig_X.ApnIndex_UL = (unsigned long)(GL_pWConfigBuffer_UB[6] & 0x0F);
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "- APN Index = ");
+                DBG_PRINTDATA(GL_GlobalConfig_X.GsmConfig_X.ApnIndex_UL);
+                DBG_ENDSTR();
+
+                // Initialize FONA Module
+                GL_GlobalData_X.Fona_H.init(GetSerialHandle(GL_GlobalConfig_X.GsmConfig_X.ComIndex_UB), 0, false, GL_pOutputLut_SI[GL_GlobalConfig_X.GsmConfig_X.PinRst_UB], GL_pOutputLut_SI[GL_GlobalConfig_X.GsmConfig_X.PinKey_UB], GL_pInputLut_SI[GL_GlobalConfig_X.GsmConfig_X.PinPower_UB], GL_GlobalConfig_X.GsmConfig_X.pPinCode_UB, GL_GlobalConfig_X.GsmConfig_X.ApnIndex_UL);
+                FonaModuleManager_Init(&(GL_GlobalData_X.Fona_H));
+                FonaModuleManager_Enable();
+
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "End of FONA Module configuration");
+            }
+            else {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "FONA Module not enabled");
+                GL_GlobalConfig_X.GsmConfig_X.isEnabled_B = false;
+            }
 
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET INDICATOR CONFIG");
             GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_INDICATOR_CONFIG;

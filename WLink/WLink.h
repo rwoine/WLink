@@ -151,6 +151,12 @@ typedef struct {
 // > Dedicated Structure for GSM Module Configuration
 typedef struct {
     boolean isEnabled_B;
+    char ComIndex_UB;
+    char PinRst_UB;
+    char PinKey_UB;
+    char PinPower_UB;
+    char pPinCode_UB[5];
+    unsigned long ApnIndex_UL;
 } GSM_CONFIG_STRUCT;
 
 // > Dedicated Structure for WCommand Configuration
