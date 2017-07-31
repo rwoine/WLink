@@ -1,6 +1,6 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* KipControlLinkManager.h												            */
+/* KipControlManager.h												                */
 /*                                                                                  */
 /* Description :                                                                    */
 /*		Header file for KipControlLinkManager.cpp					            	*/

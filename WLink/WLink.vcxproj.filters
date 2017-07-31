@@ -210,6 +210,9 @@
     <ClInclude Include="WMenuItemText.h">
       <Filter>Source Files\WMenu</Filter>
     </ClInclude>
+    <ClInclude Include="KipControlMedium.h">
+      <Filter>Source Files\Applications\KipControl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -316,6 +319,9 @@
     </ClCompile>
     <ClCompile Include="WMenuManager.cpp">
       <Filter>Source Files\WMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="KipControlMedium.cpp">
+      <Filter>Source Files\Applications\KipControl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
