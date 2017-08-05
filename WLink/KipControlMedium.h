@@ -34,7 +34,14 @@ typedef enum {
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
-void KipControlMedium_Init(KC_MEDIUM_ENUM Medium_E);
+void KipControlMedium_Init(KC_MEDIUM_ENUM Medium_E, void * pMedium_H);
+void KipControlMedium_SetServerParam(String Name_Str, unsigned long Port_UL = 80);
+boolean KipControlMedium_Connect(void);
+void KipControlMedium_BeginTransaction(void);
+void KipControlMedium_Print(char * pData_UB);
+void KipControlMedium_Print(String Data_Str);
+void KipControlMedium_EndTransaction(void);
+
 
 
 
