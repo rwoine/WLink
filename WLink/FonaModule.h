@@ -145,8 +145,8 @@ public:
 	boolean httpParamAdd(String ParamValue_Str);
 	boolean httpParamEnd(void);
     boolean httpAction(FONA_MODULE_HTTP_ACTION_ENUM Action_E, int * pServerResponse_SI, int * pDataSize_SI);
-    boolean httpRead(void);
-    boolean httpRead(unsigned long StartAddr_UL, unsigned long DataLength_UL);
+    boolean httpRead(char * pData_UB);
+    boolean httpRead(char * pData_UB, unsigned long StartAddr_UL, unsigned long DataLength_UL);
 
 
     FONA_MODULE_PARAM GL_FonaModuleParam_X;

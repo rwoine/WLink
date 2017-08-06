@@ -72,30 +72,37 @@ void KipControlMedium_Init(KC_MEDIUM_ENUM Medium_E, void * pMedium_H) {
 	DBG_ENDSTR();
 }
 
-void KipControlMedium_SetServerParam(String Name_Str, unsigned long Port_UL = 80) {
+void KipControlMedium_SetServerParam(String Name_Str, unsigned long Port_UL) {
 	GL_ServerName_Str = Name_Str;
 	GL_ServerPort_UL = Port_UL;
 }
 
 boolean KipControlMedium_Connect(void) {
-	boolean RetVal_B = false;
-
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
-		RetVal_B = (((GL_pMediumEthernet_H->connect(GL_ServerName_Str, GL_ServerPort_UL)) == 1) ? true : false);
+		return (((GL_pMediumEthernet_H->connect(GL_ServerName_Str.c_str(), (int)GL_ServerPort_UL)) == 1) ? true : false);
 		break;
 
 	case KC_MEDIUM_GSM:
 		GL_pMediumGsm_H->httpTerm();	// Make sure all HTTP transactions are terminated
-		RetVal_B = GL_pMediumGsm_H->httpInit();
-		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_CID, 1);
-		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_REDIR, 1);
-		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_UA, "WLINK");
+		return (GL_pMediumGsm_H->httpInit());
 		break;
 	}
-
-	return RetVal_B;
 }
+
+boolean KipControlMedium_IsConnected(void) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+		return (GL_pMediumEthernet_H->connected());
+		break;
+
+	case KC_MEDIUM_GSM:
+		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Check in FONA Module to have function : IsConnected()...");
+		return true;
+		break;
+	}
+}
+
 
 void KipControlMedium_BeginTransaction(void) {
 	switch (GL_Medium_E) {
@@ -104,6 +111,9 @@ void KipControlMedium_BeginTransaction(void) {
 		break;
 
 	case KC_MEDIUM_GSM:
+		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_CID, 1);
+		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_REDIR, 1);
+		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_UA, "WLINK");
 		GL_pMediumGsm_H->httpParamStart(FONA_MODULE_HTTP_PARAM_URL);
 		break;
 	}
@@ -179,7 +189,7 @@ void KipControlMedium_Read(char * pData_UB) {
 		break;
 
 	case KC_MEDIUM_GSM:
-		GL_pMediumGsm_H->httpRead();
+
 		break;
 	}
 }

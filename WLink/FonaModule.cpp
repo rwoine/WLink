@@ -860,20 +860,27 @@ boolean FonaModule::httpAction(FONA_MODULE_HTTP_ACTION_ENUM Action_E, int * pSer
     return true;
 }
 
-boolean FonaModule::httpRead(void) {
+boolean FonaModule::httpRead(char * pData_UB) {
+	int DataLength_SI = 0;
 
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Read the HTTP Server Response (all data present)");
 
     sendAtCommand("AT+HTTPREAD", (boolean)true);
 
     readLine(true); // Response with data length
-    readLine(true); // data
+	if (!parseResponse(GL_pReceiveBuffer_UB, "+HTTPREAD: ", &DataLength_SI, ',', 0))
+		return false;
+    
+	readLine(true); // data
+	for (int i = 0; i < DataLength_SI; i++)	pData_UB[i] = GL_pReceiveBuffer_UB[i];
+
     readLine(true); // OK
 
     return checkAtResponse("OK");
 }
 
-boolean FonaModule::httpRead(unsigned long StartAddr_UL, unsigned long DataLength_UL) {
+boolean FonaModule::httpRead(char * pData_UB, unsigned long StartAddr_UL, unsigned long DataLength_UL) {
+	int DataLength_SI = 0;
 
     DBG_PRINT(DEBUG_SEVERITY_INFO, "Read the HTTP Server Response : ");
     DBG_PRINTDATA(DataLength_UL);
@@ -888,7 +895,12 @@ boolean FonaModule::httpRead(unsigned long StartAddr_UL, unsigned long DataLengt
     addAtData((int)(DataLength_UL), false, true);
 
     readLine(true); // Response with data length
+	if (!parseResponse(GL_pReceiveBuffer_UB, "+HTTPREAD: ", &DataLength_SI, ',', 0))
+		return false;
+
     readLine(true); // data
+	for (int i = 0; i < DataLength_SI; i++)	pData_UB[i] = GL_pReceiveBuffer_UB[i];
+
     readLine(true); // OK
 
     return checkAtResponse("OK");

@@ -43,9 +43,6 @@ boolean KipControlMedium_IsConnected(void);
 void KipControlMedium_BeginTransaction(void);
 void KipControlMedium_Print(char * pData_UB);
 void KipControlMedium_Print(String Data_Str);
-void KipControlMedium_Println(void);
-void KipControlMedium_Println(char * pData_UB);
-void KipControlMedium_Println(String Data_Str);
 void KipControlMedium_EndTransaction(void);
 
 int KipControlMedium_GetServerResponse(void);
