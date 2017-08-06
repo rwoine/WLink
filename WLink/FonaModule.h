@@ -114,6 +114,7 @@ public:
     void addAtData(char Data_UB, boolean Quoted_B = false, boolean Completed_B = true);
     void addAtData(char * pData_UB, boolean Quoted_B = false, boolean Completed_B = true);
     void addAtData(String Data_Str, boolean Quoted_B = false, boolean Completed_B = true);
+	void endAtData(void);
 
     boolean checkAtResponse(char * pData_UB);
     boolean checkAtResponse(String Data_Str);
@@ -137,8 +138,12 @@ public:
     boolean httpInit(void);
     boolean httpTerm(void);
     boolean httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, int Value_SI);
-    boolean httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, char * pParamValue_UB);
+	boolean httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, char * pParamValue_UB);
     boolean httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, String ParamValue_Str);
+	boolean httpParamStart(FONA_MODULE_HTTP_PARAM_ENUM Param_E);
+	boolean httpParamAdd(char * pParamValue_UB);
+	boolean httpParamAdd(String ParamValue_Str);
+	boolean httpParamEnd(void);
     boolean httpAction(FONA_MODULE_HTTP_ACTION_ENUM Action_E, int * pServerResponse_SI, int * pDataSize_SI);
     boolean httpRead(void);
     boolean httpRead(unsigned long StartAddr_UL, unsigned long DataLength_UL);

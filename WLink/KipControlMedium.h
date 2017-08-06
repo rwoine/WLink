@@ -36,11 +36,21 @@ typedef enum {
 /* ******************************************************************************** */
 void KipControlMedium_Init(KC_MEDIUM_ENUM Medium_E, void * pMedium_H);
 void KipControlMedium_SetServerParam(String Name_Str, unsigned long Port_UL = 80);
+
 boolean KipControlMedium_Connect(void);
+boolean KipControlMedium_IsConnected(void);
+
 void KipControlMedium_BeginTransaction(void);
 void KipControlMedium_Print(char * pData_UB);
 void KipControlMedium_Print(String Data_Str);
+void KipControlMedium_Println(void);
+void KipControlMedium_Println(char * pData_UB);
+void KipControlMedium_Println(String Data_Str);
 void KipControlMedium_EndTransaction(void);
+
+int KipControlMedium_GetServerResponse(void);
+int KipControlMedium_GetDataSize(void);
+void KipControlMedium_Read(char * pData_UB);
 
 
 

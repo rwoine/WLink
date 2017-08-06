@@ -78,29 +78,33 @@ void KipControlMedium_SetServerParam(String Name_Str, unsigned long Port_UL = 80
 }
 
 boolean KipControlMedium_Connect(void) {
+	boolean RetVal_B = false;
+
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
-		return (((GL_pMediumEthernet_H->connect(GL_ServerName_Str, GL_ServerPort_UL)) == 1) ? true : false);
+		RetVal_B = (((GL_pMediumEthernet_H->connect(GL_ServerName_Str, GL_ServerPort_UL)) == 1) ? true : false);
 		break;
 
 	case KC_MEDIUM_GSM:
-		return (GL_pMediumGsm_H->enableGprs());
+		GL_pMediumGsm_H->httpTerm();	// Make sure all HTTP transactions are terminated
+		RetVal_B = GL_pMediumGsm_H->httpInit();
+		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_CID, 1);
+		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_REDIR, 1);
+		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_UA, "WLINK");
 		break;
 	}
+
+	return RetVal_B;
 }
 
 void KipControlMedium_BeginTransaction(void) {
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
-
+		GL_pMediumEthernet_H->print("GET ");
 		break;
 
 	case KC_MEDIUM_GSM:
-		GL_pMediumGsm_H->httpTerm();	// Make sure all HTTP transactions are terminated
-		GL_pMediumGsm_H->httpInit();
-		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_CID, 1);
-		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_REDIR, 1);
-		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_UA, "WLINK");
+		GL_pMediumGsm_H->httpParamStart(FONA_MODULE_HTTP_PARAM_URL);
 		break;
 	}
 }
@@ -112,7 +116,7 @@ void KipControlMedium_Print(char * pData_UB) {
 		break;
 
 	case KC_MEDIUM_GSM:
-
+		GL_pMediumGsm_H->httpParamAdd(pData_UB);
 		break;
 	}
 }
@@ -124,7 +128,7 @@ void KipControlMedium_Print(String Data_Str) {
 		break;
 
 	case KC_MEDIUM_GSM:
-
+		GL_pMediumGsm_H->httpParamAdd(Data_Str);
 		break;
 	}
 }
@@ -138,7 +142,44 @@ void KipControlMedium_EndTransaction(void) {
 		break;
 
 	case KC_MEDIUM_GSM:
+		GL_pMediumGsm_H->httpParamEnd();
 		GL_pMediumGsm_H->httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET, &GL_ServerResponse_SI, &GL_ServerData_SI);
+		break;
+	}
+}
+
+int KipControlMedium_GetServerResponse(void) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+
+		break;
+
+	case KC_MEDIUM_GSM:
+		return GL_ServerResponse_SI;
+		break;
+	}
+}
+
+int KipControlMedium_GetDataSize(void) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+
+		break;
+
+	case KC_MEDIUM_GSM:
+		return GL_ServerData_SI;
+		break;
+	}
+}
+
+void KipControlMedium_Read(char * pData_UB) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+
+		break;
+
+	case KC_MEDIUM_GSM:
+		GL_pMediumGsm_H->httpRead();
 		break;
 	}
 }
