@@ -29,10 +29,11 @@
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
-void FonaModuleManager_Init(FonaModule * pFona_H);
+void FonaModuleManager_Init(FonaModule * pFona_H, boolean EnableGprs_B = true);
 void FonaModuleManager_Enable();
 void FonaModuleManager_Disable();
 void FonaModuleManager_Process();
+boolean FonaModuleManager_IsRunning();
 
 
 #endif // __FONA_MODULE_MANAGER_H__

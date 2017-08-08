@@ -529,42 +529,30 @@ WCMD_FCT_STS WCmdProcess_TestCommand(const unsigned char * pParam_UB, unsigned l
 
         GL_GlobalData_X.Fona_H.enableGprs();
 
-    else if (pParam_UB[0] == 0x02) {
-
-        GL_GlobalData_X.Fona_H.httpTerm();
-        delay(2000);
-        GL_GlobalData_X.Fona_H.httpInit();
-        delay(2000);
-        GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_CID, 1);
-        GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_REDIR, 1);
-        GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_UA, "WLINK");
-        GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_URL, "http://www.m2msupport.net/m2msupport/http_get_test.php");
-        GL_GlobalData_X.Fona_H.httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET, &ServerResponse_SI, &DataSize_SI);
-        GL_GlobalData_X.Fona_H.httpRead(DataBuffer_UB);
-
-    }
     else {
 
-        GL_GlobalData_X.Fona_H.enableGprs();
-        delay(2000);
-        GL_GlobalData_X.Fona_H.httpTerm();
-        delay(2000);
-        GL_GlobalData_X.Fona_H.httpInit();
-        delay(2000);
-        GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_CID, 1);
-        GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_REDIR, 1);
-        GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_UA, "WLINK");
-        GL_GlobalData_X.Fona_H.httpParam(FONA_MODULE_HTTP_PARAM_URL, "http://www.balthinet.be/kipcontrol/import?data[0][Weight]=5678&data[0][BalanceSerial]=02:00:00:01:00:0C&data[0][Batch]=1234&data[0][Tolerance]=5&data[0][Age]=5&data[0][DateTime]=2017-05-23+20:35:24&submitted=1&action=validate");
-        GL_GlobalData_X.Fona_H.httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET, &ServerResponse_SI, &DataSize_SI);
-        GL_GlobalData_X.Fona_H.httpRead(DataBuffer_UB);
+		KipControlMedium_Connect();
+		KipControlMedium_BeginTransaction();
+		KipControlMedium_Print("http://www.balthinet.be/kipcontrol/import?data[0][Weight]=5678&data[0][BalanceSerial]=02:00:00:01:00:0C&data[0][Batch]=1234&data[0][Tolerance]=5&data[0][Age]=10&data[0][DateTime]=2017-08-08+20:35:24&submitted=1&action=validate");
+		KipControlMedium_EndTransaction();
+
+
+		ServerResponse_SI = KipControlMedium_GetServerResponse();
+		DataSize_SI = KipControlMedium_GetDataSize();
+
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Server Response : ");
+		DBG_PRINTDATA(ServerResponse_SI);
+		DBG_ENDSTR();
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Data Size : ");
+		DBG_PRINTDATA(DataSize_SI);
+		DBG_ENDSTR();
+
+
+		KipControlMedium_Read(DataBuffer_UB);
+
 		DBG_PRINT(DEBUG_SEVERITY_INFO, "Data : ");
 		DBG_PRINTDATA(DataBuffer_UB);
 		DBG_ENDSTR();
-        delay(2000);
-        GL_GlobalData_X.Fona_H.httpTerm();
-        delay(2000);
-        GL_GlobalData_X.Fona_H.disabeGprs();
-
     }
 
 

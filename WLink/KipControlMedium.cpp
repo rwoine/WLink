@@ -189,7 +189,7 @@ void KipControlMedium_Read(char * pData_UB) {
 		break;
 
 	case KC_MEDIUM_GSM:
-
+		GL_pMediumGsm_H->httpRead(pData_UB);
 		break;
 	}
 }

@@ -55,6 +55,7 @@
 #include "WLinkManager.h"
 
 #include "KipControlManager.h"
+#include "KipControlMedium.h"
 
 #include "Debug.h"
 

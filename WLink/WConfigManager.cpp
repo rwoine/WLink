@@ -59,6 +59,7 @@
 #define WCONFIG_ADDR_TCP_CLIENT         0x003C
 #define WCONFIG_ADDR_FONA_MODULE        0x0040
 #define WCONFIG_ADDR_INDICATOR          0x0050
+#define WCONFIG_ADDR_APP				0x0100
 
 
 /* ******************************************************************************** */
@@ -127,6 +128,7 @@ enum WCFG_STATE {
     WCFG_GET_TCP_CLIENT_CONFIG,
     WCFG_GET_FONA_MODULE_CONFIG,
     WCFG_GET_INDICATOR_CONFIG,
+	WCFG_GET_APP_CONFIG,
     WCFG_CONFIG_DONE,
     WCFG_ERROR_READING,
     WCFG_BAD_PARAM,
@@ -951,7 +953,8 @@ WCFG_STATUS WConfigManager_Process() {
             IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
             IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT, true);
 
-            TransitionToConfigDone();
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET APP CONFIG");
+			GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_APP_CONFIG;
         }
         else {
             TransitionToErrorReading();
@@ -960,6 +963,29 @@ WCFG_STATUS WConfigManager_Process() {
         break;
 
 
+	/* GET APP CONFIG */
+	/* > Retreive Application configuration. */
+	case WCFG_GET_APP_CONFIG:
+
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive Application configuration");
+		if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_APP, GL_pWConfigBuffer_UB, 2) == 2) {
+			
+
+
+			DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Configure Application : FIXED CONFIG for now");
+
+			KipControlMedium_Init(KC_MEDIUM_GSM, &(GL_GlobalData_X.Fona_H));
+			KipControlMedium_SetServerParam("www.balthinet.be", 80);
+
+
+
+			TransitionToConfigDone();
+		}
+		else {
+			TransitionToErrorReading();
+		}
+
+	    break;
 
     ///* GET XXX CONFIG */
     ///* > Retreive XXX configuration. */
