@@ -40,6 +40,8 @@ void KipControlMedium_SetServerParam(String Name_Str, unsigned long Port_UL = 80
 boolean KipControlMedium_Connect(void);
 boolean KipControlMedium_IsConnected(void);
 
+void KipControlMedium_SetupEnvironment(void);
+
 void KipControlMedium_BeginTransaction(void);
 void KipControlMedium_Print(char * pData_UB);
 void KipControlMedium_Print(String Data_Str);

@@ -104,6 +104,21 @@ boolean KipControlMedium_IsConnected(void) {
 }
 
 
+void KipControlMedium_SetupEnvironment(void) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+		// Do nothing for Ethernet
+		break;
+
+	case KC_MEDIUM_GSM:
+		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_CID, 1);
+		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_REDIR, 1);
+		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_UA, "WLINK");
+		break;
+	}
+}
+
+
 void KipControlMedium_BeginTransaction(void) {
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
@@ -111,9 +126,6 @@ void KipControlMedium_BeginTransaction(void) {
 		break;
 
 	case KC_MEDIUM_GSM:
-		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_CID, 1);
-		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_REDIR, 1);
-		GL_pMediumGsm_H->httpParam(FONA_MODULE_HTTP_PARAM_UA, "WLINK");
 		GL_pMediumGsm_H->httpParamStart(FONA_MODULE_HTTP_PARAM_URL);
 		break;
 	}
