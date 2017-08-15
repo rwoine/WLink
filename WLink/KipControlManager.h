@@ -17,6 +17,7 @@
 /* Include
 /* ******************************************************************************** */
 #include "WLink.h"
+#include "KipControl.h"
 #include "RealTimeClock.h"
 
 /* ******************************************************************************** */
@@ -29,7 +30,7 @@
 typedef struct {
     boolean IsConfigured_B;             // Configured flag
     boolean IsRunning_B;                // Running flag
-    unsigned long BatchId_UL;            // ID of the current batch
+    unsigned long BatchId_UL;           // ID of the current batch
     unsigned char Tolerance_UB;         // Tolerance in [%]
     unsigned char ReferenceDataId_UB;   // ID of the reference data table
     unsigned char MaxDataNb_UB;         // Total number of data stored in the table
@@ -39,19 +40,13 @@ typedef struct {
     unsigned long TotalValue_UL;        // Total value (addition of all current data)
     unsigned long ValueNb_UL;           // Number of values in the total value field
     boolean EnableRecording_B;          // Flag to enable or not the recording of data
-} KC_HANDLE_STRUCT;
+} KC_WORKING_DATA_STRUCT;
 
-typedef struct {
-    signed int Weight_SI;
-    String MacAddr_Str;
-    String TimeStamp_Str;
-    RTC_DATE_STRUCT CurrentDate_X;
-} KC_DATA_TO_SEND_STRUCT;
 
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
-void KipControlManager_Init();
+void KipControlManager_Init(KipControl * pKipControl_H);
 void KipControlManager_Enable();
 void KipControlManager_Disable();
 void KipControlManager_Process();

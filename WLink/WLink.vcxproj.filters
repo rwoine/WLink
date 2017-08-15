@@ -213,6 +213,9 @@
     <ClInclude Include="KipControlMedium.h">
       <Filter>Source Files\Applications\KipControl</Filter>
     </ClInclude>
+    <ClInclude Include="KipControl.h">
+      <Filter>Source Files\Applications\KipControl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -321,6 +324,9 @@
       <Filter>Source Files\WMenu</Filter>
     </ClCompile>
     <ClCompile Include="KipControlMedium.cpp">
+      <Filter>Source Files\Applications\KipControl</Filter>
+    </ClCompile>
+    <ClCompile Include="KipControl.cpp">
       <Filter>Source Files\Applications\KipControl</Filter>
     </ClCompile>
   </ItemGroup>

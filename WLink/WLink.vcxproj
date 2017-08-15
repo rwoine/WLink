@@ -96,6 +96,7 @@
     <ClInclude Include="Indicator.h" />
     <ClInclude Include="IndicatorInterface.h" />
     <ClInclude Include="IndicatorManager.h" />
+    <ClInclude Include="KipControl.h" />
     <ClInclude Include="KipControlManager.h" />
     <ClInclude Include="KipControlMedium.h" />
     <ClInclude Include="KipControlMenuItemText.h" />
@@ -138,6 +139,7 @@
     <ClCompile Include="Indicator.cpp" />
     <ClCompile Include="IndicatorInterface.cpp" />
     <ClCompile Include="IndicatorManager.cpp" />
+    <ClCompile Include="KipControl.cpp" />
     <ClCompile Include="KipControlManager.cpp" />
     <ClCompile Include="KipControlMedium.cpp" />
     <ClCompile Include="KipControlMenuManager.cpp" />

@@ -158,6 +158,10 @@ void KipControlMedium_Print(String Data_Str) {
 void KipControlMedium_EndTransaction(void) {
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
+		GL_pMediumEthernet_H->println("&submitted=1&action=validate HTTP/1.1");
+		GL_pMediumEthernet_H->print("Host: ");
+		GL_pMediumEthernet_H->println(GL_ServerName_Str);
+		GL_pMediumEthernet_H->println("Connection: close");
 		GL_pMediumEthernet_H->println();
 		delay(1);
 		GL_pMediumEthernet_H->flush();
@@ -173,7 +177,8 @@ void KipControlMedium_EndTransaction(void) {
 int KipControlMedium_GetServerResponse(void) {
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
-
+		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "To be implemented !");
+		return -1;
 		break;
 
 	case KC_MEDIUM_GSM:
@@ -185,7 +190,8 @@ int KipControlMedium_GetServerResponse(void) {
 int KipControlMedium_GetDataSize(void) {
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
-
+		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "To be implemented !");
+		return -1;
 		break;
 
 	case KC_MEDIUM_GSM:
@@ -197,7 +203,8 @@ int KipControlMedium_GetDataSize(void) {
 void KipControlMedium_Read(char * pData_UB) {
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
-
+		pData_UB[0] = 0x00;
+		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "To be implemented !");
 		break;
 
 	case KC_MEDIUM_GSM:
