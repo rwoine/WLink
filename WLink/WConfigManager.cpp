@@ -974,8 +974,21 @@ WCFG_STATUS WConfigManager_Process() {
 
 			DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Configure Application : FIXED CONFIG for now");
 
+
 			KipControlMedium_Init(KC_MEDIUM_GSM, &(GL_GlobalData_X.Fona_H));
 			KipControlMedium_SetServerParam("www.balthinet.be", 80);
+
+
+
+			// For Debug Purpose
+			GL_GlobalConfig_X.App_X.pFctInit = KipControlManager_Init;
+			GL_GlobalConfig_X.App_X.pFctEnable = KipControlManager_Enable;
+			GL_GlobalConfig_X.App_X.pFctDisable = KipControlManager_Disable;
+			GL_GlobalConfig_X.App_X.pFctProcess = KipControlManager_Process;
+			GL_GlobalConfig_X.App_X.pFctIsEnabled = KipControlManager_IsEnabled;
+			GL_GlobalConfig_X.App_X.hasApplication_B = true;
+
+			GL_GlobalConfig_X.App_X.pFctInit();
 
 
 
@@ -1010,16 +1023,6 @@ WCFG_STATUS WConfigManager_Process() {
     /* CONFIG DONE */
     /* > End of configuration phase. State machine idling until renew of configuration. */
     case WCFG_CONFIG_DONE:
-
-        // For Debug Purpose
-        GL_GlobalConfig_X.App_X.pFctInit = KipControlManager_Init;
-        GL_GlobalConfig_X.App_X.pFctEnable = KipControlManager_Enable;
-        GL_GlobalConfig_X.App_X.pFctDisable = KipControlManager_Disable;
-        GL_GlobalConfig_X.App_X.pFctProcess = KipControlManager_Process;
-        GL_GlobalConfig_X.App_X.pFctIsEnabled = KipControlManager_IsEnabled;
-        GL_GlobalConfig_X.App_X.hasApplication_B = true;
-
-        GL_GlobalConfig_X.App_X.pFctInit();
 
         GL_WConfigStatus_E = WCFG_STS_OK;
 

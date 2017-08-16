@@ -91,7 +91,7 @@ typedef enum {
     WLINK_WCMD_MEDIUM_GSM_SERVER = 7
 } WLINK_WCMD_MEDIUM_ENUM;
 
-// > Dedicated Structure for Ethernet Access Points
+// Dedicated Structure for Ethernet Access Points
 typedef struct {
     TCPServer TcpServer_H;
     UDPServer UdpServer_H;
@@ -116,10 +116,12 @@ typedef struct {
     ETHERNET_ACCESS_POINT_STRUCT EthAP_X;
     Indicator Indicator_H;          // Not yet managed
     BadgeReader BadgeReader_H;      // Not yet managed
+	KipControl KipControl_H;
 } GLOBAL_PARAM_STRUCT;
 
 
-// > Dedicated Strucure for COM Port Configuration
+
+// Dedicated Strucure for COM Port Configuration
 typedef struct {
     unsigned long Index_UL;
     boolean isEnabled_B;
@@ -129,14 +131,13 @@ typedef struct {
     void(*pFctCommEvent)(void);
 } COM_PORT_CONFIG_STRUCT;
 
-
-// > Dedicated Structure for TCP/UDP Server Configuration
+// Dedicated Structure for TCP/UDP Server Configuration
 typedef struct {
     boolean isEnabled_B;
     unsigned int LocalPort_UI;
 } SERVER_CONFIG_STRUCT;
 
-// > Dedicated Structure for Ethernet Configuration
+// Dedicated Structure for Ethernet Configuration
 typedef struct {
     boolean isEnabled_B;
     boolean isDhcp_B;
@@ -150,7 +151,7 @@ typedef struct {
     SERVER_CONFIG_STRUCT UdpServerConfig_X;
 } ETHERNET_CONFIG_STRUCT;
 
-// > Dedicated Structure for GSM Module Configuration
+// Dedicated Structure for GSM Module Configuration
 typedef struct {
     boolean isEnabled_B;
     char ComIndex_UB;
@@ -161,7 +162,7 @@ typedef struct {
     unsigned long ApnIndex_UL;
 } GSM_CONFIG_STRUCT;
 
-// > Dedicated Structure for WCommand Configuration
+// Dedicated Structure for WCommand Configuration
 typedef struct {
     WLINK_WCMD_MEDIUM_ENUM Medium_E;
     boolean isMonoClient_B;
@@ -169,6 +170,7 @@ typedef struct {
     unsigned long NbFct_UL;
 } WCMD_CONFIG_STRUCT;
 
+// Dedicated Structure for WApplication Configuration
 typedef struct {
     boolean hasApplication_B;
     void (*pFctInit)(void);

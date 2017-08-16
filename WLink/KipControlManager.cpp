@@ -26,7 +26,7 @@
 
 
 /* ******************************************************************************** */
-/* Extenral Variables
+/* External Variables
 /* ******************************************************************************** */
 extern GLOBAL_PARAM_STRUCT GL_GlobalData_X;
 extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
@@ -96,9 +96,9 @@ static void TransitionToError(void);
 /* Functions
 /* ******************************************************************************** */
 
-void KipControlManager_Init(KipControl * pKipControl_H) {
+void KipControlManager_Init() {
     GL_KipControlManagerEnabled_B = false;
-	GL_pKipControl_H = pKipControl_H;
+	GL_pKipControl_H = &GL_GlobalData_X.KipControl_H;	// from Global Data
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "KipControl Manager Initialized");
 }
 

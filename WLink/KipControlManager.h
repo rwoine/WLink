@@ -46,7 +46,7 @@ typedef struct {
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
-void KipControlManager_Init(KipControl * pKipControl_H);
+void KipControlManager_Init();
 void KipControlManager_Enable();
 void KipControlManager_Disable();
 void KipControlManager_Process();
