@@ -28,6 +28,8 @@
 /* Structure & Enumeration
 /* ******************************************************************************** */
 typedef struct {
+	String MacAddr_Str;					// MAC address for unique identification
+
     boolean IsConfigured_B;             // Configured flag
     boolean IsRunning_B;                // Running flag
     unsigned long BatchId_UL;           // ID of the current batch
@@ -36,17 +38,22 @@ typedef struct {
     unsigned char MaxDataNb_UB;         // Total number of data stored in the table
     unsigned char StartIdx_UB;          // Index at which the recording should start
     RTC_DATE_STRUCT StartDate_X;        // Start date of recording
+
     unsigned char CurrentIdx_UB;        // Current index
     unsigned long TotalValue_UL;        // Total value (addition of all current data)
     unsigned long ValueNb_UL;           // Number of values in the total value field
-    boolean EnableRecording_B;          // Flag to enable or not the recording of data
+
+	signed int Weight_SI;				// Current weight
+	RTC_DATE_STRUCT CurrentDate_X;      // Current date
+	String TimeStamp_Str;				// Current timestamp
+
 } KC_WORKING_DATA_STRUCT;
 
 
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
-void KipControlManager_Init();
+void KipControlManager_Init(void * pHanlde_H);
 void KipControlManager_Enable();
 void KipControlManager_Disable();
 void KipControlManager_Process();

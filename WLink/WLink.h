@@ -173,7 +173,7 @@ typedef struct {
 // Dedicated Structure for WApplication Configuration
 typedef struct {
     boolean hasApplication_B;
-    void (*pFctInit)(void);
+    void (*pFctInit)(void *);
     void (*pFctEnable)(void);
     void (*pFctDisable)(void);
     boolean(*pFctIsEnabled)(void);

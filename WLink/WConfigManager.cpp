@@ -988,7 +988,8 @@ WCFG_STATUS WConfigManager_Process() {
 			GL_GlobalConfig_X.App_X.pFctIsEnabled = KipControlManager_IsEnabled;
 			GL_GlobalConfig_X.App_X.hasApplication_B = true;
 
-			GL_GlobalConfig_X.App_X.pFctInit();
+			// Call init with specific object
+			GL_GlobalConfig_X.App_X.pFctInit(&(GL_GlobalData_X.KipControl_H));
 
 
 

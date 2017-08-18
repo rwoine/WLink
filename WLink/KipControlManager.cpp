@@ -96,9 +96,9 @@ static void TransitionToError(void);
 /* Functions
 /* ******************************************************************************** */
 
-void KipControlManager_Init() {
+void KipControlManager_Init(void * pHanlde_H) {
     GL_KipControlManagerEnabled_B = false;
-	GL_pKipControl_H = &GL_GlobalData_X.KipControl_H;	// from Global Data
+	GL_pKipControl_H = (KipControl *)pHanlde_H;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "KipControl Manager Initialized");
 }
 
@@ -167,6 +167,12 @@ void ProcessIdle(void) {
 void ProcessGetConfig(void) {
 	if (GL_pKipControl_H->getConfiguredFlag()) {
 
+		// Get MAC Address
+		GL_WorkingData_X.MacAddr_Str = HexArrayToString(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB), ":");
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "MAC Address for unique identification : ");
+		DBG_PRINTDATA(GL_WorkingData_X.MacAddr_Str);
+		DBG_ENDSTR();
+
 		// Get fixed configuration (default or from LCD) -> stored in EEPROM
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get configuration stored in EEPROM");
 
@@ -175,6 +181,23 @@ void ProcessGetConfig(void) {
 		GL_WorkingData_X.Tolerance_UB = GL_pKipControl_H->getTolerance();					// Tolerance [%] regarding the reference weight to calculate the average
 		GL_WorkingData_X.StartIdx_UB = GL_pKipControl_H->getStartIdx();						// Index of the reference table when the recording is started
 		GL_WorkingData_X.StartDate_X = GL_pKipControl_H->getStartDate();					// Date of the beginning of the recording
+
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Reference Data ID = ");
+		DBG_PRINTDATA(GL_WorkingData_X.ReferenceDataId_UB);
+		DBG_ENDSTR();
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Batch ID = ");
+		DBG_PRINTDATA(GL_WorkingData_X.BatchId_UL);
+		DBG_ENDSTR();
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Tolerance = ");
+		DBG_PRINTDATA(GL_WorkingData_X.Tolerance_UB);
+		DBG_PRINTDATA(" [%]");
+		DBG_ENDSTR();
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Start Index = ");
+		DBG_PRINTDATA(GL_WorkingData_X.StartIdx_UB);
+		DBG_ENDSTR();
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Start Date = ");
+		DBG_PRINTDATA(dateToString(GL_WorkingData_X.StartDate_X));
+		DBG_ENDSTR();
 
 		TransitionToRecoverData();
 	}
@@ -188,18 +211,49 @@ void ProcessRecoverData(void) {
 	if (GL_pKipControl_H->getRunningFlag()) {
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Process was running -> Recover all data from last time before shutdown");
 
+		GL_WorkingData_X.CurrentIdx_UB = GL_pKipControl_H->getCurrentIdx();					// Current index in the reference table
+		GL_WorkingData_X.TotalValue_UL = GL_pKipControl_H->getTotalValue();					// Addition of all data
+		GL_WorkingData_X.ValueNb_UL = GL_pKipControl_H->getValueNb();						// Total number of data
+
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Current Index = ");
+		DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
+		DBG_ENDSTR();
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Total Value = ");
+		DBG_PRINTDATA(GL_WorkingData_X.TotalValue_UL);
+		DBG_ENDSTR();
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Number of Value = ");
+		DBG_PRINTDATA(GL_WorkingData_X.ValueNb_UL);
+		DBG_ENDSTR();
+
+		// Check if current index is still up-to-date
+		unsigned char TempIndex_UB = getDeltaDay(GL_GlobalData_X.Rtc_H.getDate(), GL_WorkingData_X.StartDate_X) + GL_WorkingData_X.StartIdx_UB;
+		if (TempIndex_UB == GL_WorkingData_X.CurrentIdx_UB) {
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Current Index is still up-to-date -> Work with it");
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "Average of the Day = ");
+			DBG_PRINTDATA((GL_WorkingData_X.TotalValue_UL) / (GL_WorkingData_X.ValueNb_UL));
+			DBG_PRINTDATA(" [g]");
+			DBG_ENDSTR();
+		}
+		else {
+			DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Current Index no more up-to-date -> Reset recovered data");
+			GL_pKipControl_H->setCurrentIdx(TempIndex_UB);
+			GL_pKipControl_H->setTotalValue(0);
+			GL_pKipControl_H->setValueNb(0);
+		}
 
 	}
 	else {
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Process was not running -> Reset working data");
 
-		// TODO : Reset data
+		GL_pKipControl_H->setCurrentIdx(GL_WorkingData_X.StartIdx_UB);
+		GL_pKipControl_H->setTotalValue(0);
+		GL_pKipControl_H->setValueNb(0);
 
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Set running flag");
-		GL_pKipControl_H->setRunningFlag(true);
-
-		TransitionToConnecting();
+		GL_pKipControl_H->setRunningFlag(true);		
 	}
+
+	TransitionToConnecting();
 }
 
 void ProcessConnecting(void) {
@@ -209,9 +263,30 @@ void ProcessConnecting(void) {
 }
 
 void ProcessWaitIndicator(void) {
+	if (!(GL_GlobalData_X.Indicator_H.isFifoEmpty())) {
 
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Weight from Indicator");
+		GL_WorkingData_X.Weight_SI = GL_GlobalData_X.Indicator_H.fifoPop();
 
+		if (GL_WorkingData_X.Weight_SI != 0) {
+			GL_WorkingData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
+			GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
 
+			GL_WorkingData_X.CurrentIdx_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
+			if (GL_WorkingData_X.CurrentIdx_UB != GL_pKipControl_H->getCurrentIdx()) {
+				DBG_PRINT(DEBUG_SEVERITY_INFO, "Current index has changed, save new value : ");
+				DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
+				DBG_ENDSTR();
+				GL_pKipControl_H->setCurrentIdx(GL_WorkingData_X.CurrentIdx_UB);
+			}
+
+			TransitionToSendPacket();
+		}
+		else {
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weight equals 0 -> do not process !");
+		}
+
+	}
 }
 
 void ProcessSendPacket(void) {

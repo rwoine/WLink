@@ -94,3 +94,10 @@ unsigned long getDeltaDay(RTC_DATE_STRUCT FromDate_X, RTC_DATE_STRUCT ToDate_X) 
 
     return ((unsigned long)(Diff_D / 86400));
 }
+
+String dateToString(RTC_DATE_STRUCT Date_X) {	
+	char pDate_UB[9];
+	sprintf(pDate_UB, "%02d/%02d/%02d", Date_X.Day_UB, Date_X.Month_UB, Date_X.Year_UB);
+
+	return String(pDate_UB);
+}
