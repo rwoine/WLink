@@ -17,7 +17,6 @@
 
 #include "KipControlManager.h"
 #include "KipControlMedium.h"
-#include "KipControlMenuManager.h"
 #include "EepromWire.h"
 
 #include "Utilz.h"
@@ -35,10 +34,8 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define KC_REFERENCE_TABLE_START_ADDR   0x0800
-#define KC_REFERENCE_TABLE_OFFSET       0x0100
+#define KC_MANAGER_CHECK_DATE_POLLING_TIME_MS		10000
 
-#define KC_MAX_DATA_NB					128
 
 /* ******************************************************************************** */
 /* Local Variables
@@ -49,8 +46,9 @@ enum KC_STATE {
 	KC_RECOVER_DATA,
 	KC_CONNECTING,
 	KC_WAIT_INDICATOR,
-	KC_SEND_PACKET,
 	KC_CHECK_WEIGHT,
+	KC_SEND_PACKET,
+	KC_SERVER_RESPONSE,
 	KC_END,
 	KC_ERROR
 };
@@ -59,6 +57,8 @@ static KC_STATE GL_KipControlManager_CurrentState_E = KC_STATE::KC_IDLE;
 static boolean GL_KipControlManagerEnabled_B = false;
 
 static KipControl * GL_pKipControl_H;
+unsigned char GL_pKCBuffer_UB[128];
+unsigned long GL_KipControlManagerAbsoluteTime_UL = 0;
 
 KC_WORKING_DATA_STRUCT GL_WorkingData_X;
 unsigned int GL_pReferenceData_UI[KC_MAX_DATA_NB];
@@ -72,8 +72,9 @@ static void ProcessGetConfig(void);
 static void ProcessRecoverData(void);
 static void ProcessConnecting(void);
 static void ProcessWaitIndicator(void);
-static void ProcessSendPacket(void);
 static void ProcessCheckWeight(void);
+static void ProcessSendPacket(void);
+static void ProcessServerResponse(void);
 static void ProcessEnd(void);
 static void ProcessError(void);
 
@@ -82,8 +83,9 @@ static void TransitionToGetConfig(void);
 static void TransitionToRecoverData(void);
 static void TransitionToConnecting(void);
 static void TransitionToWaitIndicator(void);
-static void TransitionToSendPacket(void);
 static void TransitionToCheckWeight(void);
+static void TransitionToSendPacket(void);
+static void TransitionToServerResponse(void);
 static void TransitionToEnd(void);
 static void TransitionToError(void);
 
@@ -132,13 +134,17 @@ void KipControlManager_Process() {
         ProcessWaitIndicator();
         break;
 
-    case KC_SEND_PACKET:
-        ProcessSendPacket();
-        break;
-
     case KC_CHECK_WEIGHT:
         ProcessCheckWeight();
         break;
+
+	case KC_SEND_PACKET:
+		ProcessSendPacket();
+		break;
+
+	case KC_SERVER_RESPONSE:
+		ProcessServerResponse();
+		break;
 
 	case KC_END:
 		ProcessEnd();
@@ -173,6 +179,9 @@ void ProcessGetConfig(void) {
 		DBG_PRINTDATA(GL_WorkingData_X.MacAddr_Str);
 		DBG_ENDSTR();
 
+		// Setup offline mode
+		GL_WorkingData_X.OfflineMode_B = false;
+
 		// Get fixed configuration (default or from LCD) -> stored in EEPROM
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get configuration stored in EEPROM");
 
@@ -199,7 +208,56 @@ void ProcessGetConfig(void) {
 		DBG_PRINTDATA(dateToString(GL_WorkingData_X.StartDate_X));
 		DBG_ENDSTR();
 
-		TransitionToRecoverData();
+
+		// Get Reference Data table
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Reference Data table");
+		if (GL_GlobalData_X.Eeprom_H.read(KC_REFERENCE_TABLE_START_ADDR + ((GL_WorkingData_X.ReferenceDataId_UB - 1) * KC_REFERENCE_TABLE_OFFSET), GL_pKCBuffer_UB, 2) == 2) {
+
+			if (GL_pKCBuffer_UB[0] == GL_WorkingData_X.ReferenceDataId_UB) {
+				DBG_PRINT(DEBUG_SEVERITY_INFO, "Reference table found, ID = ");
+				DBG_PRINTDATA(GL_WorkingData_X.ReferenceDataId_UB);
+				DBG_ENDSTR();
+
+				GL_WorkingData_X.MaxDataNb_UB = GL_pKCBuffer_UB[1];
+				DBG_PRINT(DEBUG_SEVERITY_INFO, "Number of reference data = ");
+				DBG_PRINTDATA(GL_WorkingData_X.MaxDataNb_UB);
+				DBG_ENDSTR();
+
+				if (GL_WorkingData_X.MaxDataNb_UB > KC_MAX_DATA_NB) {
+					DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Total number of data exceeds the maximum allowed -> value cropped");
+					GL_WorkingData_X.ReferenceDataId_UB = KC_MAX_DATA_NB;
+					DBG_PRINT(DEBUG_SEVERITY_WARNING, "KipControl handles only ");
+					DBG_PRINTDATA(GL_WorkingData_X.ReferenceDataId_UB);
+					DBG_PRINTDATA("reference values");
+					DBG_ENDSTR();
+				}
+
+				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Print out Reference Data table : ");
+				GL_GlobalData_X.Eeprom_H.read(KC_REFERENCE_TABLE_START_ADDR + ((GL_WorkingData_X.ReferenceDataId_UB - 1) * KC_REFERENCE_TABLE_OFFSET) + 2, GL_pKCBuffer_UB, 2 * GL_WorkingData_X.MaxDataNb_UB);
+				for (int i = 0; i < GL_WorkingData_X.MaxDataNb_UB; i++) {
+					GL_pReferenceData_UI[i] = (GL_pKCBuffer_UB[2 * i] << 8) + (GL_pKCBuffer_UB[2 * i + 1]);
+					DBG_PRINT(DEBUG_SEVERITY_INFO, "- ");
+					DBG_PRINTDATABASE(i, DEC);
+					DBG_PRINTDATA(" = ");
+					DBG_PRINTDATABASE(GL_pReferenceData_UI[i], DEC);
+					DBG_ENDSTR();
+				}
+
+
+				// Transition to get other data
+				TransitionToRecoverData();
+			}
+			else {
+				DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Reference Data table NOT found !");
+				TransitionToError();
+			}
+
+		}
+		else {
+			DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Can NOT read Reference Data table !");
+			TransitionToError();
+		}
+
 	}
 	else {
 		DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Kip Control NOT Configured !");
@@ -229,10 +287,13 @@ void ProcessRecoverData(void) {
 		unsigned char TempIndex_UB = getDeltaDay(GL_GlobalData_X.Rtc_H.getDate(), GL_WorkingData_X.StartDate_X) + GL_WorkingData_X.StartIdx_UB;
 		if (TempIndex_UB == GL_WorkingData_X.CurrentIdx_UB) {
 			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Current Index is still up-to-date -> Work with it");
-			DBG_PRINT(DEBUG_SEVERITY_INFO, "Average of the Day = ");
-			DBG_PRINTDATA((GL_WorkingData_X.TotalValue_UL) / (GL_WorkingData_X.ValueNb_UL));
-			DBG_PRINTDATA(" [g]");
-			DBG_ENDSTR();
+
+			if (GL_WorkingData_X.ValueNb_UL != 0) {
+				DBG_PRINT(DEBUG_SEVERITY_INFO, "Average of the Day = ");
+				DBG_PRINTDATA((GL_WorkingData_X.TotalValue_UL) / (GL_WorkingData_X.ValueNb_UL));
+				DBG_PRINTDATA(" [g]");
+				DBG_ENDSTR();
+			}
 		}
 		else {
 			DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Current Index no more up-to-date -> Reset recovered data");
@@ -257,12 +318,25 @@ void ProcessRecoverData(void) {
 }
 
 void ProcessConnecting(void) {
+	if (KipControlMedium_IsConnected()) {
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Turn to online mode -> recording to portal allowed");
+		GL_WorkingData_X.OfflineMode_B = true;
 
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Setup connectivity environment");
+		KipControlMedium_SetupEnvironment();
+	}
+	else {
+		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Cannot connect to portal");
+		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Turn to offline mode -> recording to portal disabled");
+		GL_WorkingData_X.OfflineMode_B = false;
+	}
 
-
+	TransitionToWaitIndicator();
 }
 
 void ProcessWaitIndicator(void) {
+
+	// Wait for new Weight
 	if (!(GL_GlobalData_X.Indicator_H.isFifoEmpty())) {
 
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Weight from Indicator");
@@ -278,34 +352,137 @@ void ProcessWaitIndicator(void) {
 				DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
 				DBG_ENDSTR();
 				GL_pKipControl_H->setCurrentIdx(GL_WorkingData_X.CurrentIdx_UB);
-			}
 
-			TransitionToSendPacket();
+				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reset working data (average calculation)");
+				GL_pKipControl_H->setTotalValue(0);
+				GL_pKipControl_H->setValueNb(0);
+
+				if (GL_WorkingData_X.CurrentIdx_UB >= GL_WorkingData_X.MaxDataNb_UB) {
+					// End of recording
+					DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reached end of Reference Data table");
+					DBG_PRINTLN(DEBUG_SEVERITY_INFO, "-> End of recording");
+					TransitionToEnd();
+				}
+				else {
+					// Check weight according to Reference Data
+					TransitionToCheckWeight();
+				}
+			}
+			else {
+				// Check weight according to Reference Data
+				TransitionToCheckWeight();
+			}
 		}
 		else {
 			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weight equals 0 -> do not process !");
 		}
-
 	}
-}
 
-void ProcessSendPacket(void) {
+	// Check if reached the end of recording
+	if ((millis() - GL_KipControlManagerAbsoluteTime_UL) >= KC_MANAGER_CHECK_DATE_POLLING_TIME_MS) {
+		GL_KipControlManagerAbsoluteTime_UL = millis();
 
+		GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
+		GL_WorkingData_X.CurrentIdx_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
 
-
+		if (GL_WorkingData_X.CurrentIdx_UB >= GL_WorkingData_X.MaxDataNb_UB) {
+			// End of recording
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reached end of Reference Data table");
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "-> End of recording");
+			TransitionToEnd();
+		}
+	}
 }
 
 void ProcessCheckWeight(void) {
 
+	/* Get Reference Data according to current day */
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "Day #");
+	DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB + 1);	// Day starting at 1 -> index starting at 0
+	DBG_PRINTDATA(" -> ");
+	DBG_PRINTDATA("Reference Weight is ");
+	DBG_PRINTDATA(GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB]);
+	DBG_PRINTDATA("[g]");
+	DBG_ENDSTR();
+
+	/* Check if Weight is in Tolerance */
+	float LimitHigh_F = (float)GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB] * (1 + (float)GL_WorkingData_X.Tolerance_UB / 100);
+	float LimitLow_F = (float)GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB] * (1 - (float)GL_WorkingData_X.Tolerance_UB / 100);
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "Weight should be within [");
+	DBG_PRINTDATA(LimitHigh_F);
+	DBG_PRINTDATA(":");
+	DBG_PRINTDATA(LimitLow_F);
+	DBG_PRINTDATA("]");
+	DBG_ENDSTR();
+
+	if ((GL_WorkingData_X.Weight_SI <= LimitHigh_F) && (GL_WorkingData_X.Weight_SI >= LimitLow_F)) {
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weight within boundaries -> taken into account to calculate average.");
+		GL_pKipControl_H->appendTotalValue(GL_WorkingData_X.Weight_SI);
+		GL_pKipControl_H->incValueNb();
+
+		GL_WorkingData_X.TotalValue_UL = GL_pKipControl_H->getTotalValue();
+		GL_WorkingData_X.ValueNb_UL = GL_pKipControl_H->getValueNb();
+
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Average of the Day = ");
+		DBG_PRINTDATA((GL_WorkingData_X.TotalValue_UL) / (GL_WorkingData_X.ValueNb_UL));
+		DBG_PRINTDATA(" [g]");
+		DBG_ENDSTR();
+
+	}
+	else {
+		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Weight outside boundaries -> ignored!");
+	}
 
 
-
+	if (GL_WorkingData_X.OfflineMode_B) {
+		// Wait or new Weight
+		TransitionToWaitIndicator();
+	}
+	else {
+		// Send all data to portal
+		TransitionToSendPacket();
+	}
 }
+
+
+void ProcessSendPacket(void) {
+
+	KipControlMedium_BeginTransaction();
+	KipControlMedium_Print("GET /kipcontrol/import?");
+	KipControlMedium_Print("data[0][Weight]=");
+	KipControlMedium_Print(GL_WorkingData_X.Weight_SI);
+	KipControlMedium_Print("&data[0][BalanceSerial]=");
+	KipControlMedium_Print(GL_WorkingData_X.MacAddr_Str);
+	KipControlMedium_Print("&data[0][Batch]=");
+	KipControlMedium_Print(GL_WorkingData_X.BatchId_UL);
+	KipControlMedium_Print("&data[0][Tolerance]=");
+	KipControlMedium_Print(GL_WorkingData_X.Tolerance_UB);
+	KipControlMedium_Print("&data[0][Age]=");
+	KipControlMedium_Print(GL_WorkingData_X.CurrentIdx_UB + 1);
+	KipControlMedium_Print("&data[0][DateTime]=");
+	KipControlMedium_Print(GL_WorkingData_X.TimeStamp_Str);
+	KipControlMedium_EndTransaction();
+
+	TransitionToServerResponse();
+}
+
+void ProcessServerResponse(void) {
+
+	if ((millis() - GL_KipControlManagerAbsoluteTime_UL) >= ) {
+
+
+		// Try to re-send the data
+		TransitionToSendPacket();
+	}
+
+	// Wait for new Weight
+	TransitionToWaitIndicator();
+}
+
 
 void ProcessEnd(void) {
 	// End of recording
-	// TODO :	disable running flag
-	//			reset param
+	// TODO :	reset param
 	//			re-start recording ?
 }
 
@@ -331,17 +508,14 @@ void TransitionToRecoverData(void) {
 
 void TransitionToConnecting(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CONNECTING");
+	KipControlMedium_Connect();
     GL_KipControlManager_CurrentState_E = KC_STATE::KC_CONNECTING;
 }
 
 void TransitionToWaitIndicator(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT INDICATOR");
+	GL_KipControlManagerAbsoluteTime_UL = millis();
     GL_KipControlManager_CurrentState_E = KC_STATE::KC_WAIT_INDICATOR;
-}
-
-void TransitionToSendPacket(void) {
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To SEND PACKET");
-    GL_KipControlManager_CurrentState_E = KC_STATE::KC_SEND_PACKET;
 }
 
 void TransitionToCheckWeight(void) {
@@ -349,8 +523,21 @@ void TransitionToCheckWeight(void) {
 	GL_KipControlManager_CurrentState_E = KC_STATE::KC_CHECK_WEIGHT;
 }
 
+void TransitionToSendPacket(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To SEND PACKET");
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_SEND_PACKET;
+}
+
+void TransitionToServerResponse(void) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To SERVER RESPONSE");
+	GL_KipControlManagerAbsoluteTime_UL = millis();
+	GL_KipControlManager_CurrentState_E = KC_STATE::KC_SERVER_RESPONSE;
+}
+
 void TransitionToEnd(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To END");
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reset running flag");
+	GL_pKipControl_H->setRunningFlag(false);
 	GL_KipControlManager_CurrentState_E = KC_STATE::KC_END;
 }
 

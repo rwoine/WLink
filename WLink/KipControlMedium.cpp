@@ -131,6 +131,43 @@ void KipControlMedium_BeginTransaction(void) {
 	}
 }
 
+
+void KipControlMedium_Print(unsigned char Data_UB) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+		GL_pMediumEthernet_H->print(Data_UB);
+		break;
+
+	case KC_MEDIUM_GSM:
+		GL_pMediumGsm_H->httpParamAdd(Data_UB);
+		break;
+	}
+}
+
+void KipControlMedium_Print(int Data_SI) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+		GL_pMediumEthernet_H->print(Data_SI);
+		break;
+
+	case KC_MEDIUM_GSM:
+		GL_pMediumGsm_H->httpParamAdd(Data_SI);
+		break;
+	}
+}
+
+void KipControlMedium_Print(unsigned long Data_UL) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+		GL_pMediumEthernet_H->print(Data_UL);
+		break;
+
+	case KC_MEDIUM_GSM:
+		GL_pMediumGsm_H->httpParamAdd(Data_UL);
+		break;
+	}
+}
+
 void KipControlMedium_Print(char * pData_UB) {
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:

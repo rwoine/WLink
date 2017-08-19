@@ -180,12 +180,6 @@
     <ClInclude Include="FONAPlatStd.h">
       <Filter>Source Files\Network\ExternalLib</Filter>
     </ClInclude>
-    <ClInclude Include="KipControlMenuItemText.h">
-      <Filter>Source Files\Applications\KipControl</Filter>
-    </ClInclude>
-    <ClInclude Include="KipControlMenuManager.h">
-      <Filter>Source Files\Applications\KipControl</Filter>
-    </ClInclude>
     <ClInclude Include="KipControlManager.h">
       <Filter>Source Files\Applications\KipControl</Filter>
     </ClInclude>
@@ -298,9 +292,6 @@
     </ClCompile>
     <ClCompile Include="Adafruit_FONA.cpp">
       <Filter>Source Files\Network\ExternalLib</Filter>
-    </ClCompile>
-    <ClCompile Include="KipControlMenuManager.cpp">
-      <Filter>Source Files\Applications\KipControl</Filter>
     </ClCompile>
     <ClCompile Include="KipControlManager.cpp">
       <Filter>Source Files\Applications\KipControl</Filter>

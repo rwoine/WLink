@@ -111,7 +111,8 @@ public:
     void sendAtCommand(String Data_Str, String Suffix_Str, boolean Quoted_B = false, boolean Completed_B = true);
     void sendAtCommand(String Data_Str, char * pSuffix_UB, boolean Quoted_B = false, boolean Completed_B = true);
     void addAtData(int Data_SI, boolean Quoted_B = false, boolean Completed_B = true);
-    void addAtData(char Data_UB, boolean Quoted_B = false, boolean Completed_B = true);
+	void addAtData(char Data_UB, boolean Quoted_B = false, boolean Completed_B = true);
+	void addAtData(unsigned long Data_UL, boolean Quoted_B = false, boolean Completed_B = true);
     void addAtData(char * pData_UB, boolean Quoted_B = false, boolean Completed_B = true);
     void addAtData(String Data_Str, boolean Quoted_B = false, boolean Completed_B = true);
 	void endAtData(void);
@@ -141,6 +142,9 @@ public:
 	boolean httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, char * pParamValue_UB);
     boolean httpParam(FONA_MODULE_HTTP_PARAM_ENUM Param_E, String ParamValue_Str);
 	boolean httpParamStart(FONA_MODULE_HTTP_PARAM_ENUM Param_E);
+	boolean httpParamAdd(char ParamValue_UB);
+	boolean httpParamAdd(int ParamValue_SI);
+	boolean httpParamAdd(unsigned long ParamValue_UL);
 	boolean httpParamAdd(char * pParamValue_UB);
 	boolean httpParamAdd(String ParamValue_Str);
 	boolean httpParamEnd(void);

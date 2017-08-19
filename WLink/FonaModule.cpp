@@ -232,6 +232,20 @@ void FonaModule::addAtData(char Data_UB, boolean Quoted_B, boolean Completed_B) 
         GL_pFonaSerial_H->println();
 }
 
+void FonaModule::addAtData(unsigned long Data_UL, boolean Quoted_B, boolean Completed_B) {
+	if (!Quoted_B) {
+		GL_pFonaSerial_H->print(Data_UL);
+	}
+	else {
+		GL_pFonaSerial_H->print('"');
+		GL_pFonaSerial_H->print(Data_UL);
+		GL_pFonaSerial_H->print('"');
+	}
+
+	if (Completed_B)
+		GL_pFonaSerial_H->println();
+}
+
 void FonaModule::addAtData(char * pData_UB, boolean Quoted_B, boolean Completed_B) {
     if (!Quoted_B) {
         GL_pFonaSerial_H->print(pData_UB);
@@ -807,6 +821,27 @@ boolean FonaModule::httpParamStart(FONA_MODULE_HTTP_PARAM_ENUM Param_E) {
 	sendAtCommand("AT+HTTPPARA=", GL_pFonaModuleHttpParam_Str[Param_E], true, false);   // Quoted Param Identifier
 	addAtData(",", false, false);
 	return true;
+}
+
+boolean FonaModule::httpParamAdd(char ParamValue_UB) {
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "Add HTTP Data to Param : ");
+	DBG_PRINTDATA(ParamValue_UB);
+	DBG_ENDSTR();
+	addAtData(ParamValue_UB, false, false);
+}
+
+boolean FonaModule::httpParamAdd(int ParamValue_SI) {
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "Add HTTP Data to Param : ");
+	DBG_PRINTDATA(ParamValue_SI);
+	DBG_ENDSTR();
+	addAtData(ParamValue_SI, false, false);
+}
+
+boolean FonaModule::httpParamAdd(unsigned long ParamValue_UL) {
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "Add HTTP Data to Param : ");
+	DBG_PRINTDATA(ParamValue_UL);
+	DBG_ENDSTR();
+	addAtData(ParamValue_UL, false, false);
 }
 
 boolean FonaModule::httpParamAdd(char * pParamValue_UB) {

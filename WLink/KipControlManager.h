@@ -23,12 +23,17 @@
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
+#define KC_REFERENCE_TABLE_START_ADDR   0x0800
+#define KC_REFERENCE_TABLE_OFFSET       0x0100
+
+#define KC_MAX_DATA_NB					120
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
 typedef struct {
 	String MacAddr_Str;					// MAC address for unique identification
+	boolean OfflineMode_B;				// Offline mode flag (false = record data to portal)
 
     boolean IsConfigured_B;             // Configured flag
     boolean IsRunning_B;                // Running flag
