@@ -34,7 +34,10 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
+#define KC_MANAGER_SERVER_RESPONSE_OK				200
+
 #define KC_MANAGER_CHECK_DATE_POLLING_TIME_MS		10000
+#define KC_MANAGER_SERVER_RESPONSE_TIMEOUT_MS		10000
 
 
 /* ******************************************************************************** */
@@ -62,6 +65,15 @@ unsigned long GL_KipControlManagerAbsoluteTime_UL = 0;
 
 KC_WORKING_DATA_STRUCT GL_WorkingData_X;
 unsigned int GL_pReferenceData_UI[KC_MAX_DATA_NB];
+
+typedef struct {
+	int DataSize_SI;
+	int Response_SI;
+	int AccessCounter_SI;
+	char pData_UB[256];
+} KC_MANAGER_SERVER_PARAM;
+
+KC_MANAGER_SERVER_PARAM GL_ServerParam_X;
 
 
 /* ******************************************************************************** */
@@ -113,6 +125,13 @@ void KipControlManager_Disable() {
 }
 
 void KipControlManager_Process() {
+
+	/* Reset Condition */
+	if ((GL_KipControlManager_CurrentState_E != KC_IDLE) && (!(KipControlMedium_IsReady() && GL_KipControlManagerEnabled_B))) {
+		TransitionToIdle();
+	}
+
+	/* State Machine */
     switch (GL_KipControlManager_CurrentState_E) {
     case KC_IDLE:
         ProcessIdle();
@@ -166,8 +185,15 @@ boolean KipControlManager_IsEnabled() {
 /* ******************************************************************************** */
 
 void ProcessIdle(void) {
-    if (GL_KipControlManagerEnabled_B)
-        TransitionToGetConfig();
+	if (GL_KipControlManagerEnabled_B && KipControlMedium_IsReady()) {
+		
+		// Set Default Server Param
+		GL_ServerParam_X.DataSize_SI = 0;
+		GL_ServerParam_X.Response_SI = 0;
+		GL_ServerParam_X.AccessCounter_SI = 0;
+		
+		TransitionToGetConfig();
+	}
 }
 
 void ProcessGetConfig(void) {
@@ -468,15 +494,69 @@ void ProcessSendPacket(void) {
 
 void ProcessServerResponse(void) {
 
-	if ((millis() - GL_KipControlManagerAbsoluteTime_UL) >= ) {
+	boolean AnotherTryNeeded_B = false;
 
+	// Check Data
+	if (KipControlMedium_DataAvailable()) {
+
+		GL_ServerParam_X.Response_SI = KipControlMedium_GetServerResponse();
+
+		if (GL_ServerParam_X.Response_SI == KC_MANAGER_SERVER_RESPONSE_OK) {
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Response OK from Server!");
+
+			GL_ServerParam_X.DataSize_SI = KipControlMedium_GetDataSize();
+			KipControlMedium_Read(GL_ServerParam_X.pData_UB);
+
+			AnotherTryNeeded_B = false;
+		}
+		else {
+			DBG_PRINT(DEBUG_SEVERITY_WARNING, "The Server did not respond OK -> Response = ");
+			DBG_PRINTDATA(GL_ServerParam_X.Response_SI);
+			DBG_ENDSTR();
+
+			AnotherTryNeeded_B = true;
+		}
+	}
+
+	// Check Timeout
+	if ((millis() - GL_KipControlManagerAbsoluteTime_UL) >= KC_MANAGER_SERVER_RESPONSE_TIMEOUT_MS) {
+		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Timeout while accessing to portal");
+		AnotherTryNeeded_B = true;
+	}
+
+
+	// Flush Medium for clean-up
+	KipControlMedium_Flush();
+
+	// Check what to do
+	if (!AnotherTryNeeded_B) {
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Continue processing");
+
+		// Reset Access Counter
+		GL_ServerParam_X.AccessCounter_SI = 0;
+
+		// Wait for new Weight
+		TransitionToWaitIndicator();
+
+	} else if (GL_ServerParam_X.AccessCounter_SI >= 2) {
+		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Maximum number of try reached -> Value not sent to portal..");
+
+		// Reset Access Counter
+		GL_ServerParam_X.AccessCounter_SI = 0;
+
+		// Wait for new Weight
+		TransitionToWaitIndicator();
+	}
+	else {
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Try to send value again..");
+
+		// Increment Access Counter
+		GL_ServerParam_X.AccessCounter_SI++;
 
 		// Try to re-send the data
 		TransitionToSendPacket();
 	}
 
-	// Wait for new Weight
-	TransitionToWaitIndicator();
 }
 
 

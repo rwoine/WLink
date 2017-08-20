@@ -90,6 +90,20 @@ boolean KipControlMedium_Connect(void) {
 	}
 }
 
+
+boolean KipControlMedium_IsReady(void) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+		return NetworkAdapterManager_IsRunning();
+		break;
+
+	case KC_MEDIUM_GSM:
+		return FonaModuleManager_IsRunning();
+		break;
+	}
+}
+
+
 boolean KipControlMedium_IsConnected(void) {
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
@@ -207,6 +221,33 @@ void KipControlMedium_EndTransaction(void) {
 	case KC_MEDIUM_GSM:
 		GL_pMediumGsm_H->httpParamEnd();
 		GL_pMediumGsm_H->httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET, &GL_ServerResponse_SI, &GL_ServerData_SI);
+		break;
+	}
+}
+
+void KipControlMedium_Flush(void) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+		GL_pMediumEthernet_H->flush();
+		delay(500);
+		while (GL_pMediumEthernet_H->available())
+			GL_pMediumEthernet_H->read();
+		break;
+
+	case KC_MEDIUM_GSM:
+		GL_pMediumGsm_H->flush();
+		break;
+	}
+}
+
+int KipControlMedium_DataAvailable(void) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+		return GL_pMediumEthernet_H->available();
+		break;
+
+	case KC_MEDIUM_GSM:
+		return GL_ServerData_SI;
 		break;
 	}
 }

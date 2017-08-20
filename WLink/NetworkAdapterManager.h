@@ -34,6 +34,8 @@ void NetworkAdapterManager_Enable();
 void NetworkAdapterManager_Disable();
 void NetworkAdapterManager_Process();
 
+boolean NetworkAdapterManager_IsRunning();
+
 
 #endif // __NETWORK_ADAPTER_MANAGER_H__
 

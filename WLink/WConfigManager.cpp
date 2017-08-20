@@ -49,6 +49,7 @@
 #define WCONFIG_ADDR_CONFIG_TAG         0x0000
 #define WCONFIG_ADDR_BOARD_REV          0x0002
 #define WCONFIG_ADDR_LANGUAGE           0x0004
+#define WCONFIG_ADDR_APP				0x0005
 #define WCONFIG_ADDR_GEN                0x0006
 #define WCONFIG_ADDR_WCMD_MEDIUM        0x0007
 #define WCONFIG_ADDR_IO                 0x0008
@@ -59,7 +60,6 @@
 #define WCONFIG_ADDR_TCP_CLIENT         0x003C
 #define WCONFIG_ADDR_FONA_MODULE        0x0040
 #define WCONFIG_ADDR_INDICATOR          0x0050
-#define WCONFIG_ADDR_APP				0x0100
 
 
 /* ******************************************************************************** */
@@ -70,6 +70,7 @@ static const String GL_pLanguageLut_str[] = { "EN", "FR", "NL" };
 static const String GL_pWCmdMediumLut_str[] = { "None", "COM0", "COM1", "COM2", "COM3", "UDP Server", "TCP Server", "GSM Server" };
 static const int GL_pInputLut_SI[] = { PIN_GPIO_INPUT0, PIN_GPIO_INPUT1, PIN_GPIO_INPUT2, PIN_GPIO_INPUT3 };
 static const int GL_pOutputLut_SI[] = { PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1,PIN_GPIO_OUTPUT2,PIN_GPIO_OUTPUT3 };
+static const String GL_pWAppLut_Str[]
 
 /* ******************************************************************************** */
 /* LCD Special Char
@@ -968,30 +969,37 @@ WCFG_STATUS WConfigManager_Process() {
 	case WCFG_GET_APP_CONFIG:
 
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive Application configuration");
-		if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_APP, GL_pWConfigBuffer_UB, 2) == 2) {
+		if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_APP, GL_pWConfigBuffer_UB, 1) == 1) {
 			
+			if ((GL_pWConfigBuffer_UB[0] & 0x01) == 0x01) {
 
+				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Application configuration needed");
 
-			DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Configure Application : FIXED CONFIG for now");
+				switch ((GL_pWConfigBuffer_UB[0] & 0xF0) >> 4)
+				{
+					case 
 
+					default:
+						break;
+				}
 
-			KipControlMedium_Init(KC_MEDIUM_GSM, &(GL_GlobalData_X.Fona_H));
-			KipControlMedium_SetServerParam("www.balthinet.be", 80);
+					KipControlMedium_Init(KC_MEDIUM_GSM, &(GL_GlobalData_X.Fona_H));
+					KipControlMedium_SetServerParam("www.balthinet.be", 80);
 
+					// For Debug Purpose
+					GL_GlobalConfig_X.App_X.pFctInit = KipControlManager_Init;
+					GL_GlobalConfig_X.App_X.pFctEnable = KipControlManager_Enable;
+					GL_GlobalConfig_X.App_X.pFctDisable = KipControlManager_Disable;
+					GL_GlobalConfig_X.App_X.pFctProcess = KipControlManager_Process;
+					GL_GlobalConfig_X.App_X.pFctIsEnabled = KipControlManager_IsEnabled;
+					GL_GlobalConfig_X.App_X.hasApplication_B = true;
 
-
-			// For Debug Purpose
-			GL_GlobalConfig_X.App_X.pFctInit = KipControlManager_Init;
-			GL_GlobalConfig_X.App_X.pFctEnable = KipControlManager_Enable;
-			GL_GlobalConfig_X.App_X.pFctDisable = KipControlManager_Disable;
-			GL_GlobalConfig_X.App_X.pFctProcess = KipControlManager_Process;
-			GL_GlobalConfig_X.App_X.pFctIsEnabled = KipControlManager_IsEnabled;
-			GL_GlobalConfig_X.App_X.hasApplication_B = true;
-
-			// Call init with specific object
-			GL_GlobalConfig_X.App_X.pFctInit(&(GL_GlobalData_X.KipControl_H));
-
-
+					// Call init with specific object
+					GL_GlobalConfig_X.App_X.pFctInit(&(GL_GlobalData_X.KipControl_H));
+			}
+			else {
+				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "No application to be configured");
+			}
 
 			TransitionToConfigDone();
 		}

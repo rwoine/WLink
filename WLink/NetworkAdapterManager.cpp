@@ -92,6 +92,10 @@ void NetworkAdapterManager_Process() {
         break;
     }
 }
+boolean NetworkAdapterManager_IsRunning() {
+	return ((GL_NetworkAdapterManager_CurrentState_E == NETWORK_ADAPTER_RUNNING) ? true : false);
+}
+
 
 
 /* ******************************************************************************** */
