@@ -177,10 +177,6 @@ void TransitionToProcessWLink(void) {
     // Enable WMenu
     WMenuManager_Enable();
 
-    // Enable Application if any
-    if (GL_GlobalConfig_X.App_X.hasApplication_B)
-        GL_GlobalConfig_X.App_X.pFctEnable();
-
     GL_WLinkManager_CurrentState_E = W_STATE::W_PROCESS_WLINK;
 }
 

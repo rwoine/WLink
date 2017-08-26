@@ -528,6 +528,7 @@ boolean FonaModule::enterPinCode(char * pPinCode_UB) {
     if (checkAtResponse("+CPIN: READY")) {
 
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "PIN code not requested");
+		Status_B = true;
 
     }
     else if (checkAtResponse("+CPIN: SIM PIN")) {

@@ -23,17 +23,16 @@
 /* Define
 /* ******************************************************************************** */
 #define KC_WORKING_AREA_OFFSET          0x0400
-#define KC_GLOBAL_DATA_ADDR             (KC_WORKING_AREA_OFFSET + 0x0000)
-#define KC_TOLERANCE_ADDR               (KC_WORKING_AREA_OFFSET + 0x0001)
-#define KC_REFERENCE_DATA_ID_ADDR       (KC_WORKING_AREA_OFFSET + 0x0002)
-#define KC_BATCH_ID_ADDR				(KC_WORKING_AREA_OFFSET + 0x0002)
-#define KC_MAX_DATA_NB_ADDR             (KC_WORKING_AREA_OFFSET + 0x0003)
-#define KC_START_IDX_ADDR               (KC_WORKING_AREA_OFFSET + 0x0004)
-#define KC_START_DATE_ADDR              (KC_WORKING_AREA_OFFSET + 0x0005)
-#define KC_CURRENT_IDX_ADDR             (KC_WORKING_AREA_OFFSET + 0x0008)
-#define KC_TOTAL_VALUE_ADDR             (KC_WORKING_AREA_OFFSET + 0x0009)
-#define KC_VALUE_NB_ADDR                (KC_WORKING_AREA_OFFSET + 0x000D)
-#define KC_AVERAGE_TABLE_ADDR           (KC_WORKING_AREA_OFFSET + 0x0100)
+#define KC_GLOBAL_DATA_ADDR             (KC_WORKING_AREA_OFFSET + 0x0001)
+#define KC_TOLERANCE_ADDR               (KC_WORKING_AREA_OFFSET + 0x0002)
+#define KC_BATCH_ID_ADDR				(KC_WORKING_AREA_OFFSET + 0x0003)
+#define KC_REFERENCE_DATA_ID_ADDR       (KC_WORKING_AREA_OFFSET + 0x0004)
+#define KC_MAX_DATA_NB_ADDR             (KC_WORKING_AREA_OFFSET + 0x0005)
+#define KC_START_IDX_ADDR               (KC_WORKING_AREA_OFFSET + 0x0006)
+#define KC_START_DATE_ADDR              (KC_WORKING_AREA_OFFSET + 0x0007)
+#define KC_CURRENT_IDX_ADDR             (KC_WORKING_AREA_OFFSET + 0x000A)
+#define KC_TOTAL_VALUE_ADDR             (KC_WORKING_AREA_OFFSET + 0x000B)
+#define KC_VALUE_NB_ADDR                (KC_WORKING_AREA_OFFSET + 0x000F)
 
 /* ******************************************************************************** */
 /* Structure & Enumeration

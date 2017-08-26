@@ -408,8 +408,14 @@ void ProcessWaitIndicator(void) {
 	if ((millis() - GL_KipControlManagerAbsoluteTime_UL) >= KC_MANAGER_CHECK_DATE_POLLING_TIME_MS) {
 		GL_KipControlManagerAbsoluteTime_UL = millis();
 
-		GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
+		GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getDate();
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Current Date = ");
+		DBG_PRINTDATA(dateToString(GL_WorkingData_X.CurrentDate_X));
+		DBG_ENDSTR();
 		GL_WorkingData_X.CurrentIdx_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Calculated Current Index = ");
+		DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
+		DBG_ENDSTR();
 
 		if (GL_WorkingData_X.CurrentIdx_UB >= GL_WorkingData_X.MaxDataNb_UB) {
 			// End of recording

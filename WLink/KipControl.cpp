@@ -47,14 +47,14 @@ KipControl::KipControl() {
 /* ******************************************************************************** */
 boolean KipControl::getConfiguredFlag(void) {
 	if (GL_GlobalData_X.Eeprom_H.read(KC_GLOBAL_DATA_ADDR, GL_pBuffer_UB, 1) == 1)
-		return ((GL_pBuffer_UB[0] && 0x01) == 0x01);
+		return ((GL_pBuffer_UB[0] & 0x01) == 0x01);
 	else
 		return false;
 }
 
 boolean KipControl::getRunningFlag(void) {
 	if (GL_GlobalData_X.Eeprom_H.read(KC_GLOBAL_DATA_ADDR, GL_pBuffer_UB, 1) == 1)
-		return ((GL_pBuffer_UB[0] && 0x02) == 0x02);
+		return ((GL_pBuffer_UB[0] & 0x02) == 0x02);
 	else
 		return false;
 }

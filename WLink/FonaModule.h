@@ -40,7 +40,7 @@ typedef struct {
     char pPinCode_UB[4];
 } FONA_MODULE_PARAM;
 
-const String GL_pFonaModuleApn_Str[] = { "mworld.be" };
+const String GL_pFonaModuleApn_Str[] = { "mworld.be", "internet.proximus.be", "test2.m2mmobi.be" };
 const String GL_FonaModuleUserAgent_Str = "WLINK";
 
 

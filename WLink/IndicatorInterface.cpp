@@ -52,5 +52,13 @@ void IndicatorInterface_Init(void) {
     }
 
 	// Do the same for other indicators..
+	// ...
 
+	// Print out the allowed interfaces
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Indicator Interfaces Initialized : ");
+	for (int i = 0; i < INDICATOR_INTERFACE_DEVICES_NUM; i++) {
+		DBG_PRINT(DEBUG_SEVERITY_INFO, " - ");
+		DBG_PRINTDATA(pIndicatorInterfaceDeviceLut_Str[i]);
+		DBG_ENDSTR();
+	}
 }

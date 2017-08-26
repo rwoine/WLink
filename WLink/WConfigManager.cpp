@@ -70,12 +70,13 @@ static const String GL_pLanguageLut_str[] = { "EN", "FR", "NL" };
 static const String GL_pWCmdMediumLut_str[] = { "None", "COM0", "COM1", "COM2", "COM3", "UDP Server", "TCP Server", "GSM Server" };
 static const int GL_pInputLut_SI[] = { PIN_GPIO_INPUT0, PIN_GPIO_INPUT1, PIN_GPIO_INPUT2, PIN_GPIO_INPUT3 };
 static const int GL_pOutputLut_SI[] = { PIN_GPIO_OUTPUT0, PIN_GPIO_OUTPUT1,PIN_GPIO_OUTPUT2,PIN_GPIO_OUTPUT3 };
-static const String GL_pWAppLut_Str[]
+static const String GL_pWAppLut_str[] = { "Default", "KipControl", "CowWeight" };
+
 
 /* ******************************************************************************** */
 /* LCD Special Char
 /* ******************************************************************************** */
-byte GL_LcdWLinkLogo[8] = {
+byte GL_pLcdWLinkLogo[8] = {
     B11111,
     B10001,
     B01010,
@@ -84,6 +85,57 @@ byte GL_LcdWLinkLogo[8] = {
     B10001,
     B11111,
     B00000
+};
+
+byte GL_pLcdSignalStrengthLogo0[8] = {
+	B00000,
+	B00000,
+	B00000,
+	B00000,
+	B00000,
+	B00000,
+	B10000,
+	B00000
+};
+byte GL_pLcdSignalStrengthLogo1[8] = {
+	B00000,
+	B00000,
+	B00000,
+	B00000,
+	B11000,
+	B00000,
+	B10000,
+	B00000
+};
+byte GL_pLcdSignalStrengthLogo2[8] = {
+	B00000,
+	B00000,
+	B11100,
+	B00000,
+	B11000,
+	B00000,
+	B10000,
+	B00000
+};
+byte GL_pLcdSignalStrengthLogo3[8] = {
+	B11110,
+	B00000,
+	B11100,
+	B00000,
+	B11000,
+	B00000,
+	B10000,
+	B00000
+};
+byte GL_pLcdNoSignalStrengthLogo[8] = {
+	B00000,
+	B00000,
+	B01010,
+	B00100,
+	B01010,
+	B00000,
+	B00000,
+	B00000
 };
 
 /* ******************************************************************************** */
@@ -229,6 +281,11 @@ WCFG_STATUS WConfigManager_Process() {
         GL_GlobalData_X.Rtc_H.init(&Wire, PIN_RTC_SQUARE_OUT);
 
         if (GL_GlobalData_X.Rtc_H.isInitialized()) {
+			// Debug print actual time
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "Actual time : ");
+			DBG_PRINTDATA(GL_GlobalData_X.Rtc_H.getDateTimeString());
+			DBG_ENDSTR();
+
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CHECK TAG");
             GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_CHECK_TAG;
         }
@@ -370,7 +427,12 @@ WCFG_STATUS WConfigManager_Process() {
                 GL_GlobalData_X.Lcd_H.init(&GL_LcdObject_X, PIN_LCD_BACKLIGHT);
                 GL_GlobalData_X.Lcd_H.clearDisplay();
                 GL_GlobalData_X.Lcd_H.setBacklight(255);	// Max value for Backlight by default
-                GL_GlobalData_X.Lcd_H.createChar(0, GL_LcdWLinkLogo);
+                GL_GlobalData_X.Lcd_H.createChar(0, GL_pLcdWLinkLogo);
+				GL_GlobalData_X.Lcd_H.createChar(1, GL_pLcdSignalStrengthLogo0);
+				GL_GlobalData_X.Lcd_H.createChar(2, GL_pLcdSignalStrengthLogo1);
+				GL_GlobalData_X.Lcd_H.createChar(3, GL_pLcdSignalStrengthLogo2);
+				GL_GlobalData_X.Lcd_H.createChar(4, GL_pLcdSignalStrengthLogo3);
+				GL_GlobalData_X.Lcd_H.createChar(5, GL_pLcdNoSignalStrengthLogo);
 
                 if (!GL_GlobalData_X.Lcd_H.isInitialized()) {
                     DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "LCD cannot be initialized");
@@ -945,15 +1007,86 @@ WCFG_STATUS WConfigManager_Process() {
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive Indicators configuration");
         if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_INDICATOR, GL_pWConfigBuffer_UB, 16) == 16) {
 
-            DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Configure Indicator: FIXED CONFIG for now");
+			// Initialize Interface if at least one Indicator is enabled
+			for (int i = 0; i < 4; i++) {
+				if ((GL_pWConfigBuffer_UB[i * 4] & 0x01) == 0x01) {
+					IndicatorInterface_Init();
+					break;
+				}
+			}
 
-            IndicatorInterface_Init();
-            GL_GlobalData_X.Indicator_H.init(GetSerialHandle(PORT_COM1), 9600, false);
-            GL_GlobalData_X.Indicator_H.setIndicatorDevice(INDICATOR_GI400);
-            GL_GlobalConfig_X.pComPortConfig_X[PORT_COM1].pFctCommEvent = CommEvent_Indicator;
-            IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
-            IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT, true);
+			// Configure the 4 possible Indicators
+			for (int i = 0; i < 4; i++) {
 
+				DBG_PRINT(DEBUG_SEVERITY_INFO, "- Configure Indicator ");
+				DBG_PRINTDATA(i);
+				DBG_PRINTDATA(": ");
+
+				if ((GL_pWConfigBuffer_UB[i * 4] & 0x01) == 0x01) {
+					DBG_PRINTDATA("Enabled");
+					DBG_ENDSTR();
+
+					// Get COM Port Index
+					if ((GL_pWConfigBuffer_UB[i * 4 + 3] & 0x03) <= 0x03) {						
+						DBG_PRINT(DEBUG_SEVERITY_INFO, "    > COM Port index = COM");
+						DBG_PRINTDATA((GL_pWConfigBuffer_UB[i * 4 + 3] & 0x03));
+						DBG_ENDSTR();
+						GL_GlobalConfig_X.pIndicatorConfig_X[i].ComPortIdx_UB = (GL_pWConfigBuffer_UB[i * 4 + 3] & 0x03);
+					}
+					else {
+						DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "    > Wrong COM Port index, use COM1 !");
+						GL_GlobalConfig_X.pIndicatorConfig_X[i].ComPortIdx_UB = PORT_COM1;
+					}
+
+					// Get Interface Type
+					if (GL_pWConfigBuffer_UB[i * 4 + 1] < INDICATOR_INTERFACE_DEVICES_NUM) {
+						DBG_PRINT(DEBUG_SEVERITY_INFO, "    > Interface Type = ");
+						DBG_PRINTDATA(pIndicatorInterfaceDeviceLut_Str[GL_pWConfigBuffer_UB[i * 4 + 1]]);
+						DBG_ENDSTR();
+						GL_GlobalConfig_X.pIndicatorConfig_X[i].InterfaceType_E = (INDICATOR_INTERFACE_DEVICES_ENUM)(GL_pWConfigBuffer_UB[i * 4 + 1]);
+					}
+					else {
+						DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "    > Wrong Interface Type, use ");
+						DBG_PRINTDATA(pIndicatorInterfaceDeviceLut_Str[0]);
+						DBG_PRINTDATA(" !");
+						DBG_ENDSTR();
+						GL_GlobalConfig_X.pIndicatorConfig_X[i].InterfaceType_E = INDICATOR_INTERFACE_DEVICES_ENUM::INDICATOR_LD5218;
+					}
+
+					// Check IRQ
+					if ((GL_pWConfigBuffer_UB[i * 4] & 0x02) == 0x02) {
+						DBG_PRINTLN(DEBUG_SEVERITY_INFO, "    > Has IRQ");
+						GL_GlobalConfig_X.pIndicatorConfig_X[i].HasIrq_B = true;
+						GL_GlobalConfig_X.pComPortConfig_X[GL_GlobalConfig_X.pIndicatorConfig_X[i].ComPortIdx_UB].pFctCommEvent = CommEvent_Indicator;	// Assign Event on IRQ
+					}
+					else {
+						DBG_PRINTLN(DEBUG_SEVERITY_INFO, "    > No IRQ Handling");
+						GL_GlobalConfig_X.pIndicatorConfig_X[i].HasIrq_B = false;
+					}
+
+				}
+				else {
+					DBG_PRINTDATA("Not Enabled");
+					DBG_ENDSTR();
+				}
+			}
+
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Call configuration functions for Indicators");
+			DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Only one Indicator managed for now !");
+			// Call Configuration Functions
+			for (int i = 0; i < 1; i++) {																								// TODO : Limited to ONE Indicator
+
+				// Call low-level function on Indicator object
+				GL_GlobalData_X.Indicator_H.init(GetSerialHandle(GL_GlobalConfig_X.pIndicatorConfig_X[i].ComPortIdx_UB), false);
+				GL_GlobalData_X.Indicator_H.setIndicatorDevice(GL_GlobalConfig_X.pIndicatorConfig_X[i].InterfaceType_E);
+
+				// Configure Manager
+				IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
+				IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT, GL_GlobalConfig_X.pIndicatorConfig_X[i].HasIrq_B);
+
+			}
+
+            
 			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET APP CONFIG");
 			GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_APP_CONFIG;
         }
@@ -974,28 +1107,84 @@ WCFG_STATUS WConfigManager_Process() {
 			if ((GL_pWConfigBuffer_UB[0] & 0x01) == 0x01) {
 
 				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Application configuration needed");
+				DBG_PRINT(DEBUG_SEVERITY_INFO, "Application : ");
+				DBG_PRINTDATA(GL_pWAppLut_str[((GL_pWConfigBuffer_UB[0] & 0xF0) >> 4)]);
+				DBG_ENDSTR();
 
 				switch ((GL_pWConfigBuffer_UB[0] & 0xF0) >> 4)
 				{
-					case 
+
+					/* Default Appplication */
+					/* -------------------- */
+					case WCFG_APP_DEFAULT:
+						DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Nothing implemented yet !");
+						break;
+
+
+					/* Kip Control */
+					/* ----------- */
+					case WCFG_APP_KIP_CONTROL:
+
+						DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Assign generic functions for Application Process");
+						GL_GlobalConfig_X.App_X.pFctInit = KipControlManager_Init;
+						GL_GlobalConfig_X.App_X.pFctEnable = KipControlManager_Enable;
+						GL_GlobalConfig_X.App_X.pFctDisable = KipControlManager_Disable;
+						GL_GlobalConfig_X.App_X.pFctProcess = KipControlManager_Process;
+						GL_GlobalConfig_X.App_X.pFctIsEnabled = KipControlManager_IsEnabled;
+						GL_GlobalConfig_X.App_X.hasApplication_B = true;
+
+						DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configure Communication Medium");
+						if (GL_GlobalData_X.Eeprom_H.read(KC_WORKING_AREA_OFFSET, GL_pWConfigBuffer_UB, 1) == 1) {
+
+							switch (GL_pWConfigBuffer_UB[0] & 0x0F) {
+
+								// Ethernet -> Wired Communication
+								case KC_MEDIUM_ETHERNET:
+									KipControlMedium_Init(KC_MEDIUM_ETHERNET, &(GL_GlobalData_X.Network_H));
+									KipControlMedium_SetServerParam(GL_cPortalServerName_str, 80);
+									break;
+
+								// GSM -> Wireless Communication
+								case KC_MEDIUM_GSM:
+									KipControlMedium_Init(KC_MEDIUM_GSM, &(GL_GlobalData_X.Fona_H));
+									KipControlMedium_SetServerParam(GL_cPortalServerName_str, 80);
+									break;
+
+								// Nop
+								default:
+									DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Wrong Medium configuration -> use Ethernet");
+									KipControlMedium_Init(KC_MEDIUM_ETHERNET, &(GL_GlobalData_X.Network_H));
+									KipControlMedium_SetServerParam(GL_cPortalServerName_str, 80);
+									break;
+							}
+
+
+							/* ------------------------- */
+							/* Init & Enable Application */
+							/* ------------------------- */
+							GL_GlobalConfig_X.App_X.pFctInit(&(GL_GlobalData_X.KipControl_H));		// Call init with specific object
+							GL_GlobalConfig_X.App_X.pFctEnable();
+
+						}
+						else {
+							DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Error while retreiving Communication Medium configuration!");
+							TransitionToErrorReading();
+						}						
+
+						break;
+
+
+					/* Cow Weight */
+					/* ---------- */
+					case WCFG_APP_COW_WEIGHT:
+						DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Nothing implemented yet !");
+						break;
+
 
 					default:
 						break;
 				}
 
-					KipControlMedium_Init(KC_MEDIUM_GSM, &(GL_GlobalData_X.Fona_H));
-					KipControlMedium_SetServerParam("www.balthinet.be", 80);
-
-					// For Debug Purpose
-					GL_GlobalConfig_X.App_X.pFctInit = KipControlManager_Init;
-					GL_GlobalConfig_X.App_X.pFctEnable = KipControlManager_Enable;
-					GL_GlobalConfig_X.App_X.pFctDisable = KipControlManager_Disable;
-					GL_GlobalConfig_X.App_X.pFctProcess = KipControlManager_Process;
-					GL_GlobalConfig_X.App_X.pFctIsEnabled = KipControlManager_IsEnabled;
-					GL_GlobalConfig_X.App_X.hasApplication_B = true;
-
-					// Call init with specific object
-					GL_GlobalConfig_X.App_X.pFctInit(&(GL_GlobalData_X.KipControl_H));
 			}
 			else {
 				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "No application to be configured");

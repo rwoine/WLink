@@ -180,6 +180,13 @@ typedef struct {
     void (*pFctProcess)(void);
 } WAPP_STRUCT;
 
+// Dedicated Structure for Indicator Configuration
+typedef struct {
+	unsigned char ComPortIdx_UB;
+	INDICATOR_INTERFACE_DEVICES_ENUM InterfaceType_E;
+	boolean HasIrq_B;
+} INDICATOR_CONFIG_STRUCT;
+
 // Global Configuration Structure
 typedef struct {
     unsigned char MajorRev_UB;
@@ -193,6 +200,7 @@ typedef struct {
     ETHERNET_CONFIG_STRUCT EthConfig_X;
     GSM_CONFIG_STRUCT GsmConfig_X;
     WAPP_STRUCT App_X;
+	INDICATOR_CONFIG_STRUCT pIndicatorConfig_X[4];
 } GLOBAL_CONFIG_STRUCT;
 
 #endif // __WLINK_H__

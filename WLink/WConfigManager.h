@@ -21,6 +21,7 @@
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
+static const String GL_cPortalServerName_str = "www.balthinet.be";
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
@@ -33,7 +34,13 @@ typedef enum {
     WCFG_STS_ERROR_READING  = 101,
     WCFG_STS_BAD_PARAM      = 102,
     WCFG_STS_ERROR_INIT     = 103
-}WCFG_STATUS;
+} WCFG_STATUS;
+
+typedef enum {
+	WCFG_APP_DEFAULT		= 0x0,
+	WCFG_APP_KIP_CONTROL	= 0x1, 
+	WCFG_APP_COW_WEIGHT		= 0x2
+} WCFG_APP_ENUM;
 
 /* ******************************************************************************** */
 /* Functions Prototypes
