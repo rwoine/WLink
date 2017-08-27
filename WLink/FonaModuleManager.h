@@ -35,6 +35,9 @@ void FonaModuleManager_Disable();
 void FonaModuleManager_Process();
 boolean FonaModuleManager_IsRunning();
 
+int FonaModuleManager_GetCurrentSignalStrength();
+boolean FonaModuleManager_GetCurrentGprsState();
+unsigned int FonaModuleManager_GetCurrentBatteryLevel();
 
 #endif // __FONA_MODULE_MANAGER_H__
 

@@ -77,6 +77,20 @@ void KipControlMedium_SetServerParam(String Name_Str, unsigned long Port_UL) {
 	GL_ServerPort_UL = Port_UL;
 }
 
+
+boolean KipControlMedium_IsReady(void) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+		return NetworkAdapterManager_IsRunning();
+		break;
+
+	case KC_MEDIUM_GSM:
+		return (FonaModuleManager_IsRunning() && FonaModuleManager_GetCurrentGprsState());
+		break;
+	}
+}
+
+
 boolean KipControlMedium_Connect(void) {
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
@@ -90,20 +104,6 @@ boolean KipControlMedium_Connect(void) {
 	}
 }
 
-
-boolean KipControlMedium_IsReady(void) {
-	switch (GL_Medium_E) {
-	case KC_MEDIUM_ETHERNET:
-		return NetworkAdapterManager_IsRunning();
-		break;
-
-	case KC_MEDIUM_GSM:
-		return FonaModuleManager_IsRunning();
-		break;
-	}
-}
-
-
 boolean KipControlMedium_IsConnected(void) {
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
@@ -111,7 +111,7 @@ boolean KipControlMedium_IsConnected(void) {
 		break;
 
 	case KC_MEDIUM_GSM:
-		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Check in FONA Module to have function : IsConnected()...");
+		// No status available for GSM
 		return true;
 		break;
 	}
@@ -136,11 +136,14 @@ void KipControlMedium_SetupEnvironment(void) {
 void KipControlMedium_BeginTransaction(void) {
 	switch (GL_Medium_E) {
 	case KC_MEDIUM_ETHERNET:
-		GL_pMediumEthernet_H->print("GET ");
+		GL_pMediumEthernet_H->print("GET http://");
+		GL_pMediumEthernet_H->print(GL_ServerName_Str);
 		break;
 
 	case KC_MEDIUM_GSM:
 		GL_pMediumGsm_H->httpParamStart(FONA_MODULE_HTTP_PARAM_URL);
+		GL_pMediumGsm_H->httpParamAdd("http://");
+		GL_pMediumGsm_H->httpParamAdd((char *)(GL_ServerName_Str.c_str()));
 		break;
 	}
 }
@@ -219,6 +222,7 @@ void KipControlMedium_EndTransaction(void) {
 		break;
 
 	case KC_MEDIUM_GSM:
+		GL_pMediumGsm_H->httpParamAdd("&submitted=1&action=validate");
 		GL_pMediumGsm_H->httpParamEnd();
 		GL_pMediumGsm_H->httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET, &GL_ServerResponse_SI, &GL_ServerData_SI);
 		break;

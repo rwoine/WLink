@@ -346,7 +346,7 @@ void ProcessRecoverData(void) {
 void ProcessConnecting(void) {
 	if (KipControlMedium_IsConnected()) {
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Turn to online mode -> recording to portal allowed");
-		GL_WorkingData_X.OfflineMode_B = true;
+		GL_WorkingData_X.OfflineMode_B = false;
 
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Setup connectivity environment");
 		KipControlMedium_SetupEnvironment();
@@ -354,9 +354,16 @@ void ProcessConnecting(void) {
 	else {
 		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Cannot connect to portal");
 		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Turn to offline mode -> recording to portal disabled");
-		GL_WorkingData_X.OfflineMode_B = false;
+		GL_WorkingData_X.OfflineMode_B = true;
 	}
 
+	// Flush Indicator Serial and FIFO
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Flush Indicator Serial and FIFO");
+	GL_GlobalData_X.Indicator_H.flushIndicator();
+	while (!(GL_GlobalData_X.Indicator_H.isFifoEmpty()))
+		GL_GlobalData_X.Indicator_H.fifoPop();
+
+	// Go to Wait Indicator (real process)
 	TransitionToWaitIndicator();
 }
 
@@ -409,13 +416,13 @@ void ProcessWaitIndicator(void) {
 		GL_KipControlManagerAbsoluteTime_UL = millis();
 
 		GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getDate();
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "Current Date = ");
-		DBG_PRINTDATA(dateToString(GL_WorkingData_X.CurrentDate_X));
-		DBG_ENDSTR();
+		//DBG_PRINT(DEBUG_SEVERITY_INFO, "Current Date = ");
+		//DBG_PRINTDATA(dateToString(GL_WorkingData_X.CurrentDate_X));
+		//DBG_ENDSTR();
 		GL_WorkingData_X.CurrentIdx_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "Calculated Current Index = ");
-		DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
-		DBG_ENDSTR();
+		//DBG_PRINT(DEBUG_SEVERITY_INFO, "Calculated Current Index = ");
+		//DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
+		//DBG_ENDSTR();
 
 		if (GL_WorkingData_X.CurrentIdx_UB >= GL_WorkingData_X.MaxDataNb_UB) {
 			// End of recording
@@ -480,11 +487,11 @@ void ProcessCheckWeight(void) {
 void ProcessSendPacket(void) {
 
 	KipControlMedium_BeginTransaction();
-	KipControlMedium_Print("GET /kipcontrol/import?");
+	KipControlMedium_Print("/kipcontrol/import?");
 	KipControlMedium_Print("data[0][Weight]=");
 	KipControlMedium_Print(GL_WorkingData_X.Weight_SI);
 	KipControlMedium_Print("&data[0][BalanceSerial]=");
-	KipControlMedium_Print(GL_WorkingData_X.MacAddr_Str);
+	KipControlMedium_Print((char *)(GL_WorkingData_X.MacAddr_Str).c_str());
 	KipControlMedium_Print("&data[0][Batch]=");
 	KipControlMedium_Print(GL_WorkingData_X.BatchId_UL);
 	KipControlMedium_Print("&data[0][Tolerance]=");
@@ -492,7 +499,7 @@ void ProcessSendPacket(void) {
 	KipControlMedium_Print("&data[0][Age]=");
 	KipControlMedium_Print(GL_WorkingData_X.CurrentIdx_UB + 1);
 	KipControlMedium_Print("&data[0][DateTime]=");
-	KipControlMedium_Print(GL_WorkingData_X.TimeStamp_Str);
+	KipControlMedium_Print((char *)(GL_WorkingData_X.TimeStamp_Str).c_str());
 	KipControlMedium_EndTransaction();
 
 	TransitionToServerResponse();

@@ -72,12 +72,22 @@ const String GL_pFonaModuleHttpAction_Str[] = { "GET",
                                                 "HEAD"
                                                 };
 
-const String GL_pFonaModuleNetworkStatus_Str[] = {  "Not registered",
-                                                    "Registered (home)",
-                                                    "Not registered (searching)",
-                                                    "Denied",
-                                                    "Unknown",
-                                                    "Registered roaming"
+
+typedef enum {
+	FONA_MODULE_NETWORK_STATUS_NOT_REGISTERED = 0,
+	FONA_MODULE_NETWORK_STATUS_REGISTERED,
+	FONA_MODULE_NETWORK_STATUS_SEARCHING,
+	FONA_MODULE_NETWORK_STATUS_DENIED,
+	FONA_MODULE_NETWORK_STATUS_UNKNOWN,
+	FONA_MODULE_NETWORK_STATUS_ROAMING
+} FONA_MODULE_NETWORK_STATUS_ENUM;
+
+const String GL_pFonaModuleNetworkStatus_Str[] = {  "Not registered",				// = 0
+                                                    "Registered (home)",			// = 1
+                                                    "Not registered (searching)",	// = 2
+                                                    "Denied",						// = 3
+                                                    "Unknown",						// = 4
+                                                    "Registered roaming"			// = 5
                                                     };
 
 

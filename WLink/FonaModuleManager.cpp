@@ -23,11 +23,11 @@
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define FONA_MODULE_MANAGER_WAIT_REACTION_DELAY_MS      2000
-#define FONA_MODULE_MANAGER_POWER_PULSE_LENGTH_MS       2000
-#define FONA_MODULE_MANAGER_RESET_PULSE_LENGTH_MS       100
-#define FONA_MODULE_MANAGER_ENABLE_GPRS_DELAY_MS		20000
-#define FONA_MODULE_MANAGER_RSSI_POLLING_INTERVAL_MS    5000
+#define FONA_MODULE_MANAGER_WAIT_REACTION_DELAY_MS				2000
+#define FONA_MODULE_MANAGER_POWER_PULSE_LENGTH_MS				2000
+#define FONA_MODULE_MANAGER_RESET_PULSE_LENGTH_MS				100
+#define FONA_MODULE_MANAGER_NETWORK_REGISTRATION_TIMEOUT_MS		20000
+#define FONA_MODULE_MANAGER_POLLING_INTERVAL_MS					5000
 
 
 /* ******************************************************************************** */
@@ -41,6 +41,7 @@ enum FONA_MODULE_MANAGER_STATE {
     FONA_MODULE_MANAGER_CHECK_POWER_PIN,
     FONA_MODULE_MANAGER_BEGIN,
     FONA_MODULE_MANAGER_UNLOCK_SIM,
+	FONE_MODULE_MANAGER_WAIT_NEWORK_REGISTRATION,
 	FONA_MODULE_MANAGER_ENABLE_GPRS,
     FONA_MODULE_MANAGER_RUNNING,
     FONA_MODULE_MANAGER_ERROR
@@ -50,11 +51,8 @@ static FONA_MODULE_MANAGER_STATE GL_FonaModuleManager_CurrentState_E = FONA_MODU
 static FONA_MODULE_MANAGER_STATE GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_IDLE;
 
 static FonaModule * GL_pFona_H;
-static boolean GL_FonaModuleManagerToggle_B = false;
 static signed int GL_FonaModuleManagerRssi_SI = 0;
-static signed int GL_FonaModuleManagerRssiOld_SI = 0;
 static boolean GL_FonaModuleManagerGprsState_B = false;
-static boolean GL_FonaModuleManagerGprsStateOld_B = false;
 static unsigned int GL_FonaModuleManagerBatteryLeve_UI = 0;
 static int GL_NetworkStatus_SI = 0;
 
@@ -74,6 +72,7 @@ static void ProcessApplyResetPulse(void);
 static void ProcessCheckPowerPin(void);
 static void ProcessBegin(void);
 static void ProcessUnlockSim(void);
+static void ProcessWaitNetworkRegistration(void);
 static void ProcessEnableGprs(void);
 static void ProcessRunning(void);
 static void ProcessError(void);
@@ -85,6 +84,7 @@ static void TransitionToApplyResetPulse(void);
 static void TransitionToCheckPowerPin(void);
 static void TransitionToBegin(void);
 static void TransitionToUnlockSim(void);
+static void TransitiontToWaitNetworkRegistration(void);
 static void TransitionToEnableGprs(void);
 static void TransitionToRunning(void);
 static void TransitionToError(void);
@@ -146,6 +146,10 @@ void FonaModuleManager_Process() {
         ProcessUnlockSim();
         break;
 
+	case FONE_MODULE_MANAGER_WAIT_NEWORK_REGISTRATION:
+		ProcessWaitNetworkRegistration();
+		break;
+
 	case FONA_MODULE_MANAGER_ENABLE_GPRS:
 		ProcessEnableGprs();
 		break;
@@ -163,6 +167,19 @@ void FonaModuleManager_Process() {
 
 boolean FonaModuleManager_IsRunning() {
 	return ((GL_FonaModuleManager_CurrentState_E == FONA_MODULE_MANAGER_RUNNING) ? true : false);
+}
+
+
+int FonaModuleManager_GetCurrentSignalStrength() {
+	return GL_FonaModuleManagerRssi_SI;
+}
+
+boolean FonaModuleManager_GetCurrentGprsState() {
+	return GL_FonaModuleManagerGprsState_B;
+}
+
+unsigned int FonaModuleManager_GetCurrentBatteryLevel() {
+	return GL_FonaModuleManagerBatteryLeve_UI;
 }
 
 
@@ -232,73 +249,58 @@ void ProcessBegin(void) {
 }
 
 void ProcessUnlockSim(void) {
-    if (GL_pFona_H->enterPinCode())
-		if (GL_FonaModuleManagerEnableGprs_B )
-			TransitionToEnableGprs();
-		else
-			TransitionToRunning();
+	if (GL_pFona_H->enterPinCode())
+		TransitiontToWaitNetworkRegistration();
     else
         TransitionToError();
 }
 
-void ProcessEnableGprs(void) {
-	if ((millis() - GL_FonaAbsoluteTime_UL) >= FONA_MODULE_MANAGER_ENABLE_GPRS_DELAY_MS) {
-		if (GL_pFona_H->enableGprs())
-			TransitionToRunning();
+void ProcessWaitNetworkRegistration(void) {
+
+	GL_pFona_H->getNetworkStatus(&GL_NetworkStatus_SI);
+	if ((GL_NetworkStatus_SI == FONA_MODULE_NETWORK_STATUS_REGISTERED) || (GL_NetworkStatus_SI == FONA_MODULE_NETWORK_STATUS_ROAMING)) {
+		if (GL_FonaModuleManagerEnableGprs_B)
+			TransitionToEnableGprs();
 		else
-			TransitionToError();
+			TransitionToRunning();
 	}
+
+	// Timeout on registration
+	if ((millis() - GL_FonaAbsoluteTime_UL) >= FONA_MODULE_MANAGER_NETWORK_REGISTRATION_TIMEOUT_MS) {
+		DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Fail to register to Network");
+		TransitionToError();
+	}
+
+}
+
+void ProcessEnableGprs(void) {
+	if (GL_pFona_H->enableGprs())
+		TransitionToRunning();
+	else
+		TransitionToError();
 }
 
 void ProcessRunning(void) {
     // Keep running
 
-    // Poll RSSI
-    if ((millis() - GL_FonaAbsoluteTime_UL) >= FONA_MODULE_MANAGER_RSSI_POLLING_INTERVAL_MS) {
+    // Poll Statuses
+    if ((millis() - GL_FonaAbsoluteTime_UL) >= FONA_MODULE_MANAGER_POLLING_INTERVAL_MS) {
         
         GL_FonaModuleManagerRssi_SI = GL_pFona_H->getSignalStrength();
-
-        // Print Debug only if signal strength is different
-        if (GL_FonaModuleManagerRssiOld_SI != GL_FonaModuleManagerRssi_SI) {
-            GL_FonaModuleManagerRssiOld_SI = GL_FonaModuleManagerRssi_SI;
-            DBG_PRINT(DEBUG_SEVERITY_INFO, "RSSI Value : ");
-            DBG_PRINTDATA(GL_FonaModuleManagerRssi_SI);
-            DBG_PRINTDATA("[dBm]");
-            DBG_ENDSTR();
-        }
-
-
         GL_FonaModuleManagerGprsState_B = GL_pFona_H->isGprsEnabled();
-
-        // Print Debug only if GPRS state has changed
-        if (GL_FonaModuleManagerGprsStateOld_B != GL_FonaModuleManagerGprsState_B) {
-            GL_FonaModuleManagerGprsStateOld_B = GL_FonaModuleManagerGprsState_B;
-            if (GL_FonaModuleManagerGprsState_B)
-                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "GPRS Enabled");
-            else
-                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "GPRS Disabled");
-        }
-
-        if (GL_FonaModuleManagerToggle_B) {
-            GL_FonaModuleManagerToggle_B = false;
-            GL_FonaModuleManagerBatteryLeve_UI = GL_pFona_H->getBatteryLevel();
-            DBG_PRINT(DEBUG_SEVERITY_INFO, "Battery Capacity : ");
-            DBG_PRINTDATA(GL_FonaModuleManagerBatteryLeve_UI);
-            DBG_PRINTDATA("[%]");
-            DBG_ENDSTR();
-        }
-        else {
-            GL_FonaModuleManagerToggle_B = true;
-            GL_pFona_H->getNetworkStatus(&GL_NetworkStatus_SI);
-        }
-
-
+		GL_FonaModuleManagerBatteryLeve_UI = GL_pFona_H->getBatteryLevel();
 
         GL_FonaAbsoluteTime_UL = millis();
     }
 }
 
 void ProcessError(void) {
+
+	// Reset Data
+	GL_FonaModuleManagerRssi_SI = 0;
+	GL_FonaModuleManagerGprsState_B = false;
+	GL_FonaModuleManagerBatteryLeve_UI = 0;
+
     // Keep holding
     // > reset needed
 }
@@ -348,9 +350,14 @@ void TransitionToUnlockSim(void) {
     GL_FonaModuleManager_CurrentState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_UNLOCK_SIM;
 }
 
+void TransitiontToWaitNetworkRegistration(void) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT NETWORK REGISTRATION");
+	GL_FonaAbsoluteTime_UL = millis();
+	GL_FonaModuleManager_CurrentState_E = FONA_MODULE_MANAGER_STATE::FONE_MODULE_MANAGER_WAIT_NEWORK_REGISTRATION;
+}
+
 void TransitionToEnableGprs(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To ENABLE GPRS");
-	GL_FonaAbsoluteTime_UL = millis();
 	GL_FonaModuleManager_CurrentState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_ENABLE_GPRS;
 }
 
