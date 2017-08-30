@@ -292,6 +292,7 @@ void ProcessGetConfig(void) {
 }
 
 void ProcessRecoverData(void) {
+	unsigned char TempIndex_UB = 0;
 	if (GL_pKipControl_H->getRunningFlag()) {
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Process was running -> Recover all data from last time before shutdown");
 
@@ -309,8 +310,14 @@ void ProcessRecoverData(void) {
 		DBG_PRINTDATA(GL_WorkingData_X.ValueNb_UL);
 		DBG_ENDSTR();
 
+		GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getDate();
+
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Current Date = ");
+		DBG_PRINTDATA(dateToString(GL_WorkingData_X.CurrentDate_X));
+		DBG_ENDSTR();
+
 		// Check if current index is still up-to-date
-		unsigned char TempIndex_UB = getDeltaDay(GL_GlobalData_X.Rtc_H.getDate(), GL_WorkingData_X.StartDate_X) + GL_WorkingData_X.StartIdx_UB;
+		TempIndex_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
 		if (TempIndex_UB == GL_WorkingData_X.CurrentIdx_UB) {
 			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Current Index is still up-to-date -> Work with it");
 
@@ -322,7 +329,10 @@ void ProcessRecoverData(void) {
 			}
 		}
 		else {
-			DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Current Index no more up-to-date -> Reset recovered data");
+			DBG_PRINT(DEBUG_SEVERITY_WARNING, "Current Index no more up-to-date (");
+			DBG_PRINTDATA(TempIndex_UB);
+			DBG_PRINTDATA(") -> reset recovered data");
+			DBG_ENDSTR();
 			GL_pKipControl_H->setCurrentIdx(TempIndex_UB);
 			GL_pKipControl_H->setTotalValue(0);
 			GL_pKipControl_H->setValueNb(0);
@@ -416,17 +426,14 @@ void ProcessWaitIndicator(void) {
 		GL_KipControlManagerAbsoluteTime_UL = millis();
 
 		GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getDate();
-		//DBG_PRINT(DEBUG_SEVERITY_INFO, "Current Date = ");
-		//DBG_PRINTDATA(dateToString(GL_WorkingData_X.CurrentDate_X));
-		//DBG_ENDSTR();
 		GL_WorkingData_X.CurrentIdx_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
-		//DBG_PRINT(DEBUG_SEVERITY_INFO, "Calculated Current Index = ");
-		//DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
-		//DBG_ENDSTR();
 
 		if (GL_WorkingData_X.CurrentIdx_UB >= GL_WorkingData_X.MaxDataNb_UB) {
 			// End of recording
 			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reached end of Reference Data table");
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "Calculated Current Index = ");
+			DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
+			DBG_ENDSTR();
 			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "-> End of recording");
 			TransitionToEnd();
 		}
@@ -455,6 +462,7 @@ void ProcessCheckWeight(void) {
 	DBG_ENDSTR();
 
 	if ((GL_WorkingData_X.Weight_SI <= LimitHigh_F) && (GL_WorkingData_X.Weight_SI >= LimitLow_F)) {
+		GL_WorkingData_X.IsValid_B = true;
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weight within boundaries -> taken into account to calculate average.");
 		GL_pKipControl_H->appendTotalValue(GL_WorkingData_X.Weight_SI);
 		GL_pKipControl_H->incValueNb();
@@ -469,6 +477,7 @@ void ProcessCheckWeight(void) {
 
 	}
 	else {
+		GL_WorkingData_X.IsValid_B = false;
 		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Weight outside boundaries -> ignored!");
 	}
 
@@ -500,6 +509,8 @@ void ProcessSendPacket(void) {
 	KipControlMedium_Print(GL_WorkingData_X.CurrentIdx_UB + 1);
 	KipControlMedium_Print("&data[0][DateTime]=");
 	KipControlMedium_Print((char *)(GL_WorkingData_X.TimeStamp_Str).c_str());
+	KipControlMedium_Print("&data[0][Valid]=");
+	KipControlMedium_Print(((GL_WorkingData_X.IsValid_B) ? 1 : 0));
 	KipControlMedium_EndTransaction();
 
 	TransitionToServerResponse();

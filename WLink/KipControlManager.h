@@ -51,6 +51,7 @@ typedef struct {
 	signed int Weight_SI;				// Current weight
 	RTC_DATE_STRUCT CurrentDate_X;      // Current date
 	String TimeStamp_Str;				// Current timestamp
+	boolean IsValid_B;					// Check if weight is valid (within tolerance)
 
 } KC_WORKING_DATA_STRUCT;
 
