@@ -1,47 +1,53 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* Utilz.h														                    */
+/* WMenuItemFunction.cpp												            */
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for Utilz.cpp							                    	*/
-/*		Utility functions.                                                          */
+/*		Describes the specific functions for the W-Link Menu Items.       			*/
 /*                                                                                  */
-/* History :	28/02/2017	(RW)	Creation of this file                           */
+/* History :  	03/09/2017  (RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __UTILZ_H__
-#define __UTILZ_H__
+#define MODULE_NAME		"WMenuItemFunction"
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-#include "RealTimeClock.h"
+
+#include "WMenuItemFunction.h"
+#include "WMenuManager.h"
+#include "WMenuItemText.h"
+#include "WConfigManager.h"
+
+#include "Debug.h"
+
+
+/* ******************************************************************************** */
+/* Extenral Variables
+/* ******************************************************************************** */
+extern GLOBAL_PARAM_STRUCT GL_GlobalData_X;
+extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
+
 
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
 
 /* ******************************************************************************** */
-/* Structure & Enumeration
+/* Local Variables
 /* ******************************************************************************** */
 
 /* ******************************************************************************** */
-/* Functions Prototypes
+/* Functions
 /* ******************************************************************************** */
-void Nop(void);
 
-String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str);
+void WMenuItem_WelcomeScreen_Transition(void * Hander_H) {
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 0, "> ");
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 2, GL_GlobalData_X.RevisionId_Str);
+}
 
-void DefaultKeyEvents(char * Key_UB);
-void DefaultOnTransitionFct(void * Handler_H);
-void DefaultOnProcessFct(void * Handler_H);
-void DefaultOnValidateFct(unsigned char * pParam_UB);
-
-boolean isLeap(unsigned int Year_UI);
-unsigned long getDeltaDay(RTC_DATE_STRUCT FromDate_X, RTC_DATE_STRUCT ToDate_X);
-String dateToString(RTC_DATE_STRUCT Date_X);
-
-
-#endif // __UTILZ_H__
-
+void WMenuItem_Idle_Process(void * Handler_H) {
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 19, (byte)0, 1);
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 1, GL_GlobalData_X.Rtc_H.getDateTimeString());
+}

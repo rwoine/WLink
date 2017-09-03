@@ -17,6 +17,7 @@
 /* Include
 /* ******************************************************************************** */
 #include "WLink.h"
+#include "WMenuItemText.h"
 
 /* ******************************************************************************** */
 /* Define
@@ -39,13 +40,21 @@ typedef enum {
 
 typedef struct WMENU_ITEM_STRUCT WMENU_ITEM_STRUCT;
 struct WMENU_ITEM_STRUCT {
+
     WMENU_ITEM_TYPE_ENUM Type_E;
+	WMENU_ITEM_ENUM Id_E;
     unsigned long NavIndex_UL;
+
     const char * ppText_UB[2];
-    WMENU_ITEM_STRUCT * ppOnNavItem[4];
-    unsigned long AdditionalParam_UL;
+
+    WMENU_ITEM_STRUCT * ppOnNavItem_X[4];
+
+	void (*pFct_OnTransition)(void *);
+	void (*pFct_OnProcess)(void *);
     void (*pFct_OnValidateParam)(unsigned char *);
+
 };
+
 
 /* ******************************************************************************** */
 /* Functions Prototypes

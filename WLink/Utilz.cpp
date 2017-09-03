@@ -59,10 +59,18 @@ void DefaultKeyEvents(char * Key_UB) {
     DBG_ENDSTR();
 }
 
+void DefaultOnTransitionFct(void * Handler_H) {
+	DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "No function on Transition");
+}
+
+void DefaultOnProcessFct(void * Handler_H) {
+
+}
 
 void DefaultOnValidateFct(unsigned char * pParam_UB) {
-    DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "No function on Validate");
+	DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "No function on Validate");
 }
+
 
 boolean isLeap(unsigned int Year_UI) {
     return ((((Year_UI % 4) == 0) && (((Year_UI % 100) != 0) || ((Year_UI % 400) == 0))) ? true : false);

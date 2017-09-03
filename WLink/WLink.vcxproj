@@ -119,6 +119,7 @@
     <ClInclude Include="WConfigManager.h" />
     <ClInclude Include="WLink.h" />
     <ClInclude Include="WLinkManager.h" />
+    <ClInclude Include="WMenuItemFunction.h" />
     <ClInclude Include="WMenuItemText.h" />
     <ClInclude Include="WMenuManager.h" />
     <ClInclude Include="__vm\.WLink.vsarduino.h" />
@@ -162,6 +163,7 @@
     <ClCompile Include="WCommandMedium.cpp" />
     <ClCompile Include="WConfigManager.cpp" />
     <ClCompile Include="WLinkManager.cpp" />
+    <ClCompile Include="WMenuItemFunction.cpp" />
     <ClCompile Include="WMenuManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

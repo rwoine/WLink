@@ -1,22 +1,22 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* Utilz.h														                    */
+/* WMenuItemFunction.h													            */
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for Utilz.cpp							                    	*/
-/*		Utility functions.                                                          */
+/*		Header file for WMenuItemFunction.cpp						            	*/
+/*		Defines the specific functions for the W-Link Menu Items.					*/
 /*                                                                                  */
-/* History :	28/02/2017	(RW)	Creation of this file                           */
+/* History :	03/09/2017	(RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __UTILZ_H__
-#define __UTILZ_H__
+#ifndef __WMENU_ITEM_FUNCTION_H__
+#define __WMENU_ITEM_FUNCTION_H__
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-#include "RealTimeClock.h"
+#include "WLink.h"
 
 /* ******************************************************************************** */
 /* Define
@@ -29,19 +29,9 @@
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
-void Nop(void);
-
-String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str);
-
-void DefaultKeyEvents(char * Key_UB);
-void DefaultOnTransitionFct(void * Handler_H);
-void DefaultOnProcessFct(void * Handler_H);
-void DefaultOnValidateFct(unsigned char * pParam_UB);
-
-boolean isLeap(unsigned int Year_UI);
-unsigned long getDeltaDay(RTC_DATE_STRUCT FromDate_X, RTC_DATE_STRUCT ToDate_X);
-String dateToString(RTC_DATE_STRUCT Date_X);
+void WMenuItem_WelcomeScreen_Transition(void * Hander_H);
+void WMenuItem_Idle_Process(void * Handler_H);
 
 
-#endif // __UTILZ_H__
+#endif // __WMENU_ITEM_FUNCTION_H__
 
