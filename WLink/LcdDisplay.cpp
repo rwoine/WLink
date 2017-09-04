@@ -161,6 +161,26 @@ void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned long C
     }
 }
 
+void LcdDisplay::writeDisplay(LCD_DISPLAY_LINE_ENUM LineIndex_E, unsigned long ColIdx_UL, byte Data_UB) {
+	unsigned long LineIdx_UL = (unsigned long)LineIndex_E;
+	
+	if (ColIdx_UL < LCD_DISPLAY_COLUMN_NUMBER) {
+
+		if (LineIndex_E == LCD_DISPLAY_ALL_LINE)
+			LineIdx_UL = 0;	// Force to start at Zero if all lines selected
+
+		// Set Cursor Properly
+		GL_pLcdDevice_H->setCursor(ColIdx_UL, LineIdx_UL);
+
+		// Copy Content in Shadow Line
+		GL_ppLcdLineShadow_UB[LineIdx_UL][ColIdx_UL] = (char)Data_UB;
+
+		// Display on Device
+		GL_pLcdDevice_H->write(Data_UB);
+
+	}
+}
+
 void LcdDisplay::appendDisplay(String TextStr_Str) {
 	unsigned char pBuffer_UB[LCD_DISPLAY_COLUMN_NUMBER * LCD_DISPLAY_LINE_NUMBER + 1];
 	unsigned long BufferSize_UL = (TextStr_Str.length() > (LCD_DISPLAY_COLUMN_NUMBER * LCD_DISPLAY_LINE_NUMBER)) ? (LCD_DISPLAY_COLUMN_NUMBER * LCD_DISPLAY_LINE_NUMBER) : TextStr_Str.length();

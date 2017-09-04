@@ -48,6 +48,31 @@ void WMenuItem_WelcomeScreen_Transition(void * Hander_H) {
 }
 
 void WMenuItem_Idle_Process(void * Handler_H) {
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 19, (byte)0, 1);
+	int SignalStrength_SI = 0;
+	
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 19, (byte)0);
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 1, GL_GlobalData_X.Rtc_H.getDateTimeString());
+
+	// Display Network Signal Strength if any
+	if (GL_GlobalConfig_X.GsmConfig_X.isEnabled_B) {
+		SignalStrength_SI = FonaModuleManager_GetCurrentSignalStrength();
+		if ((SignalStrength_SI >= -111) && (SignalStrength_SI <= -97)) {
+			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)1);
+		}
+		else if ((SignalStrength_SI > -97) && (SignalStrength_SI <= -82)) {
+			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)2);
+		}
+		else if ((SignalStrength_SI > -82) && (SignalStrength_SI <= -67)) {
+			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)3);
+		}
+		else if ((SignalStrength_SI > -67) && (SignalStrength_SI <= -52)) {
+			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)4);
+		}
+		else {
+			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)5);
+		} 
+	}
+	else {
+		GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, " ");
+	}
 }
