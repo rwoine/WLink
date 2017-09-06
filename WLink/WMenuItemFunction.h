@@ -18,6 +18,7 @@
 /* ******************************************************************************** */
 #include "WLink.h"
 
+
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
@@ -29,8 +30,16 @@
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
+
 void WMenuItem_WelcomeScreen_Transition(void * Hander_H);
+
 void WMenuItem_Idle_Process(void * Handler_H);
+
+void WMenuItem_LanguageSelect_Process(void * Handler_H);
+
+void WMenuItem_DateSet_Process(void * Handler_H);
+
+void WMenuItem_TimeSet_Process(void * Handler_H);
 
 
 #endif // __WMENU_ITEM_FUNCTION_H__

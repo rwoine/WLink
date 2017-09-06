@@ -54,8 +54,8 @@ static WMENU_ITEM_STRUCT * GL_pWMenuCurrentItem_X;
 
 static boolean GL_pNavButtonPressed_B[4] = {false, false, false, false};
 
-static boolean GL_KeyPressed_B = false;
-static char GL_Key_UB = 0x00;
+WMENU_ITEM_PARAM_STRUCT GL_ItemParam_X;
+static unsigned char GL_pParam_UB[16];
 
 static unsigned long GL_AbsoluteTime_UL = 0;
 
@@ -109,6 +109,14 @@ void WMenuManager_Init() {
 
     // Initialize Navigation Button Flags
     WMenuCallback_ResetFlags();
+
+	// Initialize Parameters Structure
+	GL_ItemParam_X.KeyPressed_B = false;
+	GL_ItemParam_X.Key_UB = 0x00;
+	GL_ItemParam_X.ParamIndex_UL = 0;
+	GL_ItemParam_X.pParam_UB = GL_pParam_UB;
+	for (int i = 0; i < sizeof(GL_pParam_UB); i++)
+		GL_pParam_UB[i] = 0x00;
 
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "W-Link Menu Manager Initialized");
 }
@@ -234,8 +242,11 @@ void InitMenuItem(void) {
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].NavIndex_UL = 0;
 
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
 
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].pFct_OnProcess = WMenuItem_LanguageSelect_Process;
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].pFct_OnValidateParam = WConfig_SetLanguage;
 
 
 	/* 0.0.1. Date & Time */
@@ -269,7 +280,11 @@ void InitMenuItem(void) {
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].NavIndex_UL = 0;
 
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE]);
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE]);
+
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].pFct_OnProcess = WMenuItem_DateSet_Process;
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].pFct_OnValidateParam = WConfig_SetDate;
 
 
 
@@ -291,7 +306,11 @@ void InitMenuItem(void) {
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].NavIndex_UL = 0;
 
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME]);
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME]);
+
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].pFct_OnProcess = WMenuItem_TimeSet_Process;
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].pFct_OnValidateParam = WConfig_SetTime;
 
 
 
@@ -318,6 +337,8 @@ void InitMenuItem(void) {
 
 
 	/* 0.0.2.0.0. Set Backlight */
+
+
 }
 
 
@@ -392,7 +413,7 @@ void ProcessMenu(void) {
 void ProcessInfo(void) {
 
 	// Call item-specific Process()
-	GL_pWMenuCurrentItem_X->pFct_OnProcess(&GL_pWMenuCurrentItem_X);
+	GL_pWMenuCurrentItem_X->pFct_OnProcess(NULL);
 
 
 	// > BACK : Quit Screen
@@ -428,10 +449,20 @@ void ProcessInfo(void) {
 
 }
 
-void ProcessParam(void) {   
+void ProcessParam(void) {  
+
+	// Call item-specific Process()
+	GL_pWMenuCurrentItem_X->pFct_OnProcess(&GL_ItemParam_X);	// process function with parameters
+
 
 	// > BACK : Quit Screen
 	if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_BACK]) {
+
+		// Reset item parameters
+		GL_ItemParam_X.ParamIndex_UL = 0;
+
+		// Disable cursor on LCD
+		GL_GlobalData_X.Lcd_H.disableCursor();
 
 		if (GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_BACK]->Type_E != WMENU_ITEM_TYPE_NULL) {
 			GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_BACK];
@@ -448,7 +479,18 @@ void ProcessParam(void) {
 	} // > ENTER : Quit Screen
 	else if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER]) {
 
+		// Reset item parameters
+		GL_ItemParam_X.ParamIndex_UL = 0;
+
+		// Disable cursor on LCD
+		GL_GlobalData_X.Lcd_H.disableCursor();
+
 		if (GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_ENTER]->Type_E != WMENU_ITEM_TYPE_NULL) {
+
+			// Call specific function
+			GL_pWMenuCurrentItem_X->pFct_OnValidateParam(GL_ItemParam_X.pParam_UB);
+			if (GL_pWMenuCurrentItem_X->Id_E == WMENU_ITEM_SETTINGS_LANGUAGE_SELECT)   InitMenuItem();     // Re-Init Menu if Language has changed
+
 			GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_ENTER];
 
 			// Change state
@@ -596,9 +638,9 @@ void WMenuCallback_OnBack(char * pKey_UB) {
 }
 
 void WMenuCallback_OnNumericKey(char * pKey_UB) {
-    GL_KeyPressed_B = true;
-    GL_Key_UB = *pKey_UB;
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Numeric key pressed : " + String(GL_Key_UB));
+	GL_ItemParam_X.KeyPressed_B = true;
+	GL_ItemParam_X.Key_UB = *pKey_UB;
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Numeric key pressed : " + String(GL_ItemParam_X.Key_UB));
 }
 
 

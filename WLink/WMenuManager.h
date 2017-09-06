@@ -56,6 +56,14 @@ struct WMENU_ITEM_STRUCT {
 };
 
 
+typedef struct {
+	boolean KeyPressed_B;
+	char Key_UB;
+	unsigned long ParamIndex_UL;
+	unsigned char * pParam_UB;
+} WMENU_ITEM_PARAM_STRUCT;
+
+
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
