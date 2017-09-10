@@ -99,6 +99,8 @@
     <ClInclude Include="KipControl.h" />
     <ClInclude Include="KipControlManager.h" />
     <ClInclude Include="KipControlMedium.h" />
+    <ClInclude Include="KipControlMenu.h" />
+    <ClInclude Include="KipControlMenuItemText.h" />
     <ClInclude Include="LcdDisplay.h" />
     <ClInclude Include="LD5218.h" />
     <ClInclude Include="MemoryCard.h" />
@@ -141,6 +143,7 @@
     <ClCompile Include="KipControl.cpp" />
     <ClCompile Include="KipControlManager.cpp" />
     <ClCompile Include="KipControlMedium.cpp" />
+    <ClCompile Include="KipControlMenu.cpp" />
     <ClCompile Include="LcdDisplay.cpp" />
     <ClCompile Include="LD5218.cpp" />
     <ClCompile Include="MemoryCard.cpp" />

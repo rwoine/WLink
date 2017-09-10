@@ -213,6 +213,12 @@
     <ClInclude Include="WMenuItemFunction.h">
       <Filter>Source Files\WMenu</Filter>
     </ClInclude>
+    <ClInclude Include="KipControlMenu.h">
+      <Filter>Source Files\Applications\KipControl</Filter>
+    </ClInclude>
+    <ClInclude Include="KipControlMenuItemText.h">
+      <Filter>Source Files\Applications\KipControl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WCommand.cpp">
@@ -325,6 +331,9 @@
     </ClCompile>
     <ClCompile Include="WMenuItemFunction.cpp">
       <Filter>Source Files\WMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="KipControlMenu.cpp">
+      <Filter>Source Files\Applications\KipControl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

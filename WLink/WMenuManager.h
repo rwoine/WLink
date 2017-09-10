@@ -42,7 +42,7 @@ typedef struct WMENU_ITEM_STRUCT WMENU_ITEM_STRUCT;
 struct WMENU_ITEM_STRUCT {
 
     WMENU_ITEM_TYPE_ENUM Type_E;
-	WMENU_ITEM_ENUM Id_E;
+	unsigned long Id_UL;
     unsigned long NavIndex_UL;
 
     const char * ppText_UB[2];

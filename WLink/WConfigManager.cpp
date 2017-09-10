@@ -1101,6 +1101,8 @@ WCFG_STATUS WConfigManager_Process() {
 	/* > Retreive Application configuration. */
 	case WCFG_GET_APP_CONFIG:
 
+		GL_GlobalConfig_X.App_X.hasApplication_B = false;
+
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive Application configuration");
 		if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_APP, GL_pWConfigBuffer_UB, 1) == 1) {
 			
@@ -1132,6 +1134,16 @@ WCFG_STATUS WConfigManager_Process() {
 						GL_GlobalConfig_X.App_X.pFctProcess = KipControlManager_Process;
 						GL_GlobalConfig_X.App_X.pFctIsEnabled = KipControlManager_IsEnabled;
 						GL_GlobalConfig_X.App_X.hasApplication_B = true;
+
+						if ((GL_pWConfigBuffer_UB[0] & 0x02) == 0x02) {
+							DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Application has Dediacted Menu - Assign functions");
+							GL_GlobalConfig_X.App_X.pFctInitMenu = KipControlMenu_Init;
+							GL_GlobalConfig_X.App_X.pFctGetFirstItem = KipControlMenu_GetFirstItem;
+							GL_GlobalConfig_X.App_X.hasMenu_B = true;
+						}
+						else {
+							GL_GlobalConfig_X.App_X.hasMenu_B = false;
+						}
 
 						DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configure Communication Medium");
 						if (GL_GlobalData_X.Eeprom_H.read(KC_WORKING_AREA_OFFSET, GL_pWConfigBuffer_UB, 1) == 1) {

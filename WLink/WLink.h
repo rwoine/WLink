@@ -53,10 +53,12 @@
 #include "UDPServerManager.h"
 
 #include "WLinkManager.h"
+#include "WMenuManager.h"
 
 #include "KipControl.h"
 #include "KipControlMedium.h"
 #include "KipControlManager.h"
+#include "KipControlMenu.h"
 
 #include "Debug.h"
 
@@ -173,11 +175,14 @@ typedef struct {
 // Dedicated Structure for WApplication Configuration
 typedef struct {
     boolean hasApplication_B;
+	boolean hasMenu_B;
     void (*pFctInit)(void *);
     void (*pFctEnable)(void);
     void (*pFctDisable)(void);
     boolean(*pFctIsEnabled)(void);
     void (*pFctProcess)(void);
+	void (*pFctInitMenu)(void);
+	void (*pFctGetFirstItem)(void);
 } WAPP_STRUCT;
 
 // Dedicated Structure for Indicator Configuration

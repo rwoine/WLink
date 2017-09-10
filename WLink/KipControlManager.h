@@ -66,6 +66,5 @@ void KipControlManager_Process();
 
 boolean KipControlManager_IsEnabled();
 
-
 #endif // __KIPCONTROL_MANAGER_H__
 
