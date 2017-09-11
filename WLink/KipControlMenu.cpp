@@ -31,6 +31,8 @@
 /* ******************************************************************************** */
 /* External Variables
 /* ******************************************************************************** */
+extern GLOBAL_PARAM_STRUCT GL_GlobalData_X;
+extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 
 /* ******************************************************************************** */
 /* Local Variables
@@ -55,6 +57,7 @@ void KipControlMenu_Init(void) {
 		GL_pKCMenuItem_X[i].Type_E = KCMENU_ITEM_TYPE_NULL;
 		GL_pKCMenuItem_X[i].Id_UL = KCMENU_ITEM_NULL;
 		GL_pKCMenuItem_X[i].NavIndex_UL = 0;
+		GL_pKCMenuItem_X[i].IsFromApp_B = true;
 
 		GL_pKCMenuItem_X[i].ppText_UB[0] = "";
 		GL_pKCMenuItem_X[i].ppText_UB[1] = "";
@@ -79,7 +82,7 @@ void KipControlMenu_Init(void) {
 	GL_pKCMenuItem_X[KCMENU_ITEM_IDLE_SCREEN].Id_UL = KCMENU_ITEM_IDLE_SCREEN;
 	GL_pKCMenuItem_X[KCMENU_ITEM_IDLE_SCREEN].NavIndex_UL = 0;
 
-	GL_pKCMenuItem_X[KCMENU_ITEM_IDLE_SCREEN].ppText_UB[0] = GL_ppWMenuItemText_Str[KCMENU_ITEM_IDLE_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pKCMenuItem_X[KCMENU_ITEM_IDLE_SCREEN].ppText_UB[0] = GL_ppKCMenuItemText_Str[KCMENU_ITEM_IDLE_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
 
 	//GL_pKCMenuItem_X[WMENU_ITEM_IDLE_SCREEN].pFct_OnProcess = ;
 

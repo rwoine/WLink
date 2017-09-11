@@ -173,16 +173,17 @@ typedef struct {
 } WCMD_CONFIG_STRUCT;
 
 // Dedicated Structure for WApplication Configuration
+
 typedef struct {
     boolean hasApplication_B;
 	boolean hasMenu_B;
     void (*pFctInit)(void *);
     void (*pFctEnable)(void);
     void (*pFctDisable)(void);
-    boolean(*pFctIsEnabled)(void);
+    boolean (*pFctIsEnabled)(void);
     void (*pFctProcess)(void);
 	void (*pFctInitMenu)(void);
-	void (*pFctGetFirstItem)(void);
+	WMENU_ITEM_STRUCT * (*pFctGetFirstItem)(void);
 } WAPP_STRUCT;
 
 // Dedicated Structure for Indicator Configuration

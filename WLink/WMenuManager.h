@@ -16,7 +16,6 @@
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-#include "WLink.h"
 #include "WMenuItemText.h"
 
 /* ******************************************************************************** */
@@ -44,6 +43,7 @@ struct WMENU_ITEM_STRUCT {
     WMENU_ITEM_TYPE_ENUM Type_E;
 	unsigned long Id_UL;
     unsigned long NavIndex_UL;
+	boolean IsFromApp_B;
 
     const char * ppText_UB[2];
 
