@@ -34,6 +34,7 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* Define
 /* ******************************************************************************** */
 #define WMENU_JUMP_FROM_APP_SEQUENCE_TIMEOUT_MS		2000
+#define WMENU_JUMP_TO_APP_TIMER_MS					10000
  
 
 /* ******************************************************************************** */
@@ -162,6 +163,9 @@ void WMenuManager_Process() {
         ProcessParam();
         break;
     }
+
+	if (!(GL_pWMenuCurrentItem_X->IsFromApp_B))
+		WMenu_ManageJumpToApp();
 
     // Reset Flags to avoid unwanted jumps
     WMenuCallback_ResetFlags();
@@ -492,9 +496,6 @@ void ProcessParam(void) {
 		// Reset item parameters
 		GL_ItemParam_X.ParamIndex_UL = 0;
 
-		// Disable cursor on LCD
-		GL_GlobalData_X.Lcd_H.disableCursor();
-
 		if (GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_BACK]->Type_E != WMENU_ITEM_TYPE_NULL) {
 			GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_BACK];
 
@@ -512,9 +513,6 @@ void ProcessParam(void) {
 
 		// Reset item parameters
 		GL_ItemParam_X.ParamIndex_UL = 0;
-
-		// Disable cursor on LCD
-		GL_GlobalData_X.Lcd_H.disableCursor();
 
 		if (GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_ENTER]->Type_E != WMENU_ITEM_TYPE_NULL) {
 
@@ -548,41 +546,57 @@ void TransitionToWelcomeScreen(void) {
 	GL_pWMenuCurrentItem_X = &(GL_pWMenuItem_X[WMENU_ITEM_WELCOME_SCREEN]);	// Assign first item
 
 	GL_AbsoluteTime_UL = millis();
+	GL_ExAppTime_UL = millis();
+
 	WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 	WMenu_AssignEnterBackCallbacks();
 
 	GL_pWMenuCurrentItem_X->pFct_OnTransition(&GL_pWMenuCurrentItem_X);
-
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_WELCOME_SCREEN;
 }
 
 void TransitionToMenu(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To MENU");
 
+	GL_GlobalData_X.Lcd_H.disableCursor();
+
 	GL_AbsoluteTime_UL = millis();
+	GL_ExAppTime_UL = millis();
+
 	WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 	WMenu_AssignNavigationCallbacks();
 
+	GL_pWMenuCurrentItem_X->pFct_OnTransition(&GL_pWMenuCurrentItem_X);
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_MENU;
 }
 
 void TransitionToInfo(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To INFO");
 
+	GL_GlobalData_X.Lcd_H.disableCursor();
+
 	GL_AbsoluteTime_UL = millis();
+	GL_ExAppTime_UL = millis();
+
 	WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 	WMenu_AssignEnterBackCallbacks();
 
+	GL_pWMenuCurrentItem_X->pFct_OnTransition(&GL_pWMenuCurrentItem_X);
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_INFO;
 }
 
 void TransitionToParam(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To PARAM");
 
+	GL_GlobalData_X.Lcd_H.disableCursor();
+
 	GL_AbsoluteTime_UL = millis();
+	GL_ExAppTime_UL = millis();
+
 	WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 	WMenu_AssignNumericKeyCallbacks();
 
+	GL_pWMenuCurrentItem_X->pFct_OnTransition(&GL_pWMenuCurrentItem_X);
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_PARAM;
 }
 
@@ -593,6 +607,12 @@ void TransitionToParam(void) {
 
 void WMenu_ManageJumpToApp(void) {
 
+	// Jump to application menu after timeout
+	if ((millis() - GL_ExAppTime_UL) >= WMENU_JUMP_TO_APP_TIMER_MS) {
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Jump to Application Menu (timer elapsed)");
+		GL_pWMenuCurrentItem_X = GL_GlobalConfig_X.App_X.pFctGetFirstItem();
+		TransitionToInfo();
+	}
 }
 
 void WMenu_ManageJumpFromApp(void) {
@@ -729,6 +749,7 @@ void WMenuCallback_OnBack(char * pKey_UB) {
 }
 
 void WMenuCallback_OnNumericKey(char * pKey_UB) {
+	GL_ExAppTime_UL = millis();
 	GL_ItemParam_X.KeyPressed_B = true;
 	GL_ItemParam_X.Key_UB = *pKey_UB;
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Numeric key pressed : " + String(GL_ItemParam_X.Key_UB));
