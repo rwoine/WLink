@@ -39,6 +39,7 @@ typedef struct {
     boolean IsRunning_B;                // Running flag
     unsigned long BatchId_UL;           // ID of the current batch
     unsigned char Tolerance_UB;         // Tolerance in [%]
+	signed int WeightMin_SI;			// Minimum weight to take into account
     unsigned char ReferenceDataId_UB;   // ID of the reference data table
     unsigned char MaxDataNb_UB;         // Total number of data stored in the table
     unsigned char StartIdx_UB;          // Index at which the recording should start
@@ -65,6 +66,7 @@ void KipControlManager_Disable();
 void KipControlManager_Process();
 
 boolean KipControlManager_IsEnabled();
+boolean KipControlManager_IsRunning();
 
 #endif // __KIPCONTROL_MANAGER_H__
 

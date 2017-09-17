@@ -1,56 +1,37 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* KipControlMenuITEMText.h													        */
+/* KipControlMenuItemFunction.h											            */
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Defines the texts used for KipControlMenu, in several languages  			*/
+/*		Header file for KipControlMenuItemFunction.cpp						       	*/
+/*		Defines the specific functions for the KipControl Menu Items.				*/
 /*                                                                                  */
-/* History :	10/09/2017	(RW)	Creation of this file                           */
+/* History :	03/09/2017	(RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __KCMENU_ITEM_TEXT_H__
-#define __KCMENU_ITEM_TEXT_H__
+#ifndef __KCMENU_ITEM_FUNCTION_H__
+#define __KCMENU_ITEM_FUNCTION_H__
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
 #include "WLink.h"
 
-/* ******************************************************************************** */
-/* Enumeration
-/* ******************************************************************************** */
-typedef enum {
-	KCMENU_ITEM_NULL = 0,
-	KCMENU_ITEM_IDLE_SCREEN,
-	KCMENU_ITEM_CONTINUE_RECORD,
-	KCMENU_ITEM_NUMBER
-} KCMENU_ITEM_ENUM;
 
+/* ******************************************************************************** */
+/* Define
+/* ******************************************************************************** */
 
 /* ******************************************************************************** */
 /* Structure & Enumeration
 /* ******************************************************************************** */
 
-//              Text for all menu item :        
-const String GL_ppKCMenuItemText_Str[][3] = {
-	//      EN                          FR                          NL
-	{ "                    ",     "                    ",     "                    " },
-	{ "  > KipControl  (EN)",     "  > KipControl  (FR)",     "  > KipControl  (NL)" },
-	{ "  Continue          ",     " Continuer          ",     " Doorgaan           " },
-};
-
-//              Text for all menu item :        
-const String GL_ppKCMenuItemText2_Str[][3] = {
-	//      EN                          FR                          NL
-	{ "                    ",     "                    ",     "                    " },
-	{ "    starting...     ",     "    demarrage...    ",     "    opstarten...    " },
-	{ " recording ?		   ",     " enregistrement ?   ",     " aanmelding ?       " },
-};
-
 /* ******************************************************************************** */
 /* Functions Prototypes
 /* ******************************************************************************** */
+boolean KCMenuItem_WelcomeScreen_GetCondition(void * Hander_H);
 
-#endif // __KCMENU_ITEM_TEXT_H__
+
+#endif // __KCMENU_ITEM_FUNCTION_H__
 

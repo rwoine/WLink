@@ -66,6 +66,11 @@ unsigned char KipControl::getTolerance(void) {
 		return 0;
 }
 
+signed int KipControl::getWeightMin(void) {
+	DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Not Yet Implemented !");
+	return 0;
+}
+
 unsigned char KipControl::getReferenceDataId(void) {
 	if (GL_GlobalData_X.Eeprom_H.read(KC_REFERENCE_DATA_ID_ADDR, GL_pBuffer_UB, 1) == 1)
 		return GL_pBuffer_UB[0];
@@ -141,6 +146,14 @@ void KipControl::setRunningFlag(boolean Running_B) {
 			GL_pBuffer_UB[0] &= ~0x02;
 		GL_GlobalData_X.Eeprom_H.write(KC_GLOBAL_DATA_ADDR, GL_pBuffer_UB, 1);
 	}
+}
+
+void KipControl::setTolerance(unsigned char Tolerance_UB) {
+	DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Not Yet Implemented !");
+}
+
+void KipControl::setWeightMin(signed int WeightMin_SI) {
+	DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Not Yet Implemented !");
 }
 
 void KipControl::setReferenceDataId(unsigned char ReferenceDataId_UB) {

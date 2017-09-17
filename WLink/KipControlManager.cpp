@@ -179,6 +179,13 @@ boolean KipControlManager_IsEnabled() {
     return (GL_KipControlManagerEnabled_B);
 }
 
+boolean KipControlManager_IsRunning() {
+	return ((	(GL_KipControlManager_CurrentState_E == KC_WAIT_INDICATOR) || 
+				(GL_KipControlManager_CurrentState_E == KC_CHECK_WEIGHT) || 
+				(GL_KipControlManager_CurrentState_E == KC_SEND_PACKET) ||
+				(GL_KipControlManager_CurrentState_E == KC_SERVER_RESPONSE)) ? true : false);
+}
+
 
 /* ******************************************************************************** */
 /* Internal Functions
@@ -214,6 +221,7 @@ void ProcessGetConfig(void) {
 		GL_WorkingData_X.ReferenceDataId_UB = GL_pKipControl_H->getReferenceDataId();		// Reference data of the current table
 		GL_WorkingData_X.BatchId_UL = GL_pKipControl_H->getBatchId();						// Identifier of the current batch
 		GL_WorkingData_X.Tolerance_UB = GL_pKipControl_H->getTolerance();					// Tolerance [%] regarding the reference weight to calculate the average
+		GL_WorkingData_X.WeightMin_SI = GL_pKipControl_H->getWeightMin();					// Weight not taken into account below this value
 		GL_WorkingData_X.StartIdx_UB = GL_pKipControl_H->getStartIdx();						// Index of the reference table when the recording is started
 		GL_WorkingData_X.StartDate_X = GL_pKipControl_H->getStartDate();					// Date of the beginning of the recording
 
@@ -226,6 +234,10 @@ void ProcessGetConfig(void) {
 		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Tolerance = ");
 		DBG_PRINTDATA(GL_WorkingData_X.Tolerance_UB);
 		DBG_PRINTDATA(" [%]");
+		DBG_ENDSTR();
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Weight Minimum = ");
+		DBG_PRINTDATA(GL_WorkingData_X.WeightMin_SI);
+		DBG_PRINTDATA(" [g]");
 		DBG_ENDSTR();
 		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Start Index = ");
 		DBG_PRINTDATA(GL_WorkingData_X.StartIdx_UB);
@@ -385,7 +397,7 @@ void ProcessWaitIndicator(void) {
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Weight from Indicator");
 		GL_WorkingData_X.Weight_SI = GL_GlobalData_X.Indicator_H.fifoPop();
 
-		if (GL_WorkingData_X.Weight_SI != 0) {
+		if (GL_WorkingData_X.Weight_SI >= GL_WorkingData_X.WeightMin_SI) {
 			GL_WorkingData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
 			GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
 
@@ -417,7 +429,12 @@ void ProcessWaitIndicator(void) {
 			}
 		}
 		else {
-			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weight equals 0 -> do not process !");
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "Weight equals ");
+			DBG_PRINTDATA(GL_WorkingData_X.Weight_SI);
+			DBG_PRINTDATA("[g] and it is under ");
+			DBG_PRINTDATA(GL_WorkingData_X.WeightMin_SI);
+			DBG_PRINTDATA("[g] -> do not process !");
+			DBG_ENDSTR();
 		}
 	}
 

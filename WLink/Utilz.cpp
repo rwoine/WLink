@@ -59,6 +59,10 @@ void DefaultKeyEvents(char * Key_UB) {
     DBG_ENDSTR();
 }
 
+boolean DefaultGetCondition(void * Handler_H) {
+	return false;
+}
+
 void DefaultOnTransitionFct(void * Handler_H) {
 	DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "No function on Transition");
 }

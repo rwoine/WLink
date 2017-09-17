@@ -39,20 +39,18 @@ typedef enum {
 
 typedef struct WMENU_ITEM_STRUCT WMENU_ITEM_STRUCT;
 struct WMENU_ITEM_STRUCT {
-
-    WMENU_ITEM_TYPE_ENUM Type_E;
+	WMENU_ITEM_TYPE_ENUM Type_E;
 	unsigned long Id_UL;
     unsigned long NavIndex_UL;
 	boolean IsFromApp_B;
-
     const char * ppText_UB[2];
-
     WMENU_ITEM_STRUCT * ppOnNavItem_X[4];
-
+	WMENU_ITEM_STRUCT * pOnConditionNavItem_X;
+	WMENU_ITEM_STRUCT * pOnTimerNavItem_X;
+	boolean (*pFct_GetCondition)(void *);
 	void (*pFct_OnTransition)(void *);
 	void (*pFct_OnProcess)(void *);
     void (*pFct_OnValidateParam)(unsigned char *);
-
 };
 
 
@@ -71,6 +69,8 @@ void WMenuManager_Init();
 void WMenuManager_Enable();
 void WMenuManager_Disable();
 void WMenuManager_Process();
+
+void WMenuManager_PushKey(char * pKey_UB);
 
 
 #endif // __WMENU_MANAGER_H__

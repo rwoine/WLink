@@ -33,7 +33,7 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define WMENU_JUMP_FROM_APP_SEQUENCE_TIMEOUT_MS		2000
+#define WMENU_JUMP_FROM_APP_SEQUENCE_TIMEOUT_MS		3500
 #define WMENU_JUMP_TO_APP_TIMER_MS					10000
  
 
@@ -62,9 +62,12 @@ static unsigned char GL_pParam_UB[16];
 static unsigned long GL_AbsoluteTime_UL = 0;
 static unsigned long GL_ExAppTime_UL = 0;
 
+static const char GL_pWMenuPassword_UB[] = {'1', '2', '3', '4', '5', '6'};
+
 typedef struct {
 	unsigned long Step_UL;
 	unsigned long TimeOut_UL;
+	char pCharArray_UB[16];
 } WMENU_FROM_APP_STRUCT;
 WMENU_FROM_APP_STRUCT GL_WMenuFromApp_X;
 
@@ -195,6 +198,10 @@ void InitMenuItem(void) {
         GL_pWMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
         GL_pWMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
 
+		GL_pWMenuItem_X[i].pOnConditionNavItem_X = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
+		GL_pWMenuItem_X[i].pOnTimerNavItem_X = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
+
+		GL_pWMenuItem_X[i].pFct_GetCondition = DefaultGetCondition;
 		GL_pWMenuItem_X[i].pFct_OnTransition = DefaultOnTransitionFct;
 		GL_pWMenuItem_X[i].pFct_OnProcess = DefaultOnProcessFct;
 		GL_pWMenuItem_X[i].pFct_OnValidateParam = DefaultOnValidateFct;
@@ -367,6 +374,10 @@ void InitMenuItem(void) {
 
 		GL_WMenuFromApp_X.Step_UL = 0;
 		GL_WMenuFromApp_X.TimeOut_UL = 0;
+
+		for (int i = 0; i < (sizeof(GL_WMenuFromApp_X.pCharArray_UB) / sizeof(GL_WMenuFromApp_X.pCharArray_UB[0])); i++) {
+			GL_WMenuFromApp_X.pCharArray_UB[i] = 0x00;
+		}
 	}
 
 }
@@ -381,6 +392,8 @@ void ProcessIdle(void) {
 
 void ProcessWelcomeScreen(void) {
 	if (((millis() - GL_AbsoluteTime_UL) >= 5000) || (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER])) {
+
+		DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Add First AppMenu Item !!!!!!!!!!!!!!");
 
 		// Enter Idle Screen after Welcome Screen
 		GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_ENTER];
@@ -449,6 +462,23 @@ void ProcessInfo(void) {
 
 	// Call item-specific Process()
 	GL_pWMenuCurrentItem_X->pFct_OnProcess(NULL);
+
+
+	// > Get item-specific condition 
+	if (GL_pWMenuCurrentItem_X->pFct_GetCondition(NULL)) {
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Item-specific condition met -> change Item");
+		if (GL_pWMenuCurrentItem_X->pOnConditionNavItem_X->Type_E != WMENU_ITEM_TYPE_NULL) {
+			GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->pOnConditionNavItem_X;
+
+			// Change state
+			if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_INFO)
+				TransitionToInfo();
+			else if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_PARAM)
+				TransitionToParam();
+			else
+				TransitionToMenu();
+		}
+	}
 
 
 	// > BACK : Quit Screen
@@ -616,55 +646,40 @@ void WMenu_ManageJumpToApp(void) {
 }
 
 void WMenu_ManageJumpFromApp(void) {
+	int i = 0;
+	boolean PasswordOk_B = true;
 
-	// Manage Sequence to jump from Application menu to WMenu
-	switch (GL_WMenuFromApp_X.Step_UL) {
-
-	case 0:
-		if ((GL_ItemParam_X.KeyPressed_B) && (GL_ItemParam_X.Key_UB == 'A')) {
-			GL_ItemParam_X.KeyPressed_B = false;
-			GL_WMenuFromApp_X.TimeOut_UL = millis();
-			GL_WMenuFromApp_X.Step_UL++;
-			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Jump to WMenu from App : Step 1...");
+	// Check password
+	for (i = 0; i < (sizeof(GL_pWMenuPassword_UB)/sizeof(GL_pWMenuPassword_UB[0])); i++) {
+		if (GL_WMenuFromApp_X.pCharArray_UB[i] != GL_pWMenuPassword_UB[i]) {
+			PasswordOk_B = false;
+			break;
 		}
-		break;
+	}
 
-	case 1:
-		if ((GL_ItemParam_X.KeyPressed_B) && (GL_ItemParam_X.Key_UB == 'B')) {
-			GL_ItemParam_X.KeyPressed_B = false;
-			GL_WMenuFromApp_X.TimeOut_UL = millis();
-			GL_WMenuFromApp_X.Step_UL++;
-			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Jump to WMenu from App : Step 2...");
-		}
-		break;
+	// Switch if password OK
+	if (PasswordOk_B) {
+		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Password OK -> Switch to WMenu");
 
-	case 2:
-		if ((GL_ItemParam_X.KeyPressed_B) && (GL_ItemParam_X.Key_UB == 'C')) {
-			GL_ItemParam_X.KeyPressed_B = false;
-			GL_WMenuFromApp_X.TimeOut_UL = millis();
-			GL_WMenuFromApp_X.Step_UL++;
-			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Jump to WMenu from App : Step 3...");
-		}
-		break;
-
-	case 3:
-		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Jump to WMenu from App : Execute");
 		GL_WMenuFromApp_X.Step_UL = 0;
+		for (i = 0; i < (sizeof(GL_WMenuFromApp_X.pCharArray_UB) / sizeof(GL_WMenuFromApp_X.pCharArray_UB[0])); i++) {
+			GL_WMenuFromApp_X.pCharArray_UB[i] = 0x00;
+		}
+
 		GL_pWMenuCurrentItem_X = &(GL_pWMenuItem_X[WMENU_ITEM_IDLE_SCREEN]);
 		TransitionToInfo();
-		break;
-
-	default:
-		GL_WMenuFromApp_X.Step_UL = 0;
-		break;
-
 	}
+
 
 	// Timeout in sequence
 	if (GL_WMenuFromApp_X.Step_UL != 0) {
 		if ((millis() - GL_WMenuFromApp_X.TimeOut_UL) >= WMENU_JUMP_FROM_APP_SEQUENCE_TIMEOUT_MS) {
 			DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Failed to jump to WMenu !");
+
 			GL_WMenuFromApp_X.Step_UL = 0;
+			for (i = 0; i < (sizeof(GL_WMenuFromApp_X.pCharArray_UB) / sizeof(GL_WMenuFromApp_X.pCharArray_UB[0])); i++) {
+				GL_WMenuFromApp_X.pCharArray_UB[i] = 0x00;
+			}
 		}
 	}
 }
@@ -755,10 +770,16 @@ void WMenuCallback_OnNumericKey(char * pKey_UB) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Numeric key pressed : " + String(GL_ItemParam_X.Key_UB));
 }
 
+void WMenuManager_PushKey(char * pKey_UB) {
+	GL_WMenuFromApp_X.pCharArray_UB[GL_WMenuFromApp_X.Step_UL] = *pKey_UB;		// Push Key in array
+	GL_WMenuFromApp_X.TimeOut_UL = millis();									// Reset timer
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Key pushed in array : " + String(GL_WMenuFromApp_X.pCharArray_UB[GL_WMenuFromApp_X.Step_UL]));
+	GL_WMenuFromApp_X.Step_UL++;
+}
 
 void WMenu_AssignResetCallbacks(void) {
     for (int i = 0; i < 16; i++)
-        GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent((FLAT_PANEL_KEY_ENUM)i, DefaultKeyEvents);
+        GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent((FLAT_PANEL_KEY_ENUM)i, WMenuManager_PushKey);
 }
 
 void WMenu_AssignNumericKeyCallbacks(void) {
@@ -789,11 +810,6 @@ void WMenu_AssignEnterBackCallbacks(void) {
     // Assign navigation Enter and Back keys
     GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_CLEAR, WMenuCallback_OnBack);
     GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_VALIDATE, WMenuCallback_OnEnter);
-
-	// Add functions keys
-	GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_F1, WMenuCallback_OnNumericKey);
-	GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_F2, WMenuCallback_OnNumericKey);
-	GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_F3, WMenuCallback_OnNumericKey);
 }
 
 void WMenu_AssignNavigationCallbacks(void) {

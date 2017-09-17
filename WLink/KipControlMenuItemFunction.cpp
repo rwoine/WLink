@@ -1,48 +1,50 @@
 /* ******************************************************************************** */
 /*                                                                                  */
-/* Utilz.h														                    */
+/* KipControlMenuItemFunction.cpp												    */
 /*                                                                                  */
 /* Description :                                                                    */
-/*		Header file for Utilz.cpp							                    	*/
-/*		Utility functions.                                                          */
+/*		Describes the specific functions for the KipControl Menu Items.       		*/
 /*                                                                                  */
-/* History :	28/02/2017	(RW)	Creation of this file                           */
+/* History :  	03/09/2017  (RW)	Creation of this file                           */
 /*                                                                                  */
 /* ******************************************************************************** */
 
-#ifndef __UTILZ_H__
-#define __UTILZ_H__
+#define MODULE_NAME		"KipControlMenuItemFunction"
 
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
-#include "RealTimeClock.h"
+
+#include "KipControlMenuItemFunction.h"
+#include "KipControl.h"
+#include "KipControlManager.h"
+
+#include "Debug.h"
+
+
+/* ******************************************************************************** */
+/* Extenral Variables
+/* ******************************************************************************** */
+extern GLOBAL_PARAM_STRUCT GL_GlobalData_X;
+extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
+
 
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
 
 /* ******************************************************************************** */
-/* Structure & Enumeration
+/* Local Variables
 /* ******************************************************************************** */
 
 /* ******************************************************************************** */
-/* Functions Prototypes
+/* Functions
 /* ******************************************************************************** */
-void Nop(void);
 
-String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str);
-
-void DefaultKeyEvents(char * Key_UB);
-boolean DefaultGetCondition(void * Handler_H);
-void DefaultOnTransitionFct(void * Handler_H);
-void DefaultOnProcessFct(void * Handler_H);
-void DefaultOnValidateFct(unsigned char * pParam_UB);
-
-boolean isLeap(unsigned int Year_UI);
-unsigned long getDeltaDay(RTC_DATE_STRUCT FromDate_X, RTC_DATE_STRUCT ToDate_X);
-String dateToString(RTC_DATE_STRUCT Date_X);
-
-
-#endif // __UTILZ_H__
-
+/* ******************************************************************************** */
+/* Welcome Screen
+/* ******************************************************************************** */
+// > Get Condition
+boolean KCMenuItem_WelcomeScreen_GetCondition(void * Hander_H) {
+	return KipControlManager_IsRunning();
+}

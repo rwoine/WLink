@@ -17,6 +17,7 @@
 #include "WLink.h"
 #include "KipControlMenu.h"
 #include "KipControlMenuItemText.h"
+#include "KipControlMenuItemFunction.h"
 
 #include "Debug.h"
 
@@ -67,6 +68,10 @@ void KipControlMenu_Init(void) {
 		GL_pKCMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pKCMenuItem_X[KCMENU_ITEM_NULL]);
 		GL_pKCMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pKCMenuItem_X[KCMENU_ITEM_NULL]);
 
+		GL_pKCMenuItem_X[i].pOnConditionNavItem_X = &(GL_pKCMenuItem_X[WMENU_ITEM_NULL]);
+		GL_pKCMenuItem_X[i].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[WMENU_ITEM_NULL]);
+
+		GL_pKCMenuItem_X[i].pFct_GetCondition = DefaultGetCondition;
 		GL_pKCMenuItem_X[i].pFct_OnTransition = DefaultOnTransitionFct;
 		GL_pKCMenuItem_X[i].pFct_OnProcess = DefaultOnProcessFct;
 		GL_pKCMenuItem_X[i].pFct_OnValidateParam = DefaultOnValidateFct;
@@ -83,8 +88,19 @@ void KipControlMenu_Init(void) {
 	GL_pKCMenuItem_X[KCMENU_ITEM_IDLE_SCREEN].NavIndex_UL = 0;
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_IDLE_SCREEN].ppText_UB[0] = GL_ppKCMenuItemText_Str[KCMENU_ITEM_IDLE_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pKCMenuItem_X[KCMENU_ITEM_IDLE_SCREEN].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_IDLE_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
 
-	//GL_pKCMenuItem_X[WMENU_ITEM_IDLE_SCREEN].pFct_OnProcess = ;
+	GL_pKCMenuItem_X[KCMENU_ITEM_IDLE_SCREEN].pOnConditionNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD]);
+	GL_pKCMenuItem_X[KCMENU_ITEM_IDLE_SCREEN].pFct_GetCondition = KCMenuItem_WelcomeScreen_GetCondition;
+
+
+	/* 0. Continue Recording */
+	GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD].Type_E = KCMENU_ITEM_TYPE_INFO;
+	GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD].Id_UL = KCMENU_ITEM_CONTINUE_RECORD;
+	GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD].NavIndex_UL = 0;
+
+	GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD].ppText_UB[0] = GL_ppKCMenuItemText_Str[KCMENU_ITEM_CONTINUE_RECORD][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_CONTINUE_RECORD][GL_GlobalConfig_X.Language_E].c_str();
 
 }
 

@@ -50,6 +50,7 @@ public:
 	boolean getConfiguredFlag(void);
 	boolean getRunningFlag(void);
 	unsigned char getTolerance(void);
+	signed int getWeightMin(void);
 	unsigned char getReferenceDataId(void);
 	unsigned char getBatchId(void);
 	unsigned char getMaxDataNb(void);
@@ -60,6 +61,8 @@ public:
 	unsigned long getValueNb(void);
 
 	void setRunningFlag(boolean Running_B);
+	void setTolerance(unsigned char Tolerance_UB);
+	void setWeightMin(signed int WeightMin_SI);
 	void setReferenceDataId(unsigned char ReferenceDataId_UB);
 	void setMaxDataNb(unsigned char MaxDataNb_UB);
 	void setStartIdx(unsigned char StartIdx_UB);
