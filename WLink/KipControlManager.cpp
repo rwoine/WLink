@@ -186,6 +186,10 @@ boolean KipControlManager_IsRunning() {
 				(GL_KipControlManager_CurrentState_E == KC_SERVER_RESPONSE)) ? true : false);
 }
 
+boolean KipControlManager_IsEnded() {
+	return ((GL_KipControlManager_CurrentState_E == KC_END) ? true : false);
+}
+
 
 /* ******************************************************************************** */
 /* Internal Functions

@@ -189,6 +189,7 @@ void InitMenuItem(void) {
 		GL_pWMenuItem_X[i].Id_UL = WMENU_ITEM_NULL;
         GL_pWMenuItem_X[i].NavIndex_UL = 0;
 		GL_pWMenuItem_X[i].IsFromApp_B = false;
+		GL_pWMenuItem_X[i].TimerValue_UL = 0;
 
 		GL_pWMenuItem_X[i].ppText_UB[0] = "";
 		GL_pWMenuItem_X[i].ppText_UB[1] = "";
@@ -393,11 +394,21 @@ void ProcessIdle(void) {
 void ProcessWelcomeScreen(void) {
 	if (((millis() - GL_AbsoluteTime_UL) >= 5000) || (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER])) {
 
-		DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Add First AppMenu Item !!!!!!!!!!!!!!");
-
-		// Enter Idle Screen after Welcome Screen
-		GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_ENTER];
-		TransitionToInfo();
+		if (GL_GlobalConfig_X.App_X.hasMenu_B) {
+			// Enter first item after Welcome Screen if App has dedicated menu
+			GL_pWMenuCurrentItem_X = GL_GlobalConfig_X.App_X.pFctGetFirstItem();
+			if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_INFO)
+				TransitionToInfo();
+			else if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_PARAM)
+				TransitionToParam();
+			else
+				TransitionToMenu();
+		}
+		else {
+			// Enter Idle Screen after Welcome Screen
+			GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_ENTER];
+			TransitionToInfo();
+		}
 	}
 }
 
@@ -477,6 +488,25 @@ void ProcessInfo(void) {
 				TransitionToParam();
 			else
 				TransitionToMenu();
+		}
+	}
+
+
+	// > Get item timing-based transition
+	if (GL_pWMenuCurrentItem_X->TimerValue_UL != 0) {
+		if ((millis() - GL_AbsoluteTime_UL) >= GL_pWMenuCurrentItem_X->TimerValue_UL) {
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Timing-based transition reached -> change Item");
+			if (GL_pWMenuCurrentItem_X->pOnTimerNavItem_X->Type_E != WMENU_ITEM_TYPE_NULL) {
+				GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->pOnTimerNavItem_X;
+
+				// Change state
+				if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_INFO)
+					TransitionToInfo();
+				else if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_PARAM)
+					TransitionToParam();
+				else
+					TransitionToMenu();
+			}
 		}
 	}
 
@@ -775,6 +805,7 @@ void WMenuManager_PushKey(char * pKey_UB) {
 	GL_WMenuFromApp_X.TimeOut_UL = millis();									// Reset timer
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Key pushed in array : " + String(GL_WMenuFromApp_X.pCharArray_UB[GL_WMenuFromApp_X.Step_UL]));
 	GL_WMenuFromApp_X.Step_UL++;
+	if (GL_WMenuFromApp_X.Step_UL > (sizeof(GL_WMenuFromApp_X.pCharArray_UB) / sizeof(GL_WMenuFromApp_X.pCharArray_UB[0])))	GL_WMenuFromApp_X.Step_UL = 0;
 }
 
 void WMenu_AssignResetCallbacks(void) {

@@ -46,5 +46,5 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* ******************************************************************************** */
 // > Get Condition
 boolean KCMenuItem_WelcomeScreen_GetCondition(void * Hander_H) {
-	return KipControlManager_IsRunning();
+	return (KipControlManager_IsRunning() || KipControlManager_IsEnded());
 }
