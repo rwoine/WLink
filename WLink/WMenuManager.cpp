@@ -167,7 +167,7 @@ void WMenuManager_Process() {
         break;
     }
 
-	if (!(GL_pWMenuCurrentItem_X->IsFromApp_B))
+	if ((!(GL_pWMenuCurrentItem_X->IsFromApp_B)) && (GL_GlobalConfig_X.App_X.hasApplication_B))
 		WMenu_ManageJumpToApp();
 
     // Reset Flags to avoid unwanted jumps
