@@ -1280,6 +1280,8 @@ void WConfigManager_BuildSerialGateway(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "WCommand Medium is mono-client");
     GL_GlobalConfig_X.WCmdConfig_X.Medium_E = WLINK_WCMD_MEDIUM_COM0;   // Default Medium = Default debug port
     DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "WCommand Medium sets to " + GL_pWCmdMediumLut_str[GL_GlobalConfig_X.WCmdConfig_X.Medium_E] + " (default)");
+	
+	GL_GlobalConfig_X.pComPortConfig_X[0].pFctCommEvent = Nop;	// Assign empty function as CommEvent
 
     WCmdMedium_Init(WCMD_MEDIUM_SERIAL, GetSerialHandle(0), GL_GlobalConfig_X.WCmdConfig_X.isMonoClient_B);
     WCommandInterpreter_Init(GL_GlobalConfig_X.WCmdConfig_X.pFctDescr_X, GL_GlobalConfig_X.WCmdConfig_X.NbFct_UL);

@@ -156,7 +156,7 @@ int WCmdMedium_DataAvailable(void) {
 
 unsigned char WCmdMedium_ReadByte(void) {
 	unsigned char RetVal_UB = 0x00;
-
+	
 	switch (GL_Medium_E) {
 	case WCMD_MEDIUM_SERIAL:
 		RetVal_UB = GL_pMediumSerial_H->read();
