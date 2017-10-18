@@ -191,6 +191,8 @@ typedef struct {
 	unsigned char ComPortIdx_UB;
 	INDICATOR_INTERFACE_DEVICES_ENUM InterfaceType_E;
 	boolean HasIrq_B;
+	boolean HasEcho_B;
+	unsigned char EchoComPortIx_UB;
 } INDICATOR_CONFIG_STRUCT;
 
 // Global Configuration Structure

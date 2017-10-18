@@ -44,8 +44,8 @@ public:
 
 	void setIndicatorDevice(INDICATOR_INTERFACE_DEVICES_ENUM Device_E);
 
-	void attachEcho(HardwareSerial * pSerial_H);
-	void attachEcho(HardwareSerial * pSerial_H, unsigned long BaudRate_UL);
+	void attachEcho(HardwareSerial * pSerial_H, boolean Begin_B);
+	void attachEcho(HardwareSerial * pSerial_H, unsigned long BaudRate_UL, boolean Begin_B);
 	void detachEcho(void);
 
 	void enableMsa(boolean Enable_B);

@@ -89,16 +89,16 @@ void Indicator::setIndicatorDevice(INDICATOR_INTERFACE_DEVICES_ENUM Device_E) {
 	GL_IndicatorDevice_E = Device_E;
 }
 
-void Indicator::attachEcho(HardwareSerial * pSerial_H) {
+void Indicator::attachEcho(HardwareSerial * pSerial_H, boolean Begin_B) {
 	GL_pIndicatorEcho_H = pSerial_H;
-	GL_pIndicatorEcho_H->begin(INDICATOR_ECHO_DEFAULT_BAUDRATE);
+	if (Begin_B) GL_pIndicatorEcho_H->begin(INDICATOR_ECHO_DEFAULT_BAUDRATE);
 	GL_IndicatorParam_X.HasEcho_B = true;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Attach Echo to Indicator");
 }
 
-void Indicator::attachEcho(HardwareSerial * pSerial_H, unsigned long BaudRate_UL) {
+void Indicator::attachEcho(HardwareSerial * pSerial_H, unsigned long BaudRate_UL, boolean Begin_B) {
 	GL_pIndicatorEcho_H = pSerial_H;
-	GL_pIndicatorEcho_H->begin(BaudRate_UL);
+	if (Begin_B) GL_pIndicatorEcho_H->begin(BaudRate_UL);
 	GL_IndicatorParam_X.HasEcho_B = true;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Attach Echo to Indicator");
 }
@@ -164,6 +164,10 @@ void Indicator::processFrame(INDICATOR_INTERFACE_FRAME_ENUM Frame_E) {
 
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Process Data with Low-Level Function");
 	GL_pIndicatorInterface_X[GL_IndicatorDevice_E].FctHandler(GL_pIndicatorBuffer_UB, Frame_E, &(GL_IndicatorParam_X.Weight_X));
+
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Flush Serial buffer (RX)");
+	while(GL_pIndicatorSerial_H->available())
+		GL_pIndicatorSerial_H->read();
 
 	if (GL_IndicatorParam_X.IsAlibi_B) {
 		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Reset Alibi Flag");

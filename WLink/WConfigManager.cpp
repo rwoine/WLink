@@ -656,6 +656,9 @@ WCFG_STATUS WConfigManager_Process() {
                     GL_GlobalConfig_X.pComPortConfig_X[i].isDebug_B = ((GL_pWConfigBuffer_UB[i * 3] & 0x02) == 0x02) ? true : false;
 
                     // TODO : IRQ-based configuration sould be added here
+					// NOTE : IRQ management is done further in the Application Configuration   
+					// Assign empty function as CommEvent
+					GL_GlobalConfig_X.pComPortConfig_X[i].pFctCommEvent = Nop;
 
                     // Configure actual COM port (if not debug port)
                     if (!GL_GlobalConfig_X.pComPortConfig_X[i].isDebug_B)
@@ -677,9 +680,6 @@ WCFG_STATUS WConfigManager_Process() {
                     DBG_PRINTDATA(": Not enabled");
                     DBG_ENDSTR();
                 }
-
-                // Assign empty function as CommEvent
-                GL_GlobalConfig_X.pComPortConfig_X[i].pFctCommEvent = Nop;
 
             }
 
@@ -1064,6 +1064,29 @@ WCFG_STATUS WConfigManager_Process() {
 						GL_GlobalConfig_X.pIndicatorConfig_X[i].HasIrq_B = false;
 					}
 
+					// Check Echo
+					if ((GL_pWConfigBuffer_UB[i * 4] & 0x04) == 0x04) {
+						DBG_PRINTLN(DEBUG_SEVERITY_INFO, "    > Has Echo");
+						GL_GlobalConfig_X.pIndicatorConfig_X[i].HasEcho_B = true;
+
+						// Get Echo COM Port Index
+						if (((GL_pWConfigBuffer_UB[i * 4 + 3] & 0x0C) >> 2) <= 0x03) {
+							DBG_PRINT(DEBUG_SEVERITY_INFO, "    > Echo COM Port index = COM");
+							DBG_PRINTDATA((GL_pWConfigBuffer_UB[i * 4 + 3] & 0x0C) >> 2);
+							DBG_ENDSTR();
+							GL_GlobalConfig_X.pIndicatorConfig_X[i].EchoComPortIx_UB = ((GL_pWConfigBuffer_UB[i * 4 + 3] & 0x0C) >> 2);
+						}
+						else {
+							DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "    > Wrong Echo COM Port index, discard Echo function");
+							GL_GlobalConfig_X.pIndicatorConfig_X[i].HasEcho_B = false;
+						}
+
+					}
+					else {
+						DBG_PRINTLN(DEBUG_SEVERITY_INFO, "    > No Echo (ignore Echo COM Index)");
+						GL_GlobalConfig_X.pIndicatorConfig_X[i].HasEcho_B = false;
+					}
+
 				}
 				else {
 					DBG_PRINTDATA("Not Enabled");
@@ -1079,6 +1102,10 @@ WCFG_STATUS WConfigManager_Process() {
 				// Call low-level function on Indicator object
 				GL_GlobalData_X.Indicator_H.init(GetSerialHandle(GL_GlobalConfig_X.pIndicatorConfig_X[i].ComPortIdx_UB), false);
 				GL_GlobalData_X.Indicator_H.setIndicatorDevice(GL_GlobalConfig_X.pIndicatorConfig_X[i].InterfaceType_E);
+
+				// Configure Echo if neeeded
+				if (GL_GlobalConfig_X.pIndicatorConfig_X[i].HasEcho_B)
+					GL_GlobalData_X.Indicator_H.attachEcho(GetSerialHandle(GL_GlobalConfig_X.pIndicatorConfig_X[i].EchoComPortIx_UB), false);
 
 				// Configure Manager
 				IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));

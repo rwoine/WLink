@@ -131,7 +131,7 @@ public:
     boolean checkAtResponse(String Data_Str);
     boolean parseResponse(char * pBuffer_UB, char * pPrefix_UB, int * pValue_SI, char Token_UB = ',', unsigned int Index_UI = 0);
     boolean parseResponse(char * pBuffer_UB, String Prefix_Str, int * pValue_SI, char Token_UB = ',', unsigned int Index_UI = 0);
-    void begin(void);
+    boolean begin(void);
 
 
     boolean enterPinCode(char * pPinCode_UB);

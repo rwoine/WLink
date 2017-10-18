@@ -19,11 +19,10 @@
 
 #include "Debug.h"
 
-
 /* ******************************************************************************** */
 /* Define
 /* ******************************************************************************** */
-#define FONA_MODULE_MANAGER_WAIT_REACTION_DELAY_MS				2000
+#define FONA_MODULE_MANAGER_WAIT_REACTION_DELAY_MS				2500
 #define FONA_MODULE_MANAGER_POWER_PULSE_LENGTH_MS				2000
 #define FONA_MODULE_MANAGER_RESET_PULSE_LENGTH_MS				100
 #define FONA_MODULE_MANAGER_NETWORK_REGISTRATION_TIMEOUT_MS		20000
@@ -203,6 +202,7 @@ void ProcessWaitReaction(void) {
         case FONA_MODULE_MANAGER_CHECK_POWER_PIN:   TransitionToCheckPowerPin();    break;
         case FONA_MODULE_MANAGER_BEGIN:             TransitionToBegin();            break;
         case FONA_MODULE_MANAGER_UNLOCK_SIM:        TransitionToUnlockSim();        break;
+		case FONA_MODULE_MANAGER_ENABLE_GPRS:		TransitionToEnableGprs();		break;
         case FONA_MODULE_MANAGER_RUNNING:           TransitionToRunning();          break;
         default:                                    TransitionToIdle();             break;
         }
@@ -244,9 +244,14 @@ void ProcessCheckPowerPin(void) {
 }
 
 void ProcessBegin(void) {
-    GL_pFona_H->begin();
-    GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_UNLOCK_SIM;
-    TransitionToWaitReaction();
+	if (GL_pFona_H->begin()) {
+		GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_UNLOCK_SIM;
+		TransitionToWaitReaction();
+	}
+	else {
+		DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Error while trying to establish/begin communication with FONA module !");
+		TransitionToError();
+	}
 }
 
 void ProcessUnlockSim(void) {
@@ -260,8 +265,10 @@ void ProcessWaitNetworkRegistration(void) {
 
 	GL_pFona_H->getNetworkStatus(&GL_NetworkStatus_SI);
 	if ((GL_NetworkStatus_SI == FONA_MODULE_NETWORK_STATUS_REGISTERED) || (GL_NetworkStatus_SI == FONA_MODULE_NETWORK_STATUS_ROAMING)) {
-		if (GL_FonaModuleManagerEnableGprs_B)
-			TransitionToEnableGprs();
+		if (GL_FonaModuleManagerEnableGprs_B) {
+			GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_ENABLE_GPRS;
+			TransitionToWaitReaction();
+		}
 		else
 			TransitionToRunning();
 	}

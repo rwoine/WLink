@@ -368,7 +368,7 @@ boolean FonaModule::parseResponse(char * pBuffer_UB, String Prefix_Str, int * pV
 }
 
 
-void FonaModule::begin(void) {
+boolean FonaModule::begin(void) {
 
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "FONA Module correctly powered -> start begin sequence..");
 
@@ -514,6 +514,7 @@ void FonaModule::begin(void) {
         }
     }
 
+	return NoError_B;
 }
 
 boolean FonaModule::enterPinCode(char * pPinCode_UB) {
