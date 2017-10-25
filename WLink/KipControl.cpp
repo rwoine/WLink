@@ -67,7 +67,10 @@ unsigned char KipControl::getTolerance(void) {
 }
 
 signed int KipControl::getWeightMin(void) {
-	DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Not Yet Implemented !");
+	if (GL_GlobalData_X.Eeprom_H.read(KC_WEIGHT_MIN_ADDR, GL_pBuffer_UB, 2) == 2)
+		return ((signed int)((GL_pBuffer_UB[1] << 8) + GL_pBuffer_UB[0]));
+	else
+		return 0;
 	return 0;
 }
 
@@ -80,13 +83,6 @@ unsigned char KipControl::getReferenceDataId(void) {
 
 unsigned char KipControl::getBatchId(void) {
 	if (GL_GlobalData_X.Eeprom_H.read(KC_BATCH_ID_ADDR, GL_pBuffer_UB, 1) == 1)
-		return GL_pBuffer_UB[0];
-	else
-		return 0;
-}
-
-unsigned char KipControl::getMaxDataNb(void) {
-	if (GL_GlobalData_X.Eeprom_H.read(KC_MAX_DATA_NB_ADDR, GL_pBuffer_UB, 1) == 1)
 		return GL_pBuffer_UB[0];
 	else
 		return 0;
@@ -149,19 +145,18 @@ void KipControl::setRunningFlag(boolean Running_B) {
 }
 
 void KipControl::setTolerance(unsigned char Tolerance_UB) {
-	DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Not Yet Implemented !");
+	GL_GlobalData_X.Eeprom_H.write(KC_TOLERANCE_ADDR, &Tolerance_UB, 1);
 }
 
 void KipControl::setWeightMin(signed int WeightMin_SI) {
-	DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Not Yet Implemented !");
+	unsigned int WeightMin_UI = (WeightMin_SI < 0) ? 0 : WeightMin_SI;
+	GL_pBuffer_UB[0] = (unsigned char)(WeightMin_UI % 256);
+	GL_pBuffer_UB[1] = (unsigned char)((WeightMin_UI >> 8) % 256);
+	GL_GlobalData_X.Eeprom_H.write(KC_WEIGHT_MIN_ADDR, GL_pBuffer_UB, 2);
 }
 
 void KipControl::setReferenceDataId(unsigned char ReferenceDataId_UB) {
 	GL_GlobalData_X.Eeprom_H.write(KC_REFERENCE_DATA_ID_ADDR, &ReferenceDataId_UB, 1);
-}
-
-void KipControl::setMaxDataNb(unsigned char MaxDataNb_UB) {
-	GL_GlobalData_X.Eeprom_H.write(KC_MAX_DATA_NB_ADDR, &MaxDataNb_UB, 1);
 }
 
 void KipControl::setStartIdx(unsigned char StartIdx_UB) {
