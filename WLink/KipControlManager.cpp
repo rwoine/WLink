@@ -210,6 +210,8 @@ void ProcessIdle(void) {
 void ProcessGetConfig(void) {
 	if (GL_pKipControl_H->getConfiguredFlag()) {
 
+		unsigned int EepromReferenceDataAddr_UW = 0;
+
 		// Get MAC Address
 		GL_WorkingData_X.MacAddr_Str = HexArrayToString(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB), ":");
 		DBG_PRINT(DEBUG_SEVERITY_INFO, "MAC Address for unique identification : ");
@@ -251,9 +253,15 @@ void ProcessGetConfig(void) {
 		DBG_ENDSTR();
 
 
+		// Build Reference Data Address
+		EepromReferenceDataAddr_UW = KC_REFERENCE_TABLE_START_ADDR + ((GL_WorkingData_X.ReferenceDataId_UB - 1) * KC_REFERENCE_TABLE_OFFSET);
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Build address for Reference Data Table = 0x");
+		DBG_PRINTDATABASE(EepromReferenceDataAddr_UW, HEX);
+		DBG_ENDSTR();
+
 		// Get Reference Data table
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Reference Data table");
-		if (GL_GlobalData_X.Eeprom_H.read(KC_REFERENCE_TABLE_START_ADDR + ((GL_WorkingData_X.ReferenceDataId_UB - 1) * KC_REFERENCE_TABLE_OFFSET), GL_pKCBuffer_UB, 2) == 2) {
+		if (GL_GlobalData_X.Eeprom_H.read(EepromReferenceDataAddr_UW, GL_pKCBuffer_UB, 2) == 2) {
 
 			if (GL_pKCBuffer_UB[0] == GL_WorkingData_X.ReferenceDataId_UB) {
 				DBG_PRINT(DEBUG_SEVERITY_INFO, "Reference table found, ID = ");
@@ -291,6 +299,9 @@ void ProcessGetConfig(void) {
 			}
 			else {
 				DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Reference Data table NOT found !");
+				DBG_PRINT(DEBUG_SEVERITY_INFO, "Wrong Batch ID found : 0x");
+				DBG_PRINTDATABASE(GL_pKCBuffer_UB[0], HEX);
+				DBG_ENDSTR();
 				TransitionToError();
 			}
 
