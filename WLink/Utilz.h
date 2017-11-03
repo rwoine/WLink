@@ -32,6 +32,7 @@
 void Nop(void);
 
 String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str);
+int GetIndexOfChar(const char * pCharArray_UB, char CharToSearch_UB, int FromIndex_SI = 0);
 
 void DefaultKeyEvents(char * Key_UB);
 boolean DefaultGetCondition(void * Handler_H);

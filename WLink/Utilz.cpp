@@ -52,6 +52,26 @@ String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, Stri
 }
 
 
+int GetIndexOfChar(const char * pCharArray_UB, char CharToSearch_UB, int FromIndex_SI) {
+	int Index_SI = FromIndex_SI;
+	boolean Found_B = false;
+
+	while ((pCharArray_UB[Index_SI] != 0x00) && (!Found_B)) {
+
+		if (pCharArray_UB[Index_SI] == CharToSearch_UB)
+			Found_B = true;
+
+		if(!Found_B)	
+			Index_SI++;
+	}	
+
+	if (!Found_B)
+		Index_SI = -1;
+
+	return Index_SI;
+}
+
+
 void DefaultKeyEvents(char * Key_UB) {
     DBG_PRINT(DEBUG_SEVERITY_WARNING, "[");
     DBG_PRINTDATA((*Key_UB));
@@ -64,7 +84,7 @@ boolean DefaultGetCondition(void * Handler_H) {
 }
 
 void DefaultOnTransitionFct(void * Handler_H) {
-	DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "No function on Transition");
+	//DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "No function on Transition");
 }
 
 void DefaultOnProcessFct(void * Handler_H) {
@@ -72,7 +92,7 @@ void DefaultOnProcessFct(void * Handler_H) {
 }
 
 void DefaultOnValidateFct(unsigned char * pParam_UB) {
-	DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "No function on Validate");
+	//DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "No function on Validate");
 }
 
 

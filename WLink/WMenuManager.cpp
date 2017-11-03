@@ -611,7 +611,7 @@ void TransitionToWelcomeScreen(void) {
 	WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 	WMenu_AssignEnterBackCallbacks();
 
-	GL_pWMenuCurrentItem_X->pFct_OnTransition(&GL_pWMenuCurrentItem_X);
+	GL_pWMenuCurrentItem_X->pFct_OnTransition(GL_pWMenuCurrentItem_X);
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_WELCOME_SCREEN;
 }
 
@@ -626,7 +626,7 @@ void TransitionToMenu(void) {
 	WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 	WMenu_AssignNavigationCallbacks();
 
-	GL_pWMenuCurrentItem_X->pFct_OnTransition(&GL_pWMenuCurrentItem_X);
+	GL_pWMenuCurrentItem_X->pFct_OnTransition(GL_pWMenuCurrentItem_X);
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_MENU;
 }
 
@@ -641,7 +641,7 @@ void TransitionToInfo(void) {
 	WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 	WMenu_AssignEnterBackCallbacks();
 
-	GL_pWMenuCurrentItem_X->pFct_OnTransition(&GL_pWMenuCurrentItem_X);
+	GL_pWMenuCurrentItem_X->pFct_OnTransition(GL_pWMenuCurrentItem_X);
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_INFO;
 }
 
@@ -656,7 +656,7 @@ void TransitionToParam(void) {
 	WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 	WMenu_AssignNumericKeyCallbacks();
 
-	GL_pWMenuCurrentItem_X->pFct_OnTransition(&GL_pWMenuCurrentItem_X);
+	GL_pWMenuCurrentItem_X->pFct_OnTransition(GL_pWMenuCurrentItem_X);
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_PARAM;
 }
 

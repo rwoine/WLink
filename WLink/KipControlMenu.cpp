@@ -117,6 +117,8 @@ void KipControlMenu_Init(void) {
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_BATCH_NUMBER].TimerValue_UL = 2000;
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_BATCH_NUMBER].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_GET_REFERENCE_ID]);
 
+	GL_pKCMenuItem_X[KCMENU_ITEM_GET_BATCH_NUMBER].pFct_OnTransition = KCMenuItem_GetBatchNumber_Transition;
+
 
 	/* 0. Get Reference ID */
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_REFERENCE_ID].Type_E = KCMENU_ITEM_TYPE_INFO;
@@ -128,6 +130,8 @@ void KipControlMenu_Init(void) {
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_REFERENCE_ID].TimerValue_UL = 2000;
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_REFERENCE_ID].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_GET_TOLERANCE]);
+
+	GL_pKCMenuItem_X[KCMENU_ITEM_GET_REFERENCE_ID].pFct_OnTransition = KCMenuItem_GetReferenceId_Transition;
 
 
 	/* 0. Get Tolerance */
@@ -141,6 +145,8 @@ void KipControlMenu_Init(void) {
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_TOLERANCE].TimerValue_UL = 2000;
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_TOLERANCE].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_GET_MIN_WEIGHT]);
 
+	GL_pKCMenuItem_X[KCMENU_ITEM_GET_TOLERANCE].pFct_OnTransition = KCMenuItem_GetTolerance_Transition;
+
 
 	/* 0. Get Min Weight */
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_MIN_WEIGHT].Type_E = KCMENU_ITEM_TYPE_INFO;
@@ -153,6 +159,8 @@ void KipControlMenu_Init(void) {
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_MIN_WEIGHT].TimerValue_UL = 2000;
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_MIN_WEIGHT].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY]);
 
+	GL_pKCMenuItem_X[KCMENU_ITEM_GET_MIN_WEIGHT].pFct_OnTransition = KCMenuItem_GetMinWeight_Transition;
+
 
 	/* 0. Get Current Day */
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].Type_E = KCMENU_ITEM_TYPE_INFO;
@@ -164,6 +172,8 @@ void KipControlMenu_Init(void) {
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].TimerValue_UL = 2000;
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_GET_BATCH_NUMBER]);	// TODO : Change Loop
+
+	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].pFct_OnTransition = KCMenuItem_GetCurrentDay_Transition;
 
 
 
