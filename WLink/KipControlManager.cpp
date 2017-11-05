@@ -356,7 +356,7 @@ void ProcessRecoverData(void) {
 			}
 		}
 		else {
-			DBG_PRINT(DEBUG_SEVERITY_WARNING, "Current Index no more up-to-date (");
+			DBG_PRINT(DEBUG_SEVERITY_WARNING, "Current Index no more up-to-date (new index = ");
 			DBG_PRINTDATA(TempIndex_UB);
 			DBG_PRINTDATA(") -> reset recovered data");
 			DBG_ENDSTR();

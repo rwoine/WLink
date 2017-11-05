@@ -38,6 +38,16 @@ void KCMenuItem_GetTolerance_Transition(void * Handler_H);
 void KCMenuItem_GetMinWeight_Transition(void * Handler_H);
 void KCMenuItem_GetCurrentDay_Transition(void * Handler_H);
 
+void KCMenuItem_SetBatchNumber_Process(void * Handler_H);
+void KCMenuItem_SetBatchNumber_OnValidate(unsigned char * pParam_UB);
+void KCMenuItem_SetReferenceId_Process(void * Handler_H);
+void KCMenuItem_SetReferenceId_OnValidate(unsigned char * pParam_UB);
+void KCMenuItem_SetTolerance_Process(void * Handler_H);
+void KCMenuItem_SetTolerance_OnValidate(unsigned char * pParam_UB);
+void KCMenuItem_SetMinWeight_Process(void * Handler_H);
+void KCMenuItem_SetMinWeight_OnValidate(unsigned char * pParam_UB);
+void KCMenuItem_SetStartDay_Process(void * Handler_H);
+void KCMenuItem_SetStartDay_OnValidate(unsigned char * pParam_UB);
 
 #endif // __KCMENU_ITEM_FUNCTION_H__
 

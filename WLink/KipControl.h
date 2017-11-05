@@ -63,6 +63,7 @@ public:
 	void setTolerance(unsigned char Tolerance_UB);
 	void setWeightMin(signed int WeightMin_SI);
 	void setReferenceDataId(unsigned char ReferenceDataId_UB);
+	void setBatchId(unsigned char BatchId_UB);
 	void setStartIdx(unsigned char StartIdx_UB);
 	void setStartDate(RTC_DATE_STRUCT StartDate_X);
 	void setCurrentIdx(unsigned char CurrentIdx_UB);

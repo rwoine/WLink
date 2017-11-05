@@ -56,6 +56,7 @@ struct WMENU_ITEM_STRUCT {
 
 
 typedef struct {
+	WMENU_ITEM_STRUCT * pSenderItem_H;
 	boolean KeyPressed_B;
 	char Key_UB;
 	unsigned long ParamIndex_UL;

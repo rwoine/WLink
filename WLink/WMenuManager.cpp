@@ -126,6 +126,7 @@ void WMenuManager_Init() {
     WMenuCallback_ResetFlags();
 
 	// Initialize Parameters Structure
+	GL_ItemParam_X.pSenderItem_H = NULL;
 	GL_ItemParam_X.KeyPressed_B = false;
 	GL_ItemParam_X.Key_UB = 0x00;
 	GL_ItemParam_X.ParamIndex_UL = 0;
@@ -265,7 +266,8 @@ void InitMenuItem(void) {
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].Id_UL = WMENU_ITEM_SETTINGS_LANGUAGE_SELECT;
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].NavIndex_UL = 0;
 
-	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_LANGUAGE][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT][GL_GlobalConfig_X.Language_E].c_str();
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE_SELECT].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LANGUAGE]);
 
@@ -303,7 +305,8 @@ void InitMenuItem(void) {
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].Id_UL = WMENU_ITEM_SETTINGS_DATETIME_DATE_SET;
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].NavIndex_UL = 0;
 
-	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_DATE][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET][GL_GlobalConfig_X.Language_E].c_str();
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE]);
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE_SET].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_DATE]);
 
@@ -329,7 +332,8 @@ void InitMenuItem(void) {
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].Id_UL = WMENU_ITEM_SETTINGS_DATETIME_TIME_SET;
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].NavIndex_UL = 0;
 
-	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_TIME][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET][GL_GlobalConfig_X.Language_E].c_str();
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME]);
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME_SET].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME_TIME]);
 
@@ -656,6 +660,7 @@ void TransitionToParam(void) {
 	WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 	WMenu_AssignNumericKeyCallbacks();
 
+	GL_ItemParam_X.pSenderItem_H = GL_pWMenuCurrentItem_X;
 	GL_pWMenuCurrentItem_X->pFct_OnTransition(GL_pWMenuCurrentItem_X);
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_PARAM;
 }
@@ -739,8 +744,10 @@ void WMenu_DisplayItem(WMENU_ITEM_STRUCT * pMenuItem_X) {
     // > Display the first line of text as the Menu text
     // > Display the second line of text as the Param text
     case WMENU_ITEM_TYPE_PARAM:
+		GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, pMenuItem_X->ppText_UB[0]);
+		GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, pMenuItem_X->ppText_UB[1]);/*
         GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, pMenuItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_BACK]->ppText_UB[0]);
-        GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, pMenuItem_X->ppText_UB[0]);
+        GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, pMenuItem_X->ppText_UB[0]);*/
         break;
 
     // MENU

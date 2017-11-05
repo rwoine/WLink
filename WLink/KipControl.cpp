@@ -159,6 +159,10 @@ void KipControl::setReferenceDataId(unsigned char ReferenceDataId_UB) {
 	GL_GlobalData_X.Eeprom_H.write(KC_REFERENCE_DATA_ID_ADDR, &ReferenceDataId_UB, 1);
 }
 
+void KipControl::setBatchId(unsigned char BatchId_UB) {
+	GL_GlobalData_X.Eeprom_H.write(KC_BATCH_ID_ADDR, &BatchId_UB, 1);
+}
+
 void KipControl::setStartIdx(unsigned char StartIdx_UB) {
 	GL_GlobalData_X.Eeprom_H.write(KC_START_IDX_ADDR, &StartIdx_UB, 1);
 }
