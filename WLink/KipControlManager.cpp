@@ -180,14 +180,15 @@ boolean KipControlManager_IsEnabled() {
 }
 
 boolean KipControlManager_IsRunning() {
-	return ((	(GL_KipControlManager_CurrentState_E == KC_WAIT_INDICATOR) || 
-				(GL_KipControlManager_CurrentState_E == KC_CHECK_WEIGHT) || 
-				(GL_KipControlManager_CurrentState_E == KC_SEND_PACKET) ||
-				(GL_KipControlManager_CurrentState_E == KC_SERVER_RESPONSE)) ? true : false);
+	return ((	(GL_KipControlManager_CurrentState_E == KC_WAIT_INDICATOR)		|| 
+				(GL_KipControlManager_CurrentState_E == KC_CHECK_WEIGHT)		|| 
+				(GL_KipControlManager_CurrentState_E == KC_SEND_PACKET)			||
+				(GL_KipControlManager_CurrentState_E == KC_SERVER_RESPONSE))	? true : false);
 }
 
 boolean KipControlManager_IsEnded() {
-	return ((GL_KipControlManager_CurrentState_E == KC_END) ? true : false);
+	return ((GL_KipControlManager_CurrentState_E == KC_END)		||
+			(GL_KipControlManager_CurrentState_E == KC_ERROR)	? true : false);
 }
 
 

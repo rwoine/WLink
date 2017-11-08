@@ -35,6 +35,7 @@ typedef enum {
 	KCMENU_ITEM_SET_TOLERANCE,
 	KCMENU_ITEM_SET_MIN_WEIGHT,
 	KCMENU_ITEM_SET_START_DAY,
+	KCMENU_ITEM_ACTUAL_RECORD,
 	KCMENU_ITEM_NUMBER
 } KCMENU_ITEM_ENUM;
 
@@ -61,6 +62,7 @@ const String GL_ppKCMenuItemText_Str[][3] = {
 	{ "Enter setting       ",     "Entrez parametre    ",     "Voeren parameter    " },
 	{ "Enter setting       ",     "Entrez parametre    ",     "Voeren parameter    " },
 	{ "Enter setting       ",     "Entrez parametre    ",     "Voeren parameter    " },
+	{ "00/00/00 00:00:00   ",     "00/00/00 00:00:00   ",     "00/00/00 00:00:00   " },
 };
 
 //              Text for all menu item :        
@@ -80,6 +82,7 @@ const String GL_ppKCMenuItemText2_Str[][3] = {
 	{ "Tolerance :        %",     "Tolerance :        %",     "Tolerantie :       %" },
 	{ "Min weight :       g",     "Poids min :        g",     "Min gewicht :      g" },
 	{ "Start day :         ",     "Jour debut :        ",     "Startdag :          " },
+	{ "DXX - Av.           ",     "JXX - Moy.          ",     "DXX - Gem.          " },
 };
 
 /* ******************************************************************************** */

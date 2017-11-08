@@ -172,7 +172,7 @@ void KipControlMenu_Init(void) {
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_GET_CURRENT_DAY][GL_GlobalConfig_X.Language_E].c_str();
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].TimerValue_UL = 2000;
-	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD]);	// TODO : Change Loop
+	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD]);
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].pFct_OnTransition = KCMenuItem_GetCurrentDay_Transition;
 
@@ -270,6 +270,17 @@ void KipControlMenu_Init(void) {
 
 
 
+	/* 0. Actual Recording */
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].Type_E = KCMENU_ITEM_TYPE_PARAM;
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].Id_UL = KCMENU_ITEM_ACTUAL_RECORD;
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].NavIndex_UL = 0;
+
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].ppText_UB[0] = GL_ppKCMenuItemText_Str[KCMENU_ITEM_ACTUAL_RECORD][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_ACTUAL_RECORD][GL_GlobalConfig_X.Language_E].c_str();
+
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD]);
+
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pFct_OnProcess = KCMenuItem_ActualRecording_Process;
 }
 
 
