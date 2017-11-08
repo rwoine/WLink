@@ -172,7 +172,7 @@ void KipControlMenu_Init(void) {
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_GET_CURRENT_DAY][GL_GlobalConfig_X.Language_E].c_str();
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].TimerValue_UL = 2000;
-	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_GET_BATCH_NUMBER]);	// TODO : Change Loop
+	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD]);	// TODO : Change Loop
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_GET_CURRENT_DAY].pFct_OnTransition = KCMenuItem_GetCurrentDay_Transition;
 
