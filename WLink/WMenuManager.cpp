@@ -55,6 +55,7 @@ static WMENU_ITEM_STRUCT GL_pWMenuItem_X[WMENU_ITEM_NUMBER];
 static WMENU_ITEM_STRUCT * GL_pWMenuCurrentItem_X;
 
 static boolean GL_pNavButtonPressed_B[4] = {false, false, false, false};
+static boolean GL_pFunctionButtonPressed_B[3] = {false, false, false};
 
 WMENU_ITEM_PARAM_STRUCT GL_ItemParam_X;
 static unsigned char GL_pParam_UB[16];
@@ -97,6 +98,11 @@ static void WMenuCallback_OnUp(char * pKey_UB);
 static void WMenuCallback_OnDown(char * pKey_UB);
 static void WMenuCallback_OnEnter(char * pKey_UB);
 static void WMenuCallback_OnBack(char * pKey_UB);
+
+static void WMenuCallback_OnFunction1(char * pKey_UB);
+static void WMenuCallback_OnFunction2(char * pKey_UB);
+static void WMenuCallback_OnFunction3(char * pKey_UB);
+
 static void WMenuCallback_OnNumericKey(char * pKey_UB);
 static void WMenuCallback_ResetFlags(void);
 
@@ -199,6 +205,10 @@ void InitMenuItem(void) {
 		GL_pWMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_DOWN] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
         GL_pWMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
         GL_pWMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
+
+		GL_pWMenuItem_X[i].ppOnFctItem_X[WMENU_FCTBUTTON_F1] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
+		GL_pWMenuItem_X[i].ppOnFctItem_X[WMENU_FCTBUTTON_F2] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
+		GL_pWMenuItem_X[i].ppOnFctItem_X[WMENU_FCTBUTTON_F3] = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
 
 		GL_pWMenuItem_X[i].pOnConditionNavItem_X = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
 		GL_pWMenuItem_X[i].pOnTimerNavItem_X = &(GL_pWMenuItem_X[WMENU_ITEM_NULL]);
@@ -476,7 +486,7 @@ void ProcessInfo(void) {
 
 
 	// Call item-specific Process()
-	GL_pWMenuCurrentItem_X->pFct_OnProcess(NULL);
+	GL_pWMenuCurrentItem_X->pFct_OnProcess(&GL_ItemParam_X);
 
 
 	// > Get item-specific condition 
@@ -535,6 +545,51 @@ void ProcessInfo(void) {
 
 		if (GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_ENTER]->Type_E != WMENU_ITEM_TYPE_NULL) {
 			GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_ENTER];
+
+			// Change state
+			if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_INFO)
+				TransitionToInfo();
+			else if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_PARAM)
+				TransitionToParam();
+			else
+				TransitionToMenu();
+		}
+	}
+
+
+	// > F1
+	if (GL_pFunctionButtonPressed_B[WMENU_FCTBUTTON_F1]) {
+
+		if (GL_pWMenuCurrentItem_X->ppOnFctItem_X[WMENU_FCTBUTTON_F1]->Type_E != WMENU_ITEM_TYPE_NULL) {
+			GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnFctItem_X[WMENU_FCTBUTTON_F1];
+
+			// Change state
+			if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_INFO)
+				TransitionToInfo();
+			else if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_PARAM)
+				TransitionToParam();
+			else
+				TransitionToMenu();
+		}
+	} // > F2
+	else if (GL_pFunctionButtonPressed_B[WMENU_FCTBUTTON_F2]) {
+
+		if (GL_pWMenuCurrentItem_X->ppOnFctItem_X[WMENU_FCTBUTTON_F2]->Type_E != WMENU_ITEM_TYPE_NULL) {
+			GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnFctItem_X[WMENU_FCTBUTTON_F2];
+
+			// Change state
+			if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_INFO)
+				TransitionToInfo();
+			else if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_PARAM)
+				TransitionToParam();
+			else
+				TransitionToMenu();
+		}
+	} // > F3
+	else if (GL_pFunctionButtonPressed_B[WMENU_FCTBUTTON_F3]) {
+
+		if (GL_pWMenuCurrentItem_X->ppOnFctItem_X[WMENU_FCTBUTTON_F3]->Type_E != WMENU_ITEM_TYPE_NULL) {
+			GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnFctItem_X[WMENU_FCTBUTTON_F3];
 
 			// Change state
 			if (GL_pWMenuCurrentItem_X->Type_E == WMENU_ITEM_TYPE_INFO)
@@ -645,6 +700,7 @@ void TransitionToInfo(void) {
 	WMenu_DisplayItem(GL_pWMenuCurrentItem_X);
 	WMenu_AssignEnterBackCallbacks();
 
+	GL_ItemParam_X.pSenderItem_H = GL_pWMenuCurrentItem_X;
 	GL_pWMenuCurrentItem_X->pFct_OnTransition(GL_pWMenuCurrentItem_X);
     GL_WMenuManager_CurrentState_E = WMENU_STATE::WMENU_INFO;
 }
@@ -777,6 +833,9 @@ void WMenu_DisplayItem(WMENU_ITEM_STRUCT * pMenuItem_X) {
 void WMenuCallback_ResetFlags(void) {
     for (int i = 0; i < 4; i++)
         GL_pNavButtonPressed_B[i] = false;
+
+	for (int i = 0; i < 3; i++)
+		GL_pFunctionButtonPressed_B[i] = false;
 }
 
 
@@ -792,13 +851,29 @@ void WMenuCallback_OnDown(char * pKey_UB) {
 
 void WMenuCallback_OnEnter(char * pKey_UB) {
     GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER] = true;
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Button ENTER/RIGHT");
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Button ENTER/RIGHT Pressed");
 }
 
 void WMenuCallback_OnBack(char * pKey_UB) {
     GL_pNavButtonPressed_B[WMENU_NAVBUTTON_BACK] = true;
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Button BACK/LEFT");
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Button BACK/LEFT Pressed");
 }
+
+void WMenuCallback_OnFunction1(char * pKey_UB) {
+	GL_pFunctionButtonPressed_B[WMENU_FCTBUTTON_F1] = true;
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Button F1 Pressed");
+}
+
+void WMenuCallback_OnFunction2(char * pKey_UB) {
+	GL_pFunctionButtonPressed_B[WMENU_FCTBUTTON_F2] = true;
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Button F2 Pressed");
+}
+
+void WMenuCallback_OnFunction3(char * pKey_UB) {
+	GL_pFunctionButtonPressed_B[WMENU_FCTBUTTON_F3] = true;
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Button F3 Pressed");
+}
+
 
 void WMenuCallback_OnNumericKey(char * pKey_UB) {
 	GL_ExAppTime_UL = millis();
@@ -848,6 +923,11 @@ void WMenu_AssignEnterBackCallbacks(void) {
     // Assign navigation Enter and Back keys
     GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_CLEAR, WMenuCallback_OnBack);
     GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_VALIDATE, WMenuCallback_OnEnter);
+
+	// Assign dedicated functions keys
+	GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_F1, WMenuCallback_OnFunction1);
+	GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_F2, WMenuCallback_OnFunction2);
+	GL_GlobalData_X.FlatPanel_H.assignOnKeyPressedEvent(FLAT_PANEL_KEY_F3, WMenuCallback_OnFunction3);
 }
 
 void WMenu_AssignNavigationCallbacks(void) {

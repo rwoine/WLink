@@ -40,7 +40,8 @@ enum FONA_MODULE_MANAGER_STATE {
     FONA_MODULE_MANAGER_CHECK_POWER_PIN,
     FONA_MODULE_MANAGER_BEGIN,
     FONA_MODULE_MANAGER_UNLOCK_SIM,
-	FONE_MODULE_MANAGER_WAIT_NEWORK_REGISTRATION,
+	FONA_MODULE_MANAGER_WAIT_NEWORK_REGISTRATION,
+	FONA_MODULE_MANAGER_GET_BATTERY_STATE,
 	FONA_MODULE_MANAGER_ENABLE_GPRS,
     FONA_MODULE_MANAGER_RUNNING,
     FONA_MODULE_MANAGER_ERROR
@@ -73,6 +74,7 @@ static void ProcessCheckPowerPin(void);
 static void ProcessBegin(void);
 static void ProcessUnlockSim(void);
 static void ProcessWaitNetworkRegistration(void);
+static void ProcessGetBatteryState(void);
 static void ProcessEnableGprs(void);
 static void ProcessRunning(void);
 static void ProcessError(void);
@@ -85,6 +87,7 @@ static void TransitionToCheckPowerPin(void);
 static void TransitionToBegin(void);
 static void TransitionToUnlockSim(void);
 static void TransitiontToWaitNetworkRegistration(void);
+static void TransitionToGetBatteryState(void);
 static void TransitionToEnableGprs(void);
 static void TransitionToRunning(void);
 static void TransitionToError(void);
@@ -146,8 +149,12 @@ void FonaModuleManager_Process() {
         ProcessUnlockSim();
         break;
 
-	case FONE_MODULE_MANAGER_WAIT_NEWORK_REGISTRATION:
+	case FONA_MODULE_MANAGER_WAIT_NEWORK_REGISTRATION:
 		ProcessWaitNetworkRegistration();
+		break;
+
+	case FONA_MODULE_MANAGER_GET_BATTERY_STATE:
+		ProcessGetBatteryState();
 		break;
 
 	case FONA_MODULE_MANAGER_ENABLE_GPRS:
@@ -202,6 +209,7 @@ void ProcessWaitReaction(void) {
         case FONA_MODULE_MANAGER_CHECK_POWER_PIN:   TransitionToCheckPowerPin();    break;
         case FONA_MODULE_MANAGER_BEGIN:             TransitionToBegin();            break;
         case FONA_MODULE_MANAGER_UNLOCK_SIM:        TransitionToUnlockSim();        break;
+		case FONA_MODULE_MANAGER_GET_BATTERY_STATE:	TransitionToGetBatteryState();	break;
 		case FONA_MODULE_MANAGER_ENABLE_GPRS:		TransitionToEnableGprs();		break;
         case FONA_MODULE_MANAGER_RUNNING:           TransitionToRunning();          break;
         default:                                    TransitionToIdle();             break;
@@ -265,12 +273,8 @@ void ProcessWaitNetworkRegistration(void) {
 
 	GL_pFona_H->getNetworkStatus(&GL_NetworkStatus_SI);
 	if ((GL_NetworkStatus_SI == FONA_MODULE_NETWORK_STATUS_REGISTERED) || (GL_NetworkStatus_SI == FONA_MODULE_NETWORK_STATUS_ROAMING)) {
-		if (GL_FonaModuleManagerEnableGprs_B) {
-			GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_ENABLE_GPRS;
-			TransitionToWaitReaction();
-		}
-		else
-			TransitionToRunning();
+		GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_GET_BATTERY_STATE;
+		TransitionToWaitReaction();
 	}
 
 	// Timeout on registration
@@ -279,6 +283,23 @@ void ProcessWaitNetworkRegistration(void) {
 		TransitionToError();
 	}
 
+}
+
+void ProcessGetBatteryState(void) {
+	unsigned int BatteryState_UI = 0;
+	BatteryState_UI = GL_pFona_H->getBatteryLevel();
+
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "Battery level = ");
+	DBG_PRINTDATA(BatteryState_UI);
+	DBG_PRINTDATA(" [%]");
+	DBG_ENDSTR();
+
+	if (GL_FonaModuleManagerEnableGprs_B) {
+		GL_FonaModuleManager_NextState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_ENABLE_GPRS;
+		TransitionToWaitReaction();
+	}
+	else
+		TransitionToRunning();
 }
 
 void ProcessEnableGprs(void) {
@@ -367,7 +388,13 @@ void TransitionToUnlockSim(void) {
 void TransitiontToWaitNetworkRegistration(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT NETWORK REGISTRATION");
 	GL_FonaAbsoluteTime_UL = millis();
-	GL_FonaModuleManager_CurrentState_E = FONA_MODULE_MANAGER_STATE::FONE_MODULE_MANAGER_WAIT_NEWORK_REGISTRATION;
+	GL_FonaModuleManager_CurrentState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_WAIT_NEWORK_REGISTRATION;
+}
+
+void TransitionToGetBatteryState(void) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET BATTERY STATE");
+	GL_FonaAbsoluteTime_UL = millis();
+	GL_FonaModuleManager_CurrentState_E = FONA_MODULE_MANAGER_STATE::FONA_MODULE_MANAGER_GET_BATTERY_STATE;
 }
 
 void TransitionToEnableGprs(void) {

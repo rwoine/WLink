@@ -69,6 +69,10 @@ void KipControlMenu_Init(void) {
 		GL_pKCMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pKCMenuItem_X[KCMENU_ITEM_NULL]);
 		GL_pKCMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pKCMenuItem_X[KCMENU_ITEM_NULL]);
 
+		GL_pKCMenuItem_X[i].ppOnFctItem_X[WMENU_FCTBUTTON_F1] = &(GL_pKCMenuItem_X[WMENU_ITEM_NULL]);
+		GL_pKCMenuItem_X[i].ppOnFctItem_X[WMENU_FCTBUTTON_F2] = &(GL_pKCMenuItem_X[WMENU_ITEM_NULL]);
+		GL_pKCMenuItem_X[i].ppOnFctItem_X[WMENU_FCTBUTTON_F3] = &(GL_pKCMenuItem_X[WMENU_ITEM_NULL]);
+
 		GL_pKCMenuItem_X[i].pOnConditionNavItem_X = &(GL_pKCMenuItem_X[WMENU_ITEM_NULL]);
 		GL_pKCMenuItem_X[i].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[WMENU_ITEM_NULL]);
 
@@ -271,7 +275,7 @@ void KipControlMenu_Init(void) {
 
 
 	/* 0. Actual Recording */
-	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].Type_E = KCMENU_ITEM_TYPE_PARAM;
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].Type_E = KCMENU_ITEM_TYPE_INFO;
 	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].Id_UL = KCMENU_ITEM_ACTUAL_RECORD;
 	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].NavIndex_UL = 0;
 
@@ -280,7 +284,27 @@ void KipControlMenu_Init(void) {
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD]);
 
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].ppOnFctItem_X[WMENU_FCTBUTTON_F1] = &(GL_pKCMenuItem_X[KCMENU_ITEM_GET_BATCH_NUMBER]);
+
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pOnConditionNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD]);
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pFct_GetCondition = KCMenuItem_ActualRecording_GetCondition;
+
 	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pFct_OnProcess = KCMenuItem_ActualRecording_Process;
+
+
+	/* 0. Current Record */	
+	GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD].Type_E = KCMENU_ITEM_TYPE_INFO;
+	GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD].Id_UL = KCMENU_ITEM_CURRENT_RECORD;
+	GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD].NavIndex_UL = 0;
+
+	GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD].ppText_UB[0] = GL_ppKCMenuItemText_Str[KCMENU_ITEM_CURRENT_RECORD][GL_GlobalConfig_X.Language_E].c_str();
+	GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_CURRENT_RECORD][GL_GlobalConfig_X.Language_E].c_str();
+
+	GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD].TimerValue_UL = 4000;
+	GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD]);
+
+	GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD].pFct_OnProcess = KCMenuItem_CurrentRecord_Process;
+
 }
 
 

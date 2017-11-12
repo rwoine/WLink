@@ -46,7 +46,7 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* ******************************************************************************** */
 // > Get Condition
 boolean KCMenuItem_WelcomeScreen_GetCondition(void * Hander_H) {
-	return (KipControlManager_IsRunning() || KipControlManager_IsEnded());
+	return (KipControlManager_IsReady());
 }
 
 /* ******************************************************************************** */
@@ -484,8 +484,28 @@ void KCMenuItem_ActualRecording_Process(void * Handler_H) {
 	ColIdx_UL = GetIndexOfChar((((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pSenderItem_H->ppText_UB[1]), '.');
 	ColIdx_UL += 2;
 
-	Average_f = ((float)(GL_GlobalData_X.KipControl_H.getTotalValue())) / ((float)(GL_GlobalData_X.KipControl_H.getValueNb()));
+	if (GL_GlobalData_X.KipControl_H.getValueNb() != 0)
+		Average_f = ((float)(GL_GlobalData_X.KipControl_H.getTotalValue())) / ((float)(GL_GlobalData_X.KipControl_H.getValueNb()));
+	else
+		Average_f = 0.0;
 	Average_str = String(Average_f, 2);
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL, Average_str);
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL + Average_str.length() + 1, "g");
+}
+
+// > Get Condition
+boolean KCMenuItem_ActualRecording_GetCondition(void * Hander_H) {
+	return (KipControlManager_IsProcessingWeight());
+}
+
+
+/* ******************************************************************************** */
+/* Current Record
+/* ******************************************************************************** */
+// > Process
+void KCMenuItem_CurrentRecord_Process(void * Handler_H) {
+	String Weight_str = String(KipControlManager_GetCurrentWeight());
+	GL_GlobalData_X.Lcd_H.clearDisplay(LCD_DISPLAY_LINE2);
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 1, Weight_str);
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 1 + Weight_str.length() + 1, "g");
 }

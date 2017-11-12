@@ -45,6 +45,7 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* ******************************************************************************** */
 enum KC_STATE {
 	KC_IDLE,
+	KC_WAIT_USER,
 	KC_GET_CONFIG,
 	KC_RECOVER_DATA,
 	KC_CONNECTING,
@@ -80,6 +81,7 @@ KC_MANAGER_SERVER_PARAM GL_ServerParam_X;
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
 static void ProcessIdle(void);
+static void ProcessWaitUser(void);
 static void ProcessGetConfig(void);
 static void ProcessRecoverData(void);
 static void ProcessConnecting(void);
@@ -91,6 +93,7 @@ static void ProcessEnd(void);
 static void ProcessError(void);
 
 static void TransitionToIdle(void);
+static void TransitionToWaitUser(void);
 static void TransitionToGetConfig(void);
 static void TransitionToRecoverData(void);
 static void TransitionToConnecting(void);
@@ -133,45 +136,17 @@ void KipControlManager_Process() {
 
 	/* State Machine */
     switch (GL_KipControlManager_CurrentState_E) {
-    case KC_IDLE:
-        ProcessIdle();
-        break;
-
-    case KC_GET_CONFIG:
-        ProcessGetConfig();
-        break;
-
-	case KC_RECOVER_DATA:
-		ProcessRecoverData();
-		break;
-
-    case KC_CONNECTING:
-        ProcessConnecting();
-        break;
-
-    case KC_WAIT_INDICATOR:
-        ProcessWaitIndicator();
-        break;
-
-    case KC_CHECK_WEIGHT:
-        ProcessCheckWeight();
-        break;
-
-	case KC_SEND_PACKET:
-		ProcessSendPacket();
-		break;
-
-	case KC_SERVER_RESPONSE:
-		ProcessServerResponse();
-		break;
-
-	case KC_END:
-		ProcessEnd();
-		break;
-
-	case KC_ERROR:
-		ProcessError();
-		break;
+    case KC_IDLE:				ProcessIdle();				break;
+	case KC_WAIT_USER:			ProcessWaitUser();			break;
+    case KC_GET_CONFIG:			ProcessGetConfig();			break;
+	case KC_RECOVER_DATA:		ProcessRecoverData();		break;
+    case KC_CONNECTING:			ProcessConnecting();        break;
+    case KC_WAIT_INDICATOR:     ProcessWaitIndicator();		break;
+    case KC_CHECK_WEIGHT:       ProcessCheckWeight();       break;
+	case KC_SEND_PACKET:		ProcessSendPacket();		break;
+	case KC_SERVER_RESPONSE:	ProcessServerResponse();	break;
+	case KC_END:				ProcessEnd();				break;
+	case KC_ERROR:				ProcessError();				break;
     }
 }
 
@@ -179,18 +154,21 @@ boolean KipControlManager_IsEnabled() {
     return (GL_KipControlManagerEnabled_B);
 }
 
-boolean KipControlManager_IsRunning() {
-	return ((	(GL_KipControlManager_CurrentState_E == KC_WAIT_INDICATOR)		|| 
-				(GL_KipControlManager_CurrentState_E == KC_CHECK_WEIGHT)		|| 
-				(GL_KipControlManager_CurrentState_E == KC_SEND_PACKET)			||
-				(GL_KipControlManager_CurrentState_E == KC_SERVER_RESPONSE))	? true : false);
+boolean KipControlManager_IsReady() {
+	return ((GL_KipControlManager_CurrentState_E != KC_IDLE) ? true : false);
 }
 
-boolean KipControlManager_IsEnded() {
-	return ((GL_KipControlManager_CurrentState_E == KC_END)		||
-			(GL_KipControlManager_CurrentState_E == KC_ERROR)	? true : false);
+boolean KipControlManager_IsWaitingWeight() {
+	return ((GL_KipControlManager_CurrentState_E == KC_WAIT_INDICATOR) ? true : false);
 }
 
+boolean KipControlManager_IsProcessingWeight() {
+	return ((GL_KipControlManager_CurrentState_E == KC_CHECK_WEIGHT) ? true : false);
+}
+
+signed int KipControlManager_GetCurrentWeight() {
+	return (GL_WorkingData_X.Weight_SI);
+}
 
 /* ******************************************************************************** */
 /* Internal Functions
@@ -204,8 +182,12 @@ void ProcessIdle(void) {
 		GL_ServerParam_X.Response_SI = 0;
 		GL_ServerParam_X.AccessCounter_SI = 0;
 		
-		TransitionToGetConfig();
+		TransitionToWaitUser();
 	}
+}
+
+void ProcessWaitUser(void) {
+	TransitionToGetConfig();
 }
 
 void ProcessGetConfig(void) {
@@ -413,31 +395,25 @@ void ProcessWaitIndicator(void) {
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Weight from Indicator");
 		GL_WorkingData_X.Weight_SI = GL_GlobalData_X.Indicator_H.fifoPop();
 
-		if (GL_WorkingData_X.Weight_SI >= GL_WorkingData_X.WeightMin_SI) {
-			GL_WorkingData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
-			GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
+		GL_WorkingData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
+		GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
 
-			GL_WorkingData_X.CurrentIdx_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
-			if (GL_WorkingData_X.CurrentIdx_UB != GL_pKipControl_H->getCurrentIdx()) {
-				DBG_PRINT(DEBUG_SEVERITY_INFO, "Current index has changed, save new value : ");
-				DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
-				DBG_ENDSTR();
-				GL_pKipControl_H->setCurrentIdx(GL_WorkingData_X.CurrentIdx_UB);
+		GL_WorkingData_X.CurrentIdx_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
+		if (GL_WorkingData_X.CurrentIdx_UB != GL_pKipControl_H->getCurrentIdx()) {
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "Current index has changed, save new value : ");
+			DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
+			DBG_ENDSTR();
+			GL_pKipControl_H->setCurrentIdx(GL_WorkingData_X.CurrentIdx_UB);
 
-				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reset working data (average calculation)");
-				GL_pKipControl_H->setTotalValue(0);
-				GL_pKipControl_H->setValueNb(0);
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reset working data (average calculation)");
+			GL_pKipControl_H->setTotalValue(0);
+			GL_pKipControl_H->setValueNb(0);
 
-				if (GL_WorkingData_X.CurrentIdx_UB >= GL_WorkingData_X.MaxDataNb_UB) {
-					// End of recording
-					DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reached end of Reference Data table");
-					DBG_PRINTLN(DEBUG_SEVERITY_INFO, "-> End of recording");
-					TransitionToEnd();
-				}
-				else {
-					// Check weight according to Reference Data
-					TransitionToCheckWeight();
-				}
+			if (GL_WorkingData_X.CurrentIdx_UB >= GL_WorkingData_X.MaxDataNb_UB) {
+				// End of recording
+				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reached end of Reference Data table");
+				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "-> End of recording");
+				TransitionToEnd();
 			}
 			else {
 				// Check weight according to Reference Data
@@ -445,13 +421,10 @@ void ProcessWaitIndicator(void) {
 			}
 		}
 		else {
-			DBG_PRINT(DEBUG_SEVERITY_INFO, "Weight equals ");
-			DBG_PRINTDATA(GL_WorkingData_X.Weight_SI);
-			DBG_PRINTDATA("[g] and it is under ");
-			DBG_PRINTDATA(GL_WorkingData_X.WeightMin_SI);
-			DBG_PRINTDATA("[g] -> do not process !");
-			DBG_ENDSTR();
+			// Check weight according to Reference Data
+			TransitionToCheckWeight();
 		}
+
 	}
 
 	// Check if reached the end of recording
@@ -475,53 +448,69 @@ void ProcessWaitIndicator(void) {
 
 void ProcessCheckWeight(void) {
 
-	/* Get Reference Data according to current day */
-	DBG_PRINT(DEBUG_SEVERITY_INFO, "Day #");
-	DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB + 1);	// Day starting at 1 -> index starting at 0
-	DBG_PRINTDATA(" -> ");
-	DBG_PRINTDATA("Reference Weight is ");
-	DBG_PRINTDATA(GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB]);
-	DBG_PRINTDATA("[g]");
-	DBG_ENDSTR();
+	/* Check if Weight is above limit */
+	if (GL_WorkingData_X.Weight_SI >= GL_WorkingData_X.WeightMin_SI) {
 
-	/* Check if Weight is in Tolerance */
-	float LimitHigh_F = (float)GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB] * (1 + (float)GL_WorkingData_X.Tolerance_UB / 100);
-	float LimitLow_F = (float)GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB] * (1 - (float)GL_WorkingData_X.Tolerance_UB / 100);
-	DBG_PRINT(DEBUG_SEVERITY_INFO, "Weight should be within [");
-	DBG_PRINTDATA(LimitHigh_F);
-	DBG_PRINTDATA(":");
-	DBG_PRINTDATA(LimitLow_F);
-	DBG_PRINTDATA("]");
-	DBG_ENDSTR();
-
-	if ((GL_WorkingData_X.Weight_SI <= LimitHigh_F) && (GL_WorkingData_X.Weight_SI >= LimitLow_F)) {
-		GL_WorkingData_X.IsValid_B = true;
-		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weight within boundaries -> taken into account to calculate average.");
-		GL_pKipControl_H->appendTotalValue(GL_WorkingData_X.Weight_SI);
-		GL_pKipControl_H->incValueNb();
-
-		GL_WorkingData_X.TotalValue_UL = GL_pKipControl_H->getTotalValue();
-		GL_WorkingData_X.ValueNb_UL = GL_pKipControl_H->getValueNb();
-
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "Average of the Day = ");
-		DBG_PRINTDATA((GL_WorkingData_X.TotalValue_UL) / (GL_WorkingData_X.ValueNb_UL));
-		DBG_PRINTDATA(" [g]");
+		/* Get Reference Data according to current day */
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Day #");
+		DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB + 1);	// Day starting at 1 -> index starting at 0
+		DBG_PRINTDATA(" -> ");
+		DBG_PRINTDATA("Reference Weight is ");
+		DBG_PRINTDATA(GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB]);
+		DBG_PRINTDATA("[g]");
 		DBG_ENDSTR();
 
-	}
-	else {
-		GL_WorkingData_X.IsValid_B = false;
-		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Weight outside boundaries -> ignored!");
-	}
+		/* Check if Weight is in Tolerance */
+		float LimitHigh_F = (float)GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB] * (1 + (float)GL_WorkingData_X.Tolerance_UB / 100);
+		float LimitLow_F = (float)GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB] * (1 - (float)GL_WorkingData_X.Tolerance_UB / 100);
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Weight should be within [");
+		DBG_PRINTDATA(LimitHigh_F);
+		DBG_PRINTDATA(":");
+		DBG_PRINTDATA(LimitLow_F);
+		DBG_PRINTDATA("]");
+		DBG_ENDSTR();
+
+		if ((GL_WorkingData_X.Weight_SI <= LimitHigh_F) && (GL_WorkingData_X.Weight_SI >= LimitLow_F)) {
+			GL_WorkingData_X.IsValid_B = true;
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weight within boundaries -> taken into account to calculate average.");
+			GL_pKipControl_H->appendTotalValue(GL_WorkingData_X.Weight_SI);
+			GL_pKipControl_H->incValueNb();
+
+			GL_WorkingData_X.TotalValue_UL = GL_pKipControl_H->getTotalValue();
+			GL_WorkingData_X.ValueNb_UL = GL_pKipControl_H->getValueNb();
+
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "Average of the Day = ");
+			DBG_PRINTDATA((GL_WorkingData_X.TotalValue_UL) / (GL_WorkingData_X.ValueNb_UL));
+			DBG_PRINTDATA(" [g]");
+			DBG_ENDSTR();
+
+		}
+		else {
+			GL_WorkingData_X.IsValid_B = false;
+			DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Weight outside boundaries -> ignored!");
+		}
 
 
-	if (GL_WorkingData_X.OfflineMode_B) {
-		// Wait or new Weight
+		//  Manage Transition
+		if (GL_WorkingData_X.OfflineMode_B) {
+			// Wait or new Weight
+			TransitionToWaitIndicator();
+		}
+		else {
+			// Send all data to portal
+			TransitionToSendPacket();
+		}
+
+	} /* Discard Weight */
+	else {	
+		DBG_PRINT(DEBUG_SEVERITY_INFO, "Weight equals ");
+		DBG_PRINTDATA(GL_WorkingData_X.Weight_SI);
+		DBG_PRINTDATA("[g] and it is under ");
+		DBG_PRINTDATA(GL_WorkingData_X.WeightMin_SI);
+		DBG_PRINTDATA("[g] -> do not process !");
+		DBG_ENDSTR();
+
 		TransitionToWaitIndicator();
-	}
-	else {
-		// Send all data to portal
-		TransitionToSendPacket();
 	}
 }
 
@@ -629,8 +618,13 @@ void ProcessError(void) {
 
 
 void TransitionToIdle(void) {
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
-    GL_KipControlManager_CurrentState_E = KC_STATE::KC_IDLE;
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
+	GL_KipControlManager_CurrentState_E = KC_STATE::KC_IDLE;
+}
+
+void TransitionToWaitUser(void) {
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT USER");
+	GL_KipControlManager_CurrentState_E = KC_STATE::KC_WAIT_USER;
 }
 
 void TransitionToGetConfig(void) {

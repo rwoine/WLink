@@ -66,8 +66,12 @@ void KipControlManager_Disable();
 void KipControlManager_Process();
 
 boolean KipControlManager_IsEnabled();
-boolean KipControlManager_IsRunning();
-boolean KipControlManager_IsEnded();
+boolean KipControlManager_IsReady();
+
+boolean KipControlManager_IsWaitingWeight();
+boolean KipControlManager_IsProcessingWeight();
+
+signed int KipControlManager_GetCurrentWeight();
 
 #endif // __KIPCONTROL_MANAGER_H__
 
