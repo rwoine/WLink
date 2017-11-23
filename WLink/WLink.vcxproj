@@ -47,10 +47,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\libraries\SPI\src;C:\Program Files (x86)\Arduino\libraries\Ethernet\src;C:\Program Files (x86)\Arduino\libraries\LiquidCrystal\src;C:\Users\remyw\Documents\Arduino\libraries\Keypad\src;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\libraries\Wire\src;C:\Program Files (x86)\Arduino\libraries\SD\src;C:\Program Files (x86)\Arduino\libraries\Ethernet\src\utility;C:\Program Files (x86)\Arduino\libraries\SD\src\utility;C:\Program Files (x86)\Arduino\libraries;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\libraries;C:\Users\remyw\Documents\Arduino\libraries;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino\avr;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino\USB;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\variants\arduino_due_x;$(ProjectDir)..\WLink;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\CMSIS\Include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\tools\arm-none-eabi-gcc\4.8.3-2014q1\arm-none-eabi\include\c++\4.8.3;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\tools\arm-none-eabi-gcc\4.8.3-2014q1\arm-none-eabi\include\c++\4.8.3\arm-none-eabi\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\tools\arm-none-eabi-gcc\4.8.3-2014q1\arm-none-eabi\include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\tools\arm-none-eabi-gcc\4.8.3-2014q1\lib\gcc\arm-none-eabi\4.8.3\include;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam\include;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\CMSIS\Include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\CMSIS\Include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\CMSIS\Include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam\include;C:\Program Files (x86)\Arduino\hardware\tools\g++_arm_none_eabi\arm-none-eabi\include;C:\Program Files (x86)\Arduino\hardware\tools\g++_arm_none_eabi\arm_none_eabi\include\;C:\Program Files (x86)\Arduino\hardware\tools\g++_arm_none_eabi\lib\gcc\arm-none-eabi\4.4.1\include;C:\Program Files (x86)\Arduino\hardware\tools\g++_arm_none_eabi\lib\gcc\arm-none-eabi\4.4.1\include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\sam3xa\include\pio;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam\include;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\CMSIS\CMSIS\Include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\sam3xa\include;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\sam3xa\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\WLink;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\libraries\Wire\src;C:\Program Files (x86)\Arduino\libraries\Ethernet\src;C:\Program Files (x86)\Arduino\libraries\Ethernet\src\utility;C:\Program Files (x86)\Arduino\libraries\LiquidCrystal\src;C:\Program Files (x86)\Arduino\libraries\SD\src;C:\Program Files (x86)\Arduino\libraries\SD\src\utility;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\libraries\SPI\src;C:\Program Files (x86)\Arduino\libraries;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\libraries;C:\Users\remyw\Documents\Arduino\libraries;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino\avr;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino\USB;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\variants\arduino_due_x;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\CMSIS\Include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\tools\arm-none-eabi-gcc\4.8.3-2014q1\arm-none-eabi\include\c++\4.8.3;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\tools\arm-none-eabi-gcc\4.8.3-2014q1\arm-none-eabi\include\c++\4.8.3\arm-none-eabi\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\tools\arm-none-eabi-gcc\4.8.3-2014q1\arm-none-eabi\include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\tools\arm-none-eabi-gcc\4.8.3-2014q1\lib\gcc\arm-none-eabi\4.8.3\include;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam\include;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\CMSIS\Include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\CMSIS\Include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\CMSIS\Include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam\include;C:\Program Files (x86)\Arduino\hardware\tools\g++_arm_none_eabi\arm-none-eabi\include;C:\Program Files (x86)\Arduino\hardware\tools\g++_arm_none_eabi\arm_none_eabi\include\;C:\Program Files (x86)\Arduino\hardware\tools\g++_arm_none_eabi\lib\gcc\arm-none-eabi\4.4.1\include;C:\Program Files (x86)\Arduino\hardware\tools\g++_arm_none_eabi\lib\gcc\arm-none-eabi\4.4.1\include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\sam3xa\include\pio;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam\include;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\CMSIS\CMSIS\Include\;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\sam3xa\include;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\libsam;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL;C:\Users\remyw\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\system\CMSIS\Device\ATMEL\sam3xa\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>$(ProjectDir)__vm\.WLink.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <PreprocessorDefinitions>printf=iprintf;F_CPU=84000000L;ARDUINO=10803;ARDUINO_SAM_DUE;ARDUINO_ARCH_SAM;__SAM3X8E__;USB_VID=0x2341;USB_PID=0x003e;USBCON;__cplusplus=201103L;_VMICRO_INTELLISENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>printf=iprintf;F_CPU=84000000L;ARDUINO=10805;ARDUINO_SAM_DUE;ARDUINO_ARCH_SAM;__SAM3X8E__;USB_VID=0x2341;USB_PID=0x003e;USBCON;__cplusplus=201103L;_VMICRO_INTELLISENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
@@ -77,7 +77,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Adafruit_FONA.h" />
     <ClInclude Include="BadgeReader.h" />
     <ClInclude Include="BadgeReaderManager.h" />
     <ClInclude Include="CommEvent.h" />
@@ -85,17 +84,15 @@
     <ClInclude Include="EepromWire.h" />
     <ClInclude Include="FlatPanel.h" />
     <ClInclude Include="FlatPanelManager.h" />
-    <ClInclude Include="FONAConfig.h" />
-    <ClInclude Include="FONAExtIncludes.h" />
     <ClInclude Include="FonaModule.h" />
     <ClInclude Include="FonaModuleManager.h" />
-    <ClInclude Include="FONAPlatform.h" />
-    <ClInclude Include="FONAPlatStd.h" />
     <ClInclude Include="GI400.h" />
     <ClInclude Include="Hardware.h" />
     <ClInclude Include="Indicator.h" />
     <ClInclude Include="IndicatorInterface.h" />
     <ClInclude Include="IndicatorManager.h" />
+    <ClInclude Include="Key.h" />
+    <ClInclude Include="Keypad.h" />
     <ClInclude Include="KipControl.h" />
     <ClInclude Include="KipControlManager.h" />
     <ClInclude Include="KipControlMedium.h" />
@@ -108,7 +105,6 @@
     <ClInclude Include="NetworkAdapter.h" />
     <ClInclude Include="NetworkAdapterManager.h" />
     <ClInclude Include="RealTimeClock.h" />
-    <ClInclude Include="RealTimeClockDS1307.h" />
     <ClInclude Include="SerialHandler.h" />
     <ClInclude Include="SerialManager.h" />
     <ClInclude Include="TCPServer.h" />
@@ -128,7 +124,6 @@
     <ClInclude Include="__vm\.WLink.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Adafruit_FONA.cpp" />
     <ClCompile Include="BadgeReader.cpp" />
     <ClCompile Include="BadgeReaderManager.cpp" />
     <ClCompile Include="Debug.cpp" />
@@ -141,6 +136,8 @@
     <ClCompile Include="Indicator.cpp" />
     <ClCompile Include="IndicatorInterface.cpp" />
     <ClCompile Include="IndicatorManager.cpp" />
+    <ClCompile Include="Key.cpp" />
+    <ClCompile Include="Keypad.cpp" />
     <ClCompile Include="KipControl.cpp" />
     <ClCompile Include="KipControlManager.cpp" />
     <ClCompile Include="KipControlMedium.cpp" />
@@ -152,7 +149,6 @@
     <ClCompile Include="NetworkAdapter.cpp" />
     <ClCompile Include="NetworkAdapterManager.cpp" />
     <ClCompile Include="RealTimeClock.cpp" />
-    <ClCompile Include="RealTimeClockDS1307.cpp" />
     <ClCompile Include="SerialHandler.cpp" />
     <ClCompile Include="SerialManager.cpp" />
     <ClCompile Include="TCPServer.cpp" />

@@ -14,6 +14,7 @@
 /* ******************************************************************************** */
 /* Include
 /* ******************************************************************************** */
+#include "Utilz.h"
 #include "Debug.h"
 #include <time.h>
 #include "RealTimeClock.h"
@@ -33,6 +34,30 @@
 void Nop(void) {
     // Empty function
 }
+
+
+byte DecToBcd(byte b) {
+    return (((b / 10) << 4) + (b % 10));
+}
+
+byte BcdToDec(byte b) {
+    return (((b >> 4) * 10) + (b % 16));
+}
+
+char HighNybbleToAscii(byte b) {
+    return LowNybbleToAscii(b >> 4);
+}
+
+char LowNybbleToAscii(byte b) {
+    b = b & 0x0f;
+    if (b < 10) {
+        //0 is ASCII 48
+        return 48 + b;
+    }
+    //A is ASCII 55
+    return 55 + b;
+}
+
 
 String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str) {
     String Temp_Str = "";

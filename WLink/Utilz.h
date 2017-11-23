@@ -31,6 +31,11 @@
 /* ******************************************************************************** */
 void Nop(void);
 
+byte DecToBcd(byte b);
+byte BcdToDec(byte b);
+char HighNybbleToAscii(byte b);
+char LowNybbleToAscii(byte b);
+
 String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, String Separator_Str);
 int GetIndexOfChar(const char * pCharArray_UB, char CharToSearch_UB, int FromIndex_SI = 0);
 

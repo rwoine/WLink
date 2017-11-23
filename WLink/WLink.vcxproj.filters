@@ -46,17 +46,11 @@
     <Filter Include="Source Files\EEPROM">
       <UniqueIdentifier>{9da55d47-9b64-4f23-91e8-778b780ee4fe}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\RealTimeClock\ExternalLib">
-      <UniqueIdentifier>{140f50c7-ec6f-40d2-a5e0-6c57cd6be765}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\MemoryCard">
       <UniqueIdentifier>{707b7381-c552-45cc-9d1b-7f92cbf1c37f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Serial">
       <UniqueIdentifier>{aa74a45d-3746-43f1-8856-4e8f0646303f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Network\ExternalLib">
-      <UniqueIdentifier>{8aeaf360-7fcd-4a3c-b7e9-c4560296b009}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Applications">
       <UniqueIdentifier>{72aa6a17-29aa-42f7-90a2-bb5dc1116391}</UniqueIdentifier>
@@ -69,6 +63,9 @@
     </Filter>
     <Filter Include="Source Files\WMenu">
       <UniqueIdentifier>{17c9770d-801b-4e23-b97e-f8c7b72f00a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\FlatPanel\ExternalLib">
+      <UniqueIdentifier>{6820bf6f-1171-471b-b65e-b92f039a4258}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -144,9 +141,6 @@
     <ClInclude Include="RealTimeClock.h">
       <Filter>Source Files\RealTimeClock</Filter>
     </ClInclude>
-    <ClInclude Include="RealTimeClockDS1307.h">
-      <Filter>Source Files\RealTimeClock\ExternalLib</Filter>
-    </ClInclude>
     <ClInclude Include="MemoryCard.h">
       <Filter>Source Files\MemoryCard</Filter>
     </ClInclude>
@@ -164,21 +158,6 @@
     </ClInclude>
     <ClInclude Include="SerialHandler.h">
       <Filter>Source Files\Serial</Filter>
-    </ClInclude>
-    <ClInclude Include="Adafruit_FONA.h">
-      <Filter>Source Files\Network\ExternalLib</Filter>
-    </ClInclude>
-    <ClInclude Include="FONAConfig.h">
-      <Filter>Source Files\Network\ExternalLib</Filter>
-    </ClInclude>
-    <ClInclude Include="FONAExtIncludes.h">
-      <Filter>Source Files\Network\ExternalLib</Filter>
-    </ClInclude>
-    <ClInclude Include="FONAPlatform.h">
-      <Filter>Source Files\Network\ExternalLib</Filter>
-    </ClInclude>
-    <ClInclude Include="FONAPlatStd.h">
-      <Filter>Source Files\Network\ExternalLib</Filter>
     </ClInclude>
     <ClInclude Include="KipControlManager.h">
       <Filter>Source Files\Applications\KipControl</Filter>
@@ -221,6 +200,12 @@
     </ClInclude>
     <ClInclude Include="KipControlMenuItemFunction.h">
       <Filter>Source Files\Applications\KipControl</Filter>
+    </ClInclude>
+    <ClInclude Include="Key.h">
+      <Filter>Source Files\FlatPanel\ExternalLib</Filter>
+    </ClInclude>
+    <ClInclude Include="Keypad.h">
+      <Filter>Source Files\FlatPanel\ExternalLib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -281,9 +266,6 @@
     <ClCompile Include="RealTimeClock.cpp">
       <Filter>Source Files\RealTimeClock</Filter>
     </ClCompile>
-    <ClCompile Include="RealTimeClockDS1307.cpp">
-      <Filter>Source Files\RealTimeClock\ExternalLib</Filter>
-    </ClCompile>
     <ClCompile Include="MemoryCard.cpp">
       <Filter>Source Files\MemoryCard</Filter>
     </ClCompile>
@@ -301,9 +283,6 @@
     </ClCompile>
     <ClCompile Include="SerialHandler.cpp">
       <Filter>Source Files\Serial</Filter>
-    </ClCompile>
-    <ClCompile Include="Adafruit_FONA.cpp">
-      <Filter>Source Files\Network\ExternalLib</Filter>
     </ClCompile>
     <ClCompile Include="KipControlManager.cpp">
       <Filter>Source Files\Applications\KipControl</Filter>
@@ -340,6 +319,12 @@
     </ClCompile>
     <ClCompile Include="KipControlMenuItemFunction.cpp">
       <Filter>Source Files\Applications\KipControl</Filter>
+    </ClCompile>
+    <ClCompile Include="Key.cpp">
+      <Filter>Source Files\FlatPanel\ExternalLib</Filter>
+    </ClCompile>
+    <ClCompile Include="Keypad.cpp">
+      <Filter>Source Files\FlatPanel\ExternalLib</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -20,7 +20,6 @@
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 #include <LiquidCrystal.h>
-#include <Keypad.h>
 #include <Wire.h>
 #include <SD.h>
 
@@ -34,7 +33,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "17111201";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "17112301";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -192,86 +191,3 @@ void serialEvent() { GL_GlobalConfig_X.pComPortConfig_X[PORT_COM0].pFctCommEvent
 void serialEvent1() { GL_GlobalConfig_X.pComPortConfig_X[PORT_COM1].pFctCommEvent(); }
 void serialEvent2() { GL_GlobalConfig_X.pComPortConfig_X[PORT_COM2].pFctCommEvent(); }
 void serialEvent3() { GL_GlobalConfig_X.pComPortConfig_X[PORT_COM3].pFctCommEvent(); }
-
-/* Keypad Event */
-//void ManageKeyToLcd(char Key_UB) { GL_GlobalData_X.FlatPanel_H.manageKeytoLcd(Key_UB); }
-
-/* ******************************************************************************** */
-// Old Code ->
-/* ******************************************************************************** */
-
-///* WCommand Interface Selection */
-//GL_GlobalWCmdMedium_E = WCMD_MEDIUM_TCP;
-
-///* Network Configuration */
-//GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E = NETWORK_PROTOCOL_TCP;
-//GL_GlobalData_X.NetworkIf_X.isDhcp_B = false;								// DHCP can not be set when giving SubnetMask, Gateway and DNS
-//   GL_GlobalData_X.NetworkIf_X.isAdvancedConfig_B = true;                      // Advanced configuration when giving SubnetMask, Gateway and DNS
-//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[0] = 0x02;
-//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[1] = 0x00;
-//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[2] = 0x00;
-//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[3] = 0x01;
-//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[4] = 0x00;
-//GL_GlobalData_X.NetworkIf_X.pMacAddr_UB[5] = 0x0C;
-//GL_GlobalData_X.NetworkIf_X.IpAddr_X = IPAddress(192, 168, 1, 16);
-//GL_GlobalData_X.NetworkIf_X.SubnetMaskAddr_X = IPAddress(255, 255, 255, 0);	// Default value = 255.255.255.0
-//GL_GlobalData_X.NetworkIf_X.GatewayAddr_X = IPAddress(192, 168, 1, 1);		// Default value = IP Address with last octet set to 1
-//GL_GlobalData_X.NetworkIf_X.DnsIpAddr_X = IPAddress(192, 168, 1, 1);		// Default value = IP Address with last octet set to 1
-//GL_GlobalData_X.NetworkIf_X.LocalPort_UI = (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_TCP)?TCP_SERVER_DEFAULT_PORT:UDP_SERVER_DEFAULT_PORT;
-
-///* Initialize TCP Server Modules */
-//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize TCP Server Modules");
-//if(GL_GlobalData_X.NetworkIf_X.isDhcp_B)
-//	GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-//else {
-//	//GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-//	GL_GlobalData_X.NetworkIf_X.TcpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.SubnetMaskAddr_X, GL_GlobalData_X.NetworkIf_X.GatewayAddr_X, GL_GlobalData_X.NetworkIf_X.DnsIpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-//}
-//TCPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.TcpServer_H));
-
-///* Initialize UDP Server Modules */
-//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize UDP Server Modules");
-//if (GL_GlobalData_X.NetworkIf_X.isDhcp_B)
-//	GL_GlobalData_X.NetworkIf_X.UdpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-//else
-//	GL_GlobalData_X.NetworkIf_X.UdpServer_H.init(GL_GlobalData_X.NetworkIf_X.pMacAddr_UB, GL_GlobalData_X.NetworkIf_X.IpAddr_X, GL_GlobalData_X.NetworkIf_X.LocalPort_UI);
-//UDPServerManager_Init(&(GL_GlobalData_X.NetworkIf_X.UdpServer_H));
-
-///* Enable Proper Server */
-//if (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_TCP) {
-//	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enable TCP Server");
-//	TCPServerManager_Enable();
-//}
-//if (GL_GlobalData_X.NetworkIf_X.NetworkProtocol_E == NETWORK_PROTOCOL_UDP) {
-//	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enable UDP Server");
-//	UDPServerManager_Enable();
-//}
-
-///* Initialize Indicator Modules */
-//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Indicator Modules");
-//GL_GlobalData_X.Indicator_H.init(GL_PortComMap_X[PORT_COM2], 2400);
-//GL_GlobalData_X.Indicator_H.setIndicatorDevice(INDICATOR_LD5218);
-//IndicatorInterface_Init();
-//IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
-//IndicatorManager_Enable();	// Normal frame by default
-////IndicatorManager_Disable();
-////GL_GlobalData_X.Indicator_H.attachEcho(GL_PortComMap_X[PORT_COM3], 9600);
-
-///* Initialize Badge Reader Modules */
-//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Badge Reader Modules");
-//GL_GlobalData_X.BadgeReader_H.init(GL_PortComMap_X[PORT_COM1], 9600);
-//BadgeReaderManager_Init(&(GL_GlobalData_X.BadgeReader_H));
-//BadgeReaderManager_Enable();
-
-//GL_GlobalData_X.FlatPanel_H.attachEvent(ManageKeyToLcd);
-//FlatPanelManager_Init(&(GL_GlobalData_X.FlatPanel_H));
-//FlatPanelManager_Enable();
-
-///* Map Specific Functions on CommEvent Handler */
-//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Map Specific CommEvent Handler");
-//GL_pPortComEventMap_X[PORT_COM1].EventHandler = CommEvent_BadgeReader;
-
-///* Display Welcome Message */
-//GL_GlobalData_X.Lcd_H.clearDisplay();
-//GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, "-----  W-Link  -----");
-//GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, "> " + cGL_pWLinkRevisionId_Str);
