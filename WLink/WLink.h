@@ -190,6 +190,7 @@ typedef struct {
 typedef struct {
 	unsigned char ComPortIdx_UB;
 	INDICATOR_INTERFACE_DEVICES_ENUM InterfaceType_E;
+    INDICATOR_INTERFACE_FRAME_ENUM InterfaceFrame_E;
 	boolean HasIrq_B;
 	boolean HasEcho_B;
 	unsigned char EchoComPortIx_UB;

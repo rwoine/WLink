@@ -1053,6 +1053,21 @@ WCFG_STATUS WConfigManager_Process() {
 						GL_GlobalConfig_X.pIndicatorConfig_X[i].InterfaceType_E = INDICATOR_INTERFACE_DEVICES_ENUM::INDICATOR_LD5218;
 					}
 
+                    // Get Frame Type
+                    if (((GL_pWConfigBuffer_UB[i * 4 + 2]) & 0x0F) < INDICATOR_INTERFACE_FRAME_NUM) {
+                        DBG_PRINT(DEBUG_SEVERITY_INFO, "    > Frame Type = ");
+                        DBG_PRINTDATA(pIndicatorInterfaceFrameLut_Str[((GL_pWConfigBuffer_UB[i * 4 + 2]) & 0x0F)]);
+                        DBG_ENDSTR();
+                        GL_GlobalConfig_X.pIndicatorConfig_X[i].InterfaceFrame_E = (INDICATOR_INTERFACE_FRAME_ENUM)((GL_pWConfigBuffer_UB[i * 4 + 2]) & 0x0F);
+                    }
+                    else {
+                        DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "    > Wrong Frame Type, use ");
+                        DBG_PRINTDATA(pIndicatorInterfaceFrameLut_Str[0]);
+                        DBG_PRINTDATA(" !");
+                        DBG_ENDSTR();
+                        GL_GlobalConfig_X.pIndicatorConfig_X[i].InterfaceFrame_E = INDICATOR_INTERFACE_FRAME_ENUM::INDICATOR_INTERFACE_FRAME_ASK_WEIGHT;
+                    }
+
 					// Check IRQ
 					if ((GL_pWConfigBuffer_UB[i * 4] & 0x02) == 0x02) {
 						DBG_PRINTLN(DEBUG_SEVERITY_INFO, "    > Has IRQ");
@@ -1109,7 +1124,7 @@ WCFG_STATUS WConfigManager_Process() {
 
 				// Configure Manager
 				IndicatorManager_Init(&(GL_GlobalData_X.Indicator_H));
-				IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT, GL_GlobalConfig_X.pIndicatorConfig_X[i].HasIrq_B);
+				IndicatorManager_Enable(GL_GlobalConfig_X.pIndicatorConfig_X[i].InterfaceFrame_E, GL_GlobalConfig_X.pIndicatorConfig_X[i].HasIrq_B);
 
 			}
 
