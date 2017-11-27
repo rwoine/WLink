@@ -72,7 +72,6 @@ void WLinkManager_Init() {
 
     /* Init sub-entities Manager */
     WConfigManager_Init();
-    WMenuManager_Init();
 }
 
 void WLinkManager_Enable() {
@@ -146,7 +145,7 @@ void ProcessWLink(void) {
 
     // Menu Management
     if (GL_GlobalData_X.FlatPanel_H.isInitialized())                            FlatPanelManager_Process(); 
-    WMenuManager_Process();
+    if(GL_GlobalConfig_X.HasLcd_B && GL_GlobalConfig_X.HasFlatPanel_B)          WMenuManager_Process();
 
     // Call application
     if (GL_GlobalConfig_X.App_X.hasApplication_B) {
@@ -174,8 +173,11 @@ void TransitionToConfig(void) {
 void TransitionToProcessWLink(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To PROCESS W-LINK");
 
-    // Enable WMenu
-    WMenuManager_Enable();
+    // Init Enable WMenu if needed
+    if (GL_GlobalConfig_X.HasLcd_B && GL_GlobalConfig_X.HasFlatPanel_B) {
+        WMenuManager_Init();
+        WMenuManager_Enable();
+    }
 
     GL_WLinkManager_CurrentState_E = W_STATE::W_PROCESS_WLINK;
 }

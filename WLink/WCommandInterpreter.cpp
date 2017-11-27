@@ -83,7 +83,7 @@ void WCommandInterpreter_Init(const WCMD_FCT_DESCR *pFctDescr_X, unsigned long N
 void WCommandInterpreter_Process() {
     
     /* Reset Condition */
-    if (!WCmdMedium_IsRunning())
+    if (!WCmdMedium_IsRunning() && (GL_WCommandInterpreter_CurrentState_E != WCMD_INTERPRETER_STATE_IDLE))
         TransitionToIdle();
 
     /* State Machine */ 

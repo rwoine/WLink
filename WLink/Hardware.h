@@ -33,6 +33,12 @@
 #define PIN_GPIO_OUTPUT2    12
 #define PIN_GPIO_OUTPUT3    11
 
+/* Analog Inputs */
+#define PIN_ANALOG_IN0      62
+#define PIN_ANALOG_IN1      63
+#define PIN_ANALOG_IN2      64
+#define PIN_ANALOG_IN3      65
+
 /* Liquid Crystal Display */
 #define PIN_LCD_RS          45
 #define PIN_LCD_RW          44
