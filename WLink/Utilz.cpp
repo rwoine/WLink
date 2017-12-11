@@ -65,8 +65,8 @@ String HexArrayToString(unsigned char * pHexArray, unsigned long ItemNb_UL, Stri
 
     for (int i = 0; i < ItemNb_UL; i++) {
         Temp_UW = pHexArray[i];
-        Temp_Str += String((Temp_UW / 128), HEX);
-        Temp_Str += String((Temp_UW % 128), HEX);
+        Temp_Str += String((Temp_UW / 16), HEX);
+        Temp_Str += String((Temp_UW % 16), HEX);
         if (i < ItemNb_UL - 1)
             Temp_Str += Separator_Str;
     }

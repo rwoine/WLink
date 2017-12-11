@@ -168,6 +168,7 @@ enum WCFG_STATE {
     WCFG_IDLE,
     WCFG_INIT_EEPROM,
     WCFG_INIT_RTC,
+    WCFG_CHECK_PIN,
     WCFG_CHECK_TAG,
     WCFG_GET_BOARD_REVISION,
     WCFG_GET_LANGUAGE,
@@ -247,6 +248,8 @@ WCFG_STATUS WConfigManager_Process() {
 
         if (GL_WConfigManagerEnabled_B) {
             GL_WConfigStatus_E = WCFG_STS_BUSY;
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Forcing Input");
+            pinMode(PIN_ANALOG_IN0, INPUT_PULLUP);
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To INIT EEPROM");
             GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_INIT_EEPROM;
         }
@@ -257,9 +260,6 @@ WCFG_STATUS WConfigManager_Process() {
     /* INIT EEPROM */
     /* > Initialize EEPROM. It is the configuration storage device. */
     case WCFG_INIT_EEPROM:
-
-        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize Forcing Input");
-        pinMode(PIN_ANALOG_IN0, INPUT_PULLUP);
 
         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Initialize EEPROM Modules");
         GL_GlobalData_X.Eeprom_H.init(&Wire1, 0x50);
@@ -291,10 +291,37 @@ WCFG_STATUS WConfigManager_Process() {
 			DBG_ENDSTR();
 
             DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CHECK TAG");
-            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_CHECK_TAG;
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_CHECK_PIN;
         }
         else {
             DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "RTC cannot be initialized");
+            TransitionToErrorInit();
+        }
+
+        break;
+
+    /* CHECK PIN */
+    /* > Check if pin is low to enable or not configuration with EEPROM. */
+    case WCFG_CHECK_PIN:
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Forcing input status");
+        static int ForcingInput_SI = analogRead(PIN_ANALOG_IN0);
+        for (int i = 0; i < 5; i++) {
+            ForcingInput_SI = analogRead(PIN_ANALOG_IN0);
+            delay(500);
+        }
+
+        DBG_PRINT(DEBUG_SEVERITY_INFO, "> Value = ");
+        DBG_PRINTDATA(ForcingInput_SI);
+        DBG_ENDSTR();
+
+        if (ForcingInput_SI > 100) {
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configuration enabled by pin");
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CHECK TAG");
+            GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_CHECK_TAG;
+        }
+        else {
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configuration not enabled by pin");
             TransitionToErrorInit();
         }
 
@@ -304,41 +331,21 @@ WCFG_STATUS WConfigManager_Process() {
     /* CHECK TAG */
     /* > Check if EEPROM has been configured or not thanks to the configuration tag. */
     case WCFG_CHECK_TAG:
-
-        static int ForcingInput_SI = analogRead(PIN_ANALOG_IN0);
-        for (int i = 0; i < 5; i++) {
-            ForcingInput_SI = analogRead(PIN_ANALOG_IN0);
-            delay(1000);
-        }
-
-        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Forcing input status");
-        DBG_PRINT(DEBUG_SEVERITY_INFO, "> Value = ");
-        DBG_PRINTDATA(ForcingInput_SI);
-        DBG_ENDSTR();
-
-        if (ForcingInput_SI > 100) {
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configuration enabled by pin");
-
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive configuration tag");
-            if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_CONFIG_TAG, GL_pWConfigBuffer_UB, 2) == 2) {
-                if ((GL_pWConfigBuffer_UB[0] == WCONFIG_CONFIG_TAG0) && (GL_pWConfigBuffer_UB[1] == WCONFIG_CONFIG_TAG1)) {
-                    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configuration tag ok!");
-                    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET BOARD REVISION");
-                    GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_BOARD_REVISION;
-                }
-                else {
-                    DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Error in configuration tag (no tag or bad tag)");
-                    TransitionToBadParam();
-                }
+        
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Retreive configuration tag");
+        if (GL_GlobalData_X.Eeprom_H.read(WCONFIG_ADDR_CONFIG_TAG, GL_pWConfigBuffer_UB, 2) == 2) {
+            if ((GL_pWConfigBuffer_UB[0] == WCONFIG_CONFIG_TAG0) && (GL_pWConfigBuffer_UB[1] == WCONFIG_CONFIG_TAG1)) {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configuration tag ok!");
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET BOARD REVISION");
+                GL_WConfigManager_CurrentState_E = WCFG_STATE::WCFG_GET_BOARD_REVISION;
             }
             else {
-                TransitionToErrorReading();
+                DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Error in configuration tag (no tag or bad tag)");
+                TransitionToBadParam();
             }
-
         }
         else {
-            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Configuration not enabled by pin");
-            TransitionToErrorInit();
+            TransitionToErrorReading();
         }
 
         break;
@@ -785,7 +792,7 @@ WCFG_STATUS WConfigManager_Process() {
                     DBG_ENDSTR();
 
                     // Check if Advanced Configuration
-                    if ((GL_pWConfigBuffer_UB[0] & 0x03) == 0x03) {
+                    if ((GL_pWConfigBuffer_UB[0] & 0x05) == 0x05) {
                         GL_GlobalConfig_X.EthConfig_X.isAdvancedConfig_B = true;
                         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- Advanced configuration");
 

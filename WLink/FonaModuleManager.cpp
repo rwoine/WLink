@@ -182,7 +182,7 @@ int FonaModuleManager_GetCurrentSignalStrength() {
 }
 
 boolean FonaModuleManager_GetCurrentGprsState() {
-	return GL_FonaModuleManagerGprsState_B;
+    return GL_FonaModuleManagerGprsState_B;
 }
 
 unsigned int FonaModuleManager_GetCurrentBatteryLevel() {
@@ -318,7 +318,7 @@ void ProcessRunning(void) {
 		switch (GL_FonaModuleManagerPollingIndex_UL) {
 		case 0:	GL_FonaModuleManagerRssi_SI = GL_pFona_H->getSignalStrength();		break;
 		case 1:	GL_FonaModuleManagerGprsState_B = GL_pFona_H->isGprsEnabled();		break;
-		case 2:	GL_FonaModuleManagerBatteryLeve_UI = GL_pFona_H->getBatteryLevel();	break;
+		//case 2:	GL_FonaModuleManagerBatteryLeve_UI = GL_pFona_H->getBatteryLevel();	break;
 		default:	break;
 		}
 
