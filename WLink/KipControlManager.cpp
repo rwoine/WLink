@@ -116,6 +116,10 @@ static void TransitionToError(void);
 void KipControlManager_Init(void * pHanlde_H) {
     GL_KipControlManagerEnabled_B = false;
 	GL_pKipControl_H = (KipControl *)pHanlde_H;
+
+    GL_WorkingData_X.IsConfigured_B = false;
+    GL_WorkingData_X.IsRunning_B = false;
+
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "KipControl Manager Initialized");
 }
 
@@ -170,6 +174,10 @@ signed int KipControlManager_GetCurrentWeight() {
 	return (GL_WorkingData_X.Weight_SI);
 }
 
+void KipControlManager_SetConfiguredFlag() {
+    GL_WorkingData_X.IsConfigured_B = true;
+}
+
 /* ******************************************************************************** */
 /* Internal Functions
 /* ******************************************************************************** */
@@ -181,124 +189,120 @@ void ProcessIdle(void) {
 		GL_ServerParam_X.DataSize_SI = 0;
 		GL_ServerParam_X.Response_SI = 0;
 		GL_ServerParam_X.AccessCounter_SI = 0;
-		
+        		
 		TransitionToWaitUser();
 	}
 }
 
 void ProcessWaitUser(void) {
-	TransitionToGetConfig();
+    if (GL_WorkingData_X.IsConfigured_B) {
+        TransitionToGetConfig();
+    }
 }
 
 void ProcessGetConfig(void) {
-	if (GL_pKipControl_H->getConfiguredFlag()) {
 
-		unsigned int EepromReferenceDataAddr_UW = 0;
+	unsigned int EepromReferenceDataAddr_UW = 0;
 
-		// Get MAC Address
-		GL_WorkingData_X.MacAddr_Str = HexArrayToString(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB), ":");
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "MAC Address for unique identification : ");
-		DBG_PRINTDATA(GL_WorkingData_X.MacAddr_Str);
-		DBG_ENDSTR();
+	// Get MAC Address
+	GL_WorkingData_X.MacAddr_Str = HexArrayToString(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB, sizeof(GL_GlobalConfig_X.EthConfig_X.pMacAddr_UB), ":");
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "MAC Address for unique identification : ");
+	DBG_PRINTDATA(GL_WorkingData_X.MacAddr_Str);
+	DBG_ENDSTR();
 
-		// Setup offline mode
-		GL_WorkingData_X.OfflineMode_B = false;
+	// Setup offline mode
+	GL_WorkingData_X.OfflineMode_B = false;
 
-		// Get fixed configuration (default or from LCD) -> stored in EEPROM
-		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get configuration stored in EEPROM");
+	// Get fixed configuration (default or from LCD) -> stored in EEPROM
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get configuration stored in EEPROM");
 
-		GL_WorkingData_X.ReferenceDataId_UB = GL_pKipControl_H->getReferenceDataId();		// Reference data of the current table
-		GL_WorkingData_X.BatchId_UL = GL_pKipControl_H->getBatchId();						// Identifier of the current batch
-		GL_WorkingData_X.Tolerance_UB = GL_pKipControl_H->getTolerance();					// Tolerance [%] regarding the reference weight to calculate the average
-		GL_WorkingData_X.WeightMin_SI = GL_pKipControl_H->getWeightMin();					// Weight not taken into account below this value
-		GL_WorkingData_X.StartIdx_UB = GL_pKipControl_H->getStartIdx();						// Index of the reference table when the recording is started
-		GL_WorkingData_X.StartDate_X = GL_pKipControl_H->getStartDate();					// Date of the beginning of the recording
+	GL_WorkingData_X.ReferenceDataId_UB = GL_pKipControl_H->getReferenceDataId();		// Reference data of the current table
+	GL_WorkingData_X.BatchId_UL = GL_pKipControl_H->getBatchId();						// Identifier of the current batch
+	GL_WorkingData_X.Tolerance_UB = GL_pKipControl_H->getTolerance();					// Tolerance [%] regarding the reference weight to calculate the average
+	GL_WorkingData_X.WeightMin_SI = GL_pKipControl_H->getWeightMin();					// Weight not taken into account below this value
+	GL_WorkingData_X.StartIdx_UB = GL_pKipControl_H->getStartIdx();						// Index of the reference table when the recording is started
+	GL_WorkingData_X.StartDate_X = GL_pKipControl_H->getStartDate();					// Date of the beginning of the recording
 
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Reference Data ID = ");
-		DBG_PRINTDATA(GL_WorkingData_X.ReferenceDataId_UB);
-		DBG_ENDSTR();
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Batch ID = ");
-		DBG_PRINTDATA(GL_WorkingData_X.BatchId_UL);
-		DBG_ENDSTR();
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Tolerance = ");
-		DBG_PRINTDATA(GL_WorkingData_X.Tolerance_UB);
-		DBG_PRINTDATA(" [%]");
-		DBG_ENDSTR();
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Weight Minimum = ");
-		DBG_PRINTDATA(GL_WorkingData_X.WeightMin_SI);
-		DBG_PRINTDATA(" [g]");
-		DBG_ENDSTR();
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Start Index = ");
-		DBG_PRINTDATA(GL_WorkingData_X.StartIdx_UB);
-		DBG_ENDSTR();
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "- Start Date = ");
-		DBG_PRINTDATA(dateToString(GL_WorkingData_X.StartDate_X));
-		DBG_ENDSTR();
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "- Reference Data ID = ");
+	DBG_PRINTDATA(GL_WorkingData_X.ReferenceDataId_UB);
+	DBG_ENDSTR();
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "- Batch ID = ");
+	DBG_PRINTDATA(GL_WorkingData_X.BatchId_UL);
+	DBG_ENDSTR();
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "- Tolerance = ");
+	DBG_PRINTDATA(GL_WorkingData_X.Tolerance_UB);
+	DBG_PRINTDATA(" [%]");
+	DBG_ENDSTR();
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "- Weight Minimum = ");
+	DBG_PRINTDATA(GL_WorkingData_X.WeightMin_SI);
+	DBG_PRINTDATA(" [g]");
+	DBG_ENDSTR();
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "- Start Index = ");
+	DBG_PRINTDATA(GL_WorkingData_X.StartIdx_UB);
+	DBG_ENDSTR();
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "- Start Date = ");
+	DBG_PRINTDATA(dateToString(GL_WorkingData_X.StartDate_X));
+	DBG_ENDSTR();
 
 
-		// Build Reference Data Address
-		EepromReferenceDataAddr_UW = KC_REFERENCE_TABLE_START_ADDR + ((GL_WorkingData_X.ReferenceDataId_UB - 1) * KC_REFERENCE_TABLE_OFFSET);
-		DBG_PRINT(DEBUG_SEVERITY_INFO, "Build address for Reference Data Table = 0x");
-		DBG_PRINTDATABASE(EepromReferenceDataAddr_UW, HEX);
-		DBG_ENDSTR();
+	// Build Reference Data Address
+	EepromReferenceDataAddr_UW = KC_REFERENCE_TABLE_START_ADDR + ((GL_WorkingData_X.ReferenceDataId_UB - 1) * KC_REFERENCE_TABLE_OFFSET);
+	DBG_PRINT(DEBUG_SEVERITY_INFO, "Build address for Reference Data Table = 0x");
+	DBG_PRINTDATABASE(EepromReferenceDataAddr_UW, HEX);
+	DBG_ENDSTR();
 
-		// Get Reference Data table
-		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Reference Data table");
-		if (GL_GlobalData_X.Eeprom_H.read(EepromReferenceDataAddr_UW, GL_pKCBuffer_UB, 2) == 2) {
+	// Get Reference Data table
+	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Reference Data table");
+	if (GL_GlobalData_X.Eeprom_H.read(EepromReferenceDataAddr_UW, GL_pKCBuffer_UB, 2) == 2) {
 
-			if (GL_pKCBuffer_UB[0] == GL_WorkingData_X.ReferenceDataId_UB) {
-				DBG_PRINT(DEBUG_SEVERITY_INFO, "Reference table found, ID = ");
+		if (GL_pKCBuffer_UB[0] == GL_WorkingData_X.ReferenceDataId_UB) {
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "Reference table found, ID = ");
+			DBG_PRINTDATA(GL_WorkingData_X.ReferenceDataId_UB);
+			DBG_ENDSTR();
+
+			GL_WorkingData_X.MaxDataNb_UB = GL_pKCBuffer_UB[1];
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "Number of reference data = ");
+			DBG_PRINTDATA(GL_WorkingData_X.MaxDataNb_UB);
+			DBG_ENDSTR();
+
+			if (GL_WorkingData_X.MaxDataNb_UB > KC_MAX_DATA_NB) {
+				DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Total number of data exceeds the maximum allowed -> value cropped");
+				GL_WorkingData_X.ReferenceDataId_UB = KC_MAX_DATA_NB;
+				DBG_PRINT(DEBUG_SEVERITY_WARNING, "KipControl handles only ");
 				DBG_PRINTDATA(GL_WorkingData_X.ReferenceDataId_UB);
+				DBG_PRINTDATA("reference values");
 				DBG_ENDSTR();
-
-				GL_WorkingData_X.MaxDataNb_UB = GL_pKCBuffer_UB[1];
-				DBG_PRINT(DEBUG_SEVERITY_INFO, "Number of reference data = ");
-				DBG_PRINTDATA(GL_WorkingData_X.MaxDataNb_UB);
-				DBG_ENDSTR();
-
-				if (GL_WorkingData_X.MaxDataNb_UB > KC_MAX_DATA_NB) {
-					DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Total number of data exceeds the maximum allowed -> value cropped");
-					GL_WorkingData_X.ReferenceDataId_UB = KC_MAX_DATA_NB;
-					DBG_PRINT(DEBUG_SEVERITY_WARNING, "KipControl handles only ");
-					DBG_PRINTDATA(GL_WorkingData_X.ReferenceDataId_UB);
-					DBG_PRINTDATA("reference values");
-					DBG_ENDSTR();
-				}
-
-				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Print out Reference Data table : ");
-				GL_GlobalData_X.Eeprom_H.read(KC_REFERENCE_TABLE_START_ADDR + ((GL_WorkingData_X.ReferenceDataId_UB - 1) * KC_REFERENCE_TABLE_OFFSET) + 2, GL_pKCBuffer_UB, 2 * GL_WorkingData_X.MaxDataNb_UB);
-				for (int i = 0; i < GL_WorkingData_X.MaxDataNb_UB; i++) {
-					GL_pReferenceData_UI[i] = (GL_pKCBuffer_UB[2 * i] << 8) + (GL_pKCBuffer_UB[2 * i + 1]);
-					DBG_PRINT(DEBUG_SEVERITY_INFO, "- ");
-					DBG_PRINTDATABASE(i, DEC);
-					DBG_PRINTDATA(" = ");
-					DBG_PRINTDATABASE(GL_pReferenceData_UI[i], DEC);
-					DBG_ENDSTR();
-				}
-
-
-				// Transition to get other data
-				TransitionToRecoverData();
-			}
-			else {
-				DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Reference Data table NOT found !");
-				DBG_PRINT(DEBUG_SEVERITY_INFO, "Wrong Batch ID found : 0x");
-				DBG_PRINTDATABASE(GL_pKCBuffer_UB[0], HEX);
-				DBG_ENDSTR();
-				TransitionToError();
 			}
 
+			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Print out Reference Data table : ");
+			GL_GlobalData_X.Eeprom_H.read(KC_REFERENCE_TABLE_START_ADDR + ((GL_WorkingData_X.ReferenceDataId_UB - 1) * KC_REFERENCE_TABLE_OFFSET) + 2, GL_pKCBuffer_UB, 2 * GL_WorkingData_X.MaxDataNb_UB);
+			for (int i = 0; i < GL_WorkingData_X.MaxDataNb_UB; i++) {
+				GL_pReferenceData_UI[i] = (GL_pKCBuffer_UB[2 * i] << 8) + (GL_pKCBuffer_UB[2 * i + 1]);
+				DBG_PRINT(DEBUG_SEVERITY_INFO, "- ");
+				DBG_PRINTDATABASE(i, DEC);
+				DBG_PRINTDATA(" = ");
+				DBG_PRINTDATABASE(GL_pReferenceData_UI[i], DEC);
+				DBG_ENDSTR();
+			}
+
+
+			// Transition to get other data
+			TransitionToRecoverData();
 		}
 		else {
-			DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Can NOT read Reference Data table !");
+			DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Reference Data table NOT found !");
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "Wrong Batch ID found : 0x");
+			DBG_PRINTDATABASE(GL_pKCBuffer_UB[0], HEX);
+			DBG_ENDSTR();
 			TransitionToError();
 		}
 
 	}
 	else {
-		DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Kip Control NOT Configured !");
+		DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Can NOT read Reference Data table !");
 		TransitionToError();
 	}
+
 }
 
 void ProcessRecoverData(void) {

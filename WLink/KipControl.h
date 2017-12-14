@@ -59,6 +59,7 @@ public:
 	unsigned long getTotalValue(void);
 	unsigned long getValueNb(void);
 
+    void setConfiguredFlag(boolean Configured_B);
 	void setRunningFlag(boolean Running_B);
 	void setTolerance(unsigned char Tolerance_UB);
 	void setWeightMin(signed int WeightMin_SI);

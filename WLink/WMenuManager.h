@@ -56,6 +56,8 @@ struct WMENU_ITEM_STRUCT {
 	boolean (*pFct_GetCondition)(void *);
 	void (*pFct_OnTransition)(void *);
 	void (*pFct_OnProcess)(void *);
+    void (*pFct_OnEnter)(void *);
+    void (*pFct_OnTimerElapsed)(void *);
     void (*pFct_OnValidateParam)(unsigned char *);
 };
 

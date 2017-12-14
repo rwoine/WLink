@@ -165,9 +165,9 @@ void Indicator::processFrame(INDICATOR_INTERFACE_FRAME_ENUM Frame_E) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Process Data with Low-Level Function");
 	GL_pIndicatorInterface_X[GL_IndicatorDevice_E].FctHandler(GL_pIndicatorBuffer_UB, Frame_E, &(GL_IndicatorParam_X.Weight_X));
 
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Flush Serial buffer (RX)");
-	while(GL_pIndicatorSerial_H->available())
-		GL_pIndicatorSerial_H->read();
+	//DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Flush Serial buffer (RX)");
+	//while(GL_pIndicatorSerial_H->available())
+	//	GL_pIndicatorSerial_H->read();
 
 	if (GL_IndicatorParam_X.IsAlibi_B) {
 		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Reset Alibi Flag");
@@ -179,6 +179,8 @@ void Indicator::processFrame(INDICATOR_INTERFACE_FRAME_ENUM Frame_E) {
 void Indicator::flushIndicator(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Flush Serial Buffer of Indicator");
 	GL_pIndicatorSerial_H->flush();
+    while(GL_pIndicatorSerial_H->available())
+    	GL_pIndicatorSerial_H->read();
 }
 
 

@@ -50,6 +50,21 @@ boolean KCMenuItem_WelcomeScreen_GetCondition(void * Hander_H) {
 }
 
 /* ******************************************************************************** */
+/* Continue Recording
+/* ******************************************************************************** */
+// > On Enter
+void KCMenuItem_ContinueRecording_OnEnter(void * Handler_H) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Set Configured Flag");
+    KipControlManager_SetConfiguredFlag();
+}
+
+// On Timer Elapsed
+void KCMenuItem_ContinueRecording_OnTimerElapsed(void * Handler_H) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Set Configured Flag");
+    KipControlManager_SetConfiguredFlag();
+}
+
+/* ******************************************************************************** */
 /* Get Batch Number
 /* ******************************************************************************** */
 // > Transition
@@ -63,6 +78,8 @@ void KCMenuItem_GetBatchNumber_Transition(void * Handler_H) {
 		Text_Str += ' ';
 
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, Index_SI, Text_Str);
+
+    KipControlManager_SetConfiguredFlag();  // Allow recording to be processed
 }
 
 /* ******************************************************************************** */
@@ -427,8 +444,18 @@ void KCMenuItem_SetStartDay_OnValidate(unsigned char * pParam_UB) {
 
 	GL_GlobalData_X.KipControl_H.setStartIdx(StartDay_UB - 1);
 	GL_GlobalData_X.KipControl_H.setStartDate(CurrentDate_X);	
+
+    KipControlManager_SetConfiguredFlag();  // Enable configuration
 }
 
+/* ******************************************************************************** */
+/* New Recording
+/* ******************************************************************************** */
+// > OnEnter
+void KCMenuItem_NewRecording_OnEnter(void * Handler_H) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reset running flag -> New Recording");
+    GL_GlobalData_X.KipControl_H.setRunningFlag(false);
+}
 
 /* ******************************************************************************** */
 /* Actual Recording

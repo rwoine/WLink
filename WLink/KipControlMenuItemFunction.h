@@ -32,6 +32,9 @@
 /* ******************************************************************************** */
 boolean KCMenuItem_WelcomeScreen_GetCondition(void * Hander_H);
 
+void KCMenuItem_ContinueRecording_OnEnter(void * Handler_H);
+void KCMenuItem_ContinueRecording_OnTimerElapsed(void * Handler_H);
+
 void KCMenuItem_GetBatchNumber_Transition(void * Handler_H);
 void KCMenuItem_GetReferenceId_Transition(void * Handler_H);
 void KCMenuItem_GetTolerance_Transition(void * Handler_H);
@@ -48,6 +51,8 @@ void KCMenuItem_SetMinWeight_Process(void * Handler_H);
 void KCMenuItem_SetMinWeight_OnValidate(unsigned char * pParam_UB);
 void KCMenuItem_SetStartDay_Process(void * Handler_H);
 void KCMenuItem_SetStartDay_OnValidate(unsigned char * pParam_UB);
+
+void KCMenuItem_NewRecording_OnEnter(void * Handler_H);
 
 void KCMenuItem_ActualRecording_Process(void * Handler_H);
 boolean KCMenuItem_ActualRecording_GetCondition(void * Hander_H);

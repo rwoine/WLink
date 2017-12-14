@@ -215,7 +215,9 @@ void InitMenuItem(void) {
 
 		GL_pWMenuItem_X[i].pFct_GetCondition = DefaultGetCondition;
 		GL_pWMenuItem_X[i].pFct_OnTransition = DefaultOnTransitionFct;
-		GL_pWMenuItem_X[i].pFct_OnProcess = DefaultOnProcessFct;
+        GL_pWMenuItem_X[i].pFct_OnProcess = DefaultOnProcessFct;
+        GL_pWMenuItem_X[i].pFct_OnEnter = DefaultOnProcessFct;
+        GL_pWMenuItem_X[i].pFct_OnTimerElapsed = DefaultOnProcessFct;
 		GL_pWMenuItem_X[i].pFct_OnValidateParam = DefaultOnValidateFct;
     }
 
@@ -511,6 +513,7 @@ void ProcessInfo(void) {
 		if ((millis() - GL_AbsoluteTime_UL) >= GL_pWMenuCurrentItem_X->TimerValue_UL) {
 			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Timing-based transition reached -> change Item");
 			if (GL_pWMenuCurrentItem_X->pOnTimerNavItem_X->Type_E != WMENU_ITEM_TYPE_NULL) {
+                GL_pWMenuCurrentItem_X->pFct_OnTimerElapsed(&GL_pWMenuCurrentItem_X);
 				GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->pOnTimerNavItem_X;
 
 				// Change state
@@ -544,6 +547,7 @@ void ProcessInfo(void) {
 	else if (GL_pNavButtonPressed_B[WMENU_NAVBUTTON_ENTER]) {
 
 		if (GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_ENTER]->Type_E != WMENU_ITEM_TYPE_NULL) {
+            GL_pWMenuCurrentItem_X->pFct_OnEnter(&GL_pWMenuCurrentItem_X);
 			GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_ENTER];
 
 			// Change state

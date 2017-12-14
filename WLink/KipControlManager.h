@@ -73,5 +73,7 @@ boolean KipControlManager_IsProcessingWeight();
 
 signed int KipControlManager_GetCurrentWeight();
 
+void KipControlManager_SetConfiguredFlag();
+
 #endif // __KIPCONTROL_MANAGER_H__
 

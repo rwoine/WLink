@@ -134,6 +134,16 @@ unsigned long KipControl::getValueNb(void) {
 }
 
 
+void KipControl::setConfiguredFlag(boolean Configured_B) {
+    if (GL_GlobalData_X.Eeprom_H.read(KC_GLOBAL_DATA_ADDR, GL_pBuffer_UB, 1) == 1) {
+        if (Configured_B)
+            GL_pBuffer_UB[0] |= 0x01;
+        else
+            GL_pBuffer_UB[0] &= ~0x01;
+        GL_GlobalData_X.Eeprom_H.write(KC_GLOBAL_DATA_ADDR, GL_pBuffer_UB, 1);
+    }
+}
+
 void KipControl::setRunningFlag(boolean Running_B) {
 	if (GL_GlobalData_X.Eeprom_H.read(KC_GLOBAL_DATA_ADDR, GL_pBuffer_UB, 1) == 1) {
 		if (Running_B)
