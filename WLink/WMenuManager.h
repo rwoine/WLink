@@ -49,6 +49,7 @@ struct WMENU_ITEM_STRUCT {
 	boolean IsFromApp_B;
 	unsigned long TimerValue_UL;
     const char * ppText_UB[2];
+    WMENU_ITEM_STRUCT * pErrorItem_X;
 	WMENU_ITEM_STRUCT * ppOnNavItem_X[4];
 	WMENU_ITEM_STRUCT * ppOnFctItem_X[3];
 	WMENU_ITEM_STRUCT * pOnConditionNavItem_X;

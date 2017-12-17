@@ -34,6 +34,7 @@
 typedef struct {
 	String MacAddr_Str;					// MAC address for unique identification
 	boolean OfflineMode_B;				// Offline mode flag (false = record data to portal)
+    boolean EnableRecording_B;          // Enable the recording of the weight on the portal and management of the average
 
     boolean IsConfigured_B;             // Configured flag
     boolean IsRunning_B;                // Running flag
@@ -67,6 +68,7 @@ void KipControlManager_Process();
 
 boolean KipControlManager_IsEnabled();
 boolean KipControlManager_IsReady();
+boolean KipControlManager_IsError();
 
 boolean KipControlManager_IsWaitingWeight();
 boolean KipControlManager_IsProcessingWeight();
@@ -74,6 +76,7 @@ boolean KipControlManager_IsProcessingWeight();
 signed int KipControlManager_GetCurrentWeight();
 
 void KipControlManager_SetConfiguredFlag();
+void KipControlManager_EnableRecording(boolean Enable_B);
 
 #endif // __KIPCONTROL_MANAGER_H__
 

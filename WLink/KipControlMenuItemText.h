@@ -23,6 +23,7 @@
 typedef enum {
 	KCMENU_ITEM_NULL = 0,
 	KCMENU_ITEM_IDLE_SCREEN,
+    KCMENU_ITEM_ERROR_SCREEN,
 	KCMENU_ITEM_CONTINUE_RECORD,
 	KCMENU_ITEM_GET_BATCH_NUMBER,
 	KCMENU_ITEM_GET_REFERENCE_ID,
@@ -37,6 +38,7 @@ typedef enum {
 	KCMENU_ITEM_SET_START_DAY,
 	KCMENU_ITEM_ACTUAL_RECORD,
 	KCMENU_ITEM_CURRENT_RECORD,
+    KCMENU_ITEM_CURRENT_WEIGHT,
 	KCMENU_ITEM_NUMBER
 } KCMENU_ITEM_ENUM;
 
@@ -50,7 +52,8 @@ typedef enum {
 const String GL_ppKCMenuItemText_Str[][3] = {
 	//      EN                          FR                          NL
 	{ "                    ",     "                    ",     "                    " },
-	{ "  > KipControl  (EN)",     "  > KipControl  (FR)",     "  > KipControl  (NL)" },
+    { "  > KipControl  (EN)",     "  > KipControl  (FR)",     "  > KipControl  (NL)" },
+    { "  > KipControl  (EN)",     "  > KipControl  (FR)",     "  > KipControl  (NL)" },
 	{ " Continue           ",     " Continuer          ",     " Doorgaan           " },
 	{ "Current setting     ",     "Parametre actuel    ",     "Huidige instelling  " },
 	{ "Current setting     ",     "Parametre actuel    ",     "Huidige instelling  " },
@@ -64,14 +67,16 @@ const String GL_ppKCMenuItemText_Str[][3] = {
 	{ "Enter setting       ",     "Entrez parametre    ",     "Voeren parameter    " },
 	{ "Enter setting       ",     "Entrez parametre    ",     "Voeren parameter    " },
 	{ "00/00/00 00:00:00   ",     "00/00/00 00:00:00   ",     "00/00/00 00:00:00   " },
-	{ " New weight :       ",	  " Nouveau poids :    ",     " Nieuw gewicht :    " }, 
+    { " New weight :       ",	  " Nouveau poids :    ",     " Nieuw gewicht :    " },
+    { " Actual weight :    ",	  " Poids actuel :     ",     " Huidig gewicht :   " },
 };
 
 //              Text for all menu item :        
 const String GL_ppKCMenuItemText2_Str[][3] = {
 	//      EN                          FR                          NL
 	{ "                    ",     "                    ",     "                    " },
-	{ "    starting...     ",     "    demarrage...    ",     "    opstarten...    " },
+    { "    starting...     ",     "    demarrage...    ",     "    opstarten...    " },
+    { "    error !         ",     "    erreur !        ",     "    vergissing !    " },
 	{ " recording ?		   ",     " enregistrement ?   ",     " aanmelding ?       " },
 	{ "Batch : XXX         ",     "Lot : XXX           ",     "Batch : XXX         " },
 	{ "Reference : XX      ",     "Reference : XX      ",     "Referentie : XX     " },
@@ -85,7 +90,8 @@ const String GL_ppKCMenuItemText2_Str[][3] = {
 	{ "Min weight :       g",     "Poids min :        g",     "Min gewicht :      g" },
 	{ "Start day :         ",     "Jour debut :        ",     "Startdag :          " },
 	{ "DXX - Av.           ",     "JXX - Moy.          ",     "DXX - Gem.          " },
-	{ "                    ",     "                    ",     "                    " },
+    { "                    ",     "                    ",     "                    " },
+    { "                    ",     "                    ",     "                    " },
 };
 
 /* ******************************************************************************** */

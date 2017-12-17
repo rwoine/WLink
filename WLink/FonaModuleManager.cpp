@@ -173,7 +173,11 @@ void FonaModuleManager_Process() {
 }
 
 boolean FonaModuleManager_IsRunning() {
-	return ((GL_FonaModuleManager_CurrentState_E == FONA_MODULE_MANAGER_RUNNING) ? true : false);
+    return ((GL_FonaModuleManager_CurrentState_E == FONA_MODULE_MANAGER_RUNNING) ? true : false);
+}
+
+boolean FonaModuleManager_IsError() {
+    return ((GL_FonaModuleManager_CurrentState_E == FONA_MODULE_MANAGER_ERROR) ? true : false);
 }
 
 

@@ -36,6 +36,7 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* ******************************************************************************** */
 /* Local Variables
 /* ******************************************************************************** */
+static unsigned long GL_ItemAbsoluteTime_UL = 0;
 
 /* ******************************************************************************** */
 /* Functions
@@ -45,8 +46,14 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* Welcome Screen
 /* ******************************************************************************** */
 // > Get Condition
-boolean KCMenuItem_WelcomeScreen_GetCondition(void * Hander_H) {
-	return (KipControlManager_IsReady());
+boolean KCMenuItem_WelcomeScreen_GetCondition(void * Handler_H) {
+    if (KipControlManager_IsError()) {
+        ((WMENU_ITEM_STRUCT *)Handler_H)->pOnConditionNavItem_X = ((WMENU_ITEM_STRUCT *)Handler_H)->pErrorItem_X;
+        return true;
+    }
+    else {
+        return (KipControlManager_IsReady());
+    }
 }
 
 /* ******************************************************************************** */
@@ -520,6 +527,12 @@ void KCMenuItem_ActualRecording_Process(void * Handler_H) {
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL + Average_str.length() + 1, "g");
 }
 
+// > Transition
+void KCMenuItem_ActualRecording_Transition(void * Handler_H) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enable recording to portal and average management");
+    KipControlManager_EnableRecording(true);
+}
+
 // > Get Condition
 boolean KCMenuItem_ActualRecording_GetCondition(void * Hander_H) {
 	return (KipControlManager_IsProcessingWeight());
@@ -530,9 +543,31 @@ boolean KCMenuItem_ActualRecording_GetCondition(void * Hander_H) {
 /* Current Record
 /* ******************************************************************************** */
 // > Process
-void KCMenuItem_CurrentRecord_Process(void * Handler_H) {
+void KCMenuItem_CurrentRecord_Process(void * Handler_H) {   // TODO : on Transition ?
 	String Weight_str = String(KipControlManager_GetCurrentWeight());
 	GL_GlobalData_X.Lcd_H.clearDisplay(LCD_DISPLAY_LINE2);
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 1, Weight_str);
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 1 + Weight_str.length() + 1, "g");
+}
+
+
+/* ******************************************************************************** */
+/* Current Weight
+/* ******************************************************************************** */
+// > Process
+void KCMenuItem_CurrentWeight_Process(void * Handler_H) {
+    if ((millis() - GL_ItemAbsoluteTime_UL) >= 800) {
+        String Weight_str = String(KipControlManager_GetCurrentWeight());
+        GL_GlobalData_X.Lcd_H.clearDisplay(LCD_DISPLAY_LINE2);
+        GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 1, Weight_str);
+        GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 1 + Weight_str.length() + 1, "g");
+        GL_ItemAbsoluteTime_UL = millis();
+    }
+}
+
+// > Transition
+void KCMenuItem_CurrentWeight_Transition(void * Handler_H) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Disable recording to display current weight");
+    KipControlManager_EnableRecording(false);
+    GL_ItemAbsoluteTime_UL = millis();
 }

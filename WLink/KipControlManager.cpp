@@ -117,6 +117,7 @@ void KipControlManager_Init(void * pHanlde_H) {
     GL_KipControlManagerEnabled_B = false;
 	GL_pKipControl_H = (KipControl *)pHanlde_H;
 
+    GL_WorkingData_X.EnableRecording_B = false;
     GL_WorkingData_X.IsConfigured_B = false;
     GL_WorkingData_X.IsRunning_B = false;
 
@@ -162,6 +163,10 @@ boolean KipControlManager_IsReady() {
 	return ((GL_KipControlManager_CurrentState_E != KC_IDLE) ? true : false);
 }
 
+boolean KipControlManager_IsError() {
+    return ((GL_KipControlManager_CurrentState_E == KC_ERROR) ? true : false);
+}
+
 boolean KipControlManager_IsWaitingWeight() {
 	return ((GL_KipControlManager_CurrentState_E == KC_WAIT_INDICATOR) ? true : false);
 }
@@ -178,6 +183,10 @@ void KipControlManager_SetConfiguredFlag() {
     GL_WorkingData_X.IsConfigured_B = true;
 }
 
+void KipControlManager_EnableRecording(boolean Enable_B) {
+    GL_WorkingData_X.EnableRecording_B = Enable_B;
+}
+
 /* ******************************************************************************** */
 /* Internal Functions
 /* ******************************************************************************** */
@@ -191,7 +200,10 @@ void ProcessIdle(void) {
 		GL_ServerParam_X.AccessCounter_SI = 0;
         		
 		TransitionToWaitUser();
-	}
+    }
+    else if (KipControlMedium_IsError()) {
+        TransitionToError();
+    }
 }
 
 void ProcessWaitUser(void) {
@@ -399,35 +411,38 @@ void ProcessWaitIndicator(void) {
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Weight from Indicator");
 		GL_WorkingData_X.Weight_SI = GL_GlobalData_X.Indicator_H.fifoPop();
 
-		GL_WorkingData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
-		GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
+        if (GL_WorkingData_X.EnableRecording_B) {
 
-		GL_WorkingData_X.CurrentIdx_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
-		if (GL_WorkingData_X.CurrentIdx_UB != GL_pKipControl_H->getCurrentIdx()) {
-			DBG_PRINT(DEBUG_SEVERITY_INFO, "Current index has changed, save new value : ");
-			DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
-			DBG_ENDSTR();
-			GL_pKipControl_H->setCurrentIdx(GL_WorkingData_X.CurrentIdx_UB);
+            GL_WorkingData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
+            GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
 
-			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reset working data (average calculation)");
-			GL_pKipControl_H->setTotalValue(0);
-			GL_pKipControl_H->setValueNb(0);
+            GL_WorkingData_X.CurrentIdx_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
+            if (GL_WorkingData_X.CurrentIdx_UB != GL_pKipControl_H->getCurrentIdx()) {
+                DBG_PRINT(DEBUG_SEVERITY_INFO, "Current index has changed, save new value : ");
+                DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
+                DBG_ENDSTR();
+                GL_pKipControl_H->setCurrentIdx(GL_WorkingData_X.CurrentIdx_UB);
 
-			if (GL_WorkingData_X.CurrentIdx_UB >= GL_WorkingData_X.MaxDataNb_UB) {
-				// End of recording
-				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reached end of Reference Data table");
-				DBG_PRINTLN(DEBUG_SEVERITY_INFO, "-> End of recording");
-				TransitionToEnd();
-			}
-			else {
-				// Check weight according to Reference Data
-				TransitionToCheckWeight();
-			}
-		}
-		else {
-			// Check weight according to Reference Data
-			TransitionToCheckWeight();
-		}
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reset working data (average calculation)");
+                GL_pKipControl_H->setTotalValue(0);
+                GL_pKipControl_H->setValueNb(0);
+
+                if (GL_WorkingData_X.CurrentIdx_UB >= GL_WorkingData_X.MaxDataNb_UB) {
+                    // End of recording
+                    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reached end of Reference Data table");
+                    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "-> End of recording");
+                    TransitionToEnd();
+                }
+                else {
+                    // Check weight according to Reference Data
+                    TransitionToCheckWeight();
+                }
+            }
+            else {
+                // Check weight according to Reference Data
+                TransitionToCheckWeight();
+            }
+        }
 
 	}
 

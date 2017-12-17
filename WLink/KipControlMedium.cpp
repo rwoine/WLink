@@ -90,6 +90,18 @@ boolean KipControlMedium_IsReady(void) {
 	}
 }
 
+boolean KipControlMedium_IsError(void) {
+	switch (GL_Medium_E) {
+	case KC_MEDIUM_ETHERNET:
+		return false;   // No error management in Ethernet (so far)
+		break;
+
+	case KC_MEDIUM_GSM:
+		return FonaModuleManager_IsError();
+		break;
+	}
+}
+
 
 boolean KipControlMedium_Connect(void) {
 	switch (GL_Medium_E) {

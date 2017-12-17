@@ -64,6 +64,8 @@ void KipControlMenu_Init(void) {
 		GL_pKCMenuItem_X[i].ppText_UB[0] = "";
 		GL_pKCMenuItem_X[i].ppText_UB[1] = "";
 
+        GL_pKCMenuItem_X[i].pErrorItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_ERROR_SCREEN]);
+
 		GL_pKCMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_UP] = &(GL_pKCMenuItem_X[KCMENU_ITEM_NULL]);
 		GL_pKCMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_DOWN] = &(GL_pKCMenuItem_X[KCMENU_ITEM_NULL]);
 		GL_pKCMenuItem_X[i].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pKCMenuItem_X[KCMENU_ITEM_NULL]);
@@ -99,6 +101,14 @@ void KipControlMenu_Init(void) {
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_IDLE_SCREEN].pOnConditionNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD]);
 	GL_pKCMenuItem_X[KCMENU_ITEM_IDLE_SCREEN].pFct_GetCondition = KCMenuItem_WelcomeScreen_GetCondition;
+
+    /* 0. Error */
+    GL_pKCMenuItem_X[KCMENU_ITEM_ERROR_SCREEN].Type_E = KCMENU_ITEM_TYPE_INFO;
+    GL_pKCMenuItem_X[KCMENU_ITEM_ERROR_SCREEN].Id_UL = KCMENU_ITEM_ERROR_SCREEN;
+    GL_pKCMenuItem_X[KCMENU_ITEM_ERROR_SCREEN].NavIndex_UL = 0;
+
+    GL_pKCMenuItem_X[KCMENU_ITEM_ERROR_SCREEN].ppText_UB[0] = GL_ppKCMenuItemText_Str[KCMENU_ITEM_ERROR_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pKCMenuItem_X[KCMENU_ITEM_ERROR_SCREEN].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_ERROR_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
 
 
 	/* 0. Continue Recording */
@@ -295,12 +305,13 @@ void KipControlMenu_Init(void) {
 	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD]);
 
     GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].ppOnFctItem_X[WMENU_FCTBUTTON_F1] = &(GL_pKCMenuItem_X[KCMENU_ITEM_GET_BATCH_NUMBER]);
-    GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].ppOnFctItem_X[WMENU_FCTBUTTON_F2] = &(GL_pKCMenuItem_X[KCMENU_ITEM_GET_BATCH_NUMBER]);  // TODO : Change !
+    GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].ppOnFctItem_X[WMENU_FCTBUTTON_F2] = &(GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT]); 
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pOnConditionNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD]);
 	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pFct_GetCondition = KCMenuItem_ActualRecording_GetCondition;
 
-	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pFct_OnProcess = KCMenuItem_ActualRecording_Process;
+    GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pFct_OnProcess = KCMenuItem_ActualRecording_Process;
+    GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pFct_OnTransition = KCMenuItem_ActualRecording_Transition;
 
 
 	/* 0. Current Record */	
@@ -315,6 +326,23 @@ void KipControlMenu_Init(void) {
 	GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD]);
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD].pFct_OnProcess = KCMenuItem_CurrentRecord_Process;
+
+
+    /* 0. Current Weight */
+    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].Type_E = KCMENU_ITEM_TYPE_INFO;
+    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].Id_UL = KCMENU_ITEM_CURRENT_WEIGHT;
+    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].NavIndex_UL = 0;
+
+    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].ppText_UB[0] = GL_ppKCMenuItemText_Str[KCMENU_ITEM_CURRENT_WEIGHT][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_CURRENT_WEIGHT][GL_GlobalConfig_X.Language_E].c_str();
+
+    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD]);
+
+    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].TimerValue_UL = 15000;
+    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD]);
+
+    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].pFct_OnProcess = KCMenuItem_CurrentWeight_Process;
+    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].pFct_OnTransition = KCMenuItem_CurrentWeight_Transition;
 
 }
 

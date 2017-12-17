@@ -38,6 +38,7 @@ void KipControlMedium_Init(KC_MEDIUM_ENUM Medium_E, void * pMedium_H);
 void KipControlMedium_SetServerParam(String Name_Str, unsigned long Port_UL = 80);
 
 boolean KipControlMedium_IsReady(void);
+boolean KipControlMedium_IsError(void);
 
 boolean KipControlMedium_Connect(void);
 boolean KipControlMedium_IsConnected(void);
