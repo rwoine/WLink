@@ -46,6 +46,7 @@ typedef struct {
 	boolean IsEnabled_B;
     boolean HasInterrupt_B;
 	boolean SetToZero_B;
+    boolean AutomaticFlush_B;
 	unsigned long Timer_UL;
 	unsigned long ScanPeriod_UL;
 	unsigned long ResponseDelay_UL;
@@ -81,6 +82,7 @@ void IndicatorManager_Init(Indicator * pIndicator_H) {
 	GL_IndicatorManagerParam_X.IsEnabled_B = false;
     GL_IndicatorManagerParam_X.HasInterrupt_B = false;
 	GL_IndicatorManagerParam_X.SetToZero_B = false;
+    GL_IndicatorManagerParam_X.AutomaticFlush_B = false;
 	GL_IndicatorManagerParam_X.ScanPeriod_UL = INDICATOR_MANAGER_DEFAULT_SCAN_PERIOD;		// TODO : Add function to make it programmable
 	GL_IndicatorManagerParam_X.ResponseDelay_UL = INDICATOR_MANAGER_DEFAULT_RESPONSE_DELAY;	// TODO : Add function to make it programmable
 	GL_IndicatorManagerParam_X.ResetDelay_UL = INDICATOR_MANAGER_DEFAULT_RESET_DELAY;		// TODO : Add function to make it programmable
@@ -90,10 +92,11 @@ void IndicatorManager_Init(Indicator * pIndicator_H) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Indicator Manager Initialized");
 }
 
-void IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ENUM FrameType_E, boolean HasInterrupt_B) {
+void IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ENUM FrameType_E, boolean HasInterrupt_B, boolean AutomaticFlush_B) {
 	GL_IndicatorManagerParam_X.FrameType_E = FrameType_E;
 	GL_IndicatorManagerParam_X.IsEnabled_B = true;
     GL_IndicatorManagerParam_X.HasInterrupt_B = HasInterrupt_B;
+    GL_IndicatorManagerParam_X.AutomaticFlush_B = AutomaticFlush_B;
 }
 
 void IndicatorManager_Disable() {
@@ -128,6 +131,10 @@ void IndicatorManager_Process() {
 	}
 }
 
+boolean IndicatorManager_IsRunning() {
+    return ((GL_IndicatorManager_CurrentState_E != INDICATOR_MANAGER_IDLE) ? true : false);
+}
+
 
 /* ******************************************************************************** */
 /* Internal Functions
@@ -149,6 +156,9 @@ void ProcessWaitInterrupt(void) {
             // Get frame
             if (GL_pIndicator_H->isResponseAvailable(GL_IndicatorManagerParam_X.FrameType_E)) {
                 GL_pIndicator_H->processFrame(GL_IndicatorManagerParam_X.FrameType_E);
+
+                if (GL_IndicatorManagerParam_X.AutomaticFlush_B)
+                    GL_pIndicator_H->flushIndicator();
 
                 // Push into FIFO if not full
                 if (!(GL_pIndicator_H->isFifoFull())) {
@@ -196,6 +206,8 @@ void ProcessWaitResponseDelay(void) {
 		if (GL_pIndicator_H->isResponseAvailable(GL_IndicatorManagerParam_X.FrameType_E)) {
 			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Weight Available");
 			GL_pIndicator_H->processFrame(GL_IndicatorManagerParam_X.FrameType_E);
+            if (GL_IndicatorManagerParam_X.AutomaticFlush_B)
+                GL_pIndicator_H->flushIndicator();
 			TransitionToWaitScanPeriod();
 		} else {
 			if (GL_IndicatorManagerParam_X.TryNumber_UB >= (GL_IndicatorManagerParam_X.MaxTryNumber_UB - 1)) {

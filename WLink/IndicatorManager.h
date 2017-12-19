@@ -38,10 +38,12 @@
 /* Functions Prototypes
 /* ******************************************************************************** */
 void IndicatorManager_Init(Indicator* Indicator_H);
-void IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ENUM FrameType_E, boolean HasInterrupt_B);
+void IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ENUM FrameType_E, boolean HasInterrupt_B, boolean AutomaticFlush_B = false);
 void IndicatorManager_Disable();
 void IndicatorManager_SetZeroIndicator();
 void IndicatorManager_Process();
+
+boolean IndicatorManager_IsRunning();
 
 #endif // __INDICATOR_MANAGER_H__
 

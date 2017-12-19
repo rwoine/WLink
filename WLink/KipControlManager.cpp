@@ -53,6 +53,8 @@ enum KC_STATE {
 	KC_CHECK_WEIGHT,
 	KC_SEND_PACKET,
 	KC_SERVER_RESPONSE,
+    KC_OFF_INDICATOR,
+    KC_ASK_INDICATOR,
 	KC_END,
 	KC_ERROR
 };
@@ -89,6 +91,8 @@ static void ProcessWaitIndicator(void);
 static void ProcessCheckWeight(void);
 static void ProcessSendPacket(void);
 static void ProcessServerResponse(void);
+static void ProcessOffIndicator(void);
+static void ProcessAskIndicator(void);
 static void ProcessEnd(void);
 static void ProcessError(void);
 
@@ -101,6 +105,8 @@ static void TransitionToWaitIndicator(void);
 static void TransitionToCheckWeight(void);
 static void TransitionToSendPacket(void);
 static void TransitionToServerResponse(void);
+static void TransitionToOffIndicator(void);
+static void TransitionToAskIndicator(void);
 static void TransitionToEnd(void);
 static void TransitionToError(void);
 
@@ -135,7 +141,7 @@ void KipControlManager_Disable() {
 void KipControlManager_Process() {
 
 	/* Reset Condition */
-	if ((GL_KipControlManager_CurrentState_E != KC_IDLE) && (!(KipControlMedium_IsReady() && GL_KipControlManagerEnabled_B))) {
+	if ((GL_KipControlManager_CurrentState_E != KC_IDLE) && (GL_KipControlManager_CurrentState_E != KC_ERROR) && (!(KipControlMedium_IsReady() && GL_KipControlManagerEnabled_B))) {
 		TransitionToIdle();
 	}
 
@@ -150,6 +156,8 @@ void KipControlManager_Process() {
     case KC_CHECK_WEIGHT:       ProcessCheckWeight();       break;
 	case KC_SEND_PACKET:		ProcessSendPacket();		break;
 	case KC_SERVER_RESPONSE:	ProcessServerResponse();	break;
+    case KC_OFF_INDICATOR:      ProcessOffIndicator();      break;
+    case KC_ASK_INDICATOR:      ProcessAskIndicator();      break;
 	case KC_END:				ProcessEnd();				break;
 	case KC_ERROR:				ProcessError();				break;
     }
@@ -405,14 +413,18 @@ void ProcessConnecting(void) {
 
 void ProcessWaitIndicator(void) {
 
-	// Wait for new Weight
-	if (!(GL_GlobalData_X.Indicator_H.isFifoEmpty())) {
+    // Check if Recording is Enabled
+    if (!(GL_WorkingData_X.EnableRecording_B)) {
+        TransitionToOffIndicator();
+    }
+    else {
 
-		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Weight from Indicator");
-		GL_WorkingData_X.Weight_SI = GL_GlobalData_X.Indicator_H.fifoPop();
+        // Wait for new Weight
+        if (!(GL_GlobalData_X.Indicator_H.isFifoEmpty())) {
 
-        if (GL_WorkingData_X.EnableRecording_B) {
-
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get Weight from Indicator");
+            GL_WorkingData_X.Weight_SI = GL_GlobalData_X.Indicator_H.fifoPop();
+            
             GL_WorkingData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
             GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
 
@@ -443,8 +455,7 @@ void ProcessWaitIndicator(void) {
                 TransitionToCheckWeight();
             }
         }
-
-	}
+    }
 
 	// Check if reached the end of recording
 	if ((millis() - GL_KipControlManagerAbsoluteTime_UL) >= KC_MANAGER_CHECK_DATE_POLLING_TIME_MS) {
@@ -625,6 +636,32 @@ void ProcessServerResponse(void) {
 }
 
 
+void ProcessOffIndicator(void) {
+    if (!IndicatorManager_IsRunning()) {
+        if (GL_WorkingData_X.EnableRecording_B) {
+            // Re-launch Indicator with Interrupt
+            IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT, true);
+            TransitionToWaitIndicator();
+        }
+        else {
+            // Re-launch Indicator with cyclic asking
+            IndicatorManager_Enable(INDICATOR_INTERFACE_FRAME_ASK_WEIGHT, false, true);
+            TransitionToAskIndicator();
+        }
+    }
+}
+
+
+void ProcessAskIndicator(void) {
+    if (GL_WorkingData_X.EnableRecording_B) {
+        TransitionToOffIndicator();
+    }
+    else {
+        GL_WorkingData_X.Weight_SI = GL_GlobalData_X.Indicator_H.getWeightValue();
+    }
+}
+
+
 void ProcessEnd(void) {
 	// End of recording
 	// TODO :	reset param
@@ -682,6 +719,19 @@ void TransitionToServerResponse(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To SERVER RESPONSE");
 	GL_KipControlManagerAbsoluteTime_UL = millis();
 	GL_KipControlManager_CurrentState_E = KC_STATE::KC_SERVER_RESPONSE;
+}
+
+void TransitionToOffIndicator(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To OFF INDICATOR");
+    IndicatorManager_Disable();
+    GL_GlobalData_X.Indicator_H.flushIndicator();
+    while (!(GL_GlobalData_X.Indicator_H.isFifoEmpty()))
+        GL_GlobalData_X.Indicator_H.fifoPop();
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_OFF_INDICATOR;
+}
+void TransitionToAskIndicator(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To ASK INDICATOR");
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_ASK_INDICATOR;
 }
 
 void TransitionToEnd(void) {

@@ -338,7 +338,7 @@ void KipControlMenu_Init(void) {
 
     GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD]);
 
-    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].TimerValue_UL = 15000;
+    GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].TimerValue_UL = 25000;
     GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD]);
 
     GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT].pFct_OnProcess = KCMenuItem_CurrentWeight_Process;
