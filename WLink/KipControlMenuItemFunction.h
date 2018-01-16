@@ -32,6 +32,7 @@
 /* ******************************************************************************** */
 boolean KCMenuItem_WelcomeScreen_GetCondition(void * Handler_H);
 
+void KCMenuItem_ContinueRecording_OnTransition(void * Handler_H);
 void KCMenuItem_ContinueRecording_OnEnter(void * Handler_H);
 void KCMenuItem_ContinueRecording_OnTimerElapsed(void * Handler_H);
 

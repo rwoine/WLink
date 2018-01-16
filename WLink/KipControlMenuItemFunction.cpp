@@ -59,6 +59,12 @@ boolean KCMenuItem_WelcomeScreen_GetCondition(void * Handler_H) {
 /* ******************************************************************************** */
 /* Continue Recording
 /* ******************************************************************************** */
+// > On Transition
+void KCMenuItem_ContinueRecording_OnTransition(void * Handler_H) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Prevent statuses polling of FONA module");
+    FonaModuleManager_EnableStatusPolling(false);
+}
+
 // > On Enter
 void KCMenuItem_ContinueRecording_OnEnter(void * Handler_H) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Set Configured Flag");
@@ -461,7 +467,10 @@ void KCMenuItem_SetStartDay_OnValidate(unsigned char * pParam_UB) {
 // > OnEnter
 void KCMenuItem_NewRecording_OnEnter(void * Handler_H) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reset running flag -> New Recording");
+
     GL_GlobalData_X.KipControl_H.setRunningFlag(false);
+    KipControlManager_ResetConfiguredFlag();    // Disable configuration
+    KipControlManager_RelaunchProcess();        // Ensure new beginning of state machine
 }
 
 /* ******************************************************************************** */
@@ -531,6 +540,9 @@ void KCMenuItem_ActualRecording_Process(void * Handler_H) {
 void KCMenuItem_ActualRecording_Transition(void * Handler_H) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enable recording to portal and average management");
     KipControlManager_EnableRecording(true);
+
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Allow FONA Module statuses polling");
+    FonaModuleManager_EnableStatusPolling(true);
 }
 
 // > Get Condition

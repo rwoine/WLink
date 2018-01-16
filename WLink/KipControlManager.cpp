@@ -127,6 +127,8 @@ void KipControlManager_Init(void * pHanlde_H) {
     GL_WorkingData_X.IsConfigured_B = false;
     GL_WorkingData_X.IsRunning_B = false;
 
+    GL_WorkingData_X.RelaunchProcess_B = false;
+
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "KipControl Manager Initialized");
 }
 
@@ -141,7 +143,8 @@ void KipControlManager_Disable() {
 void KipControlManager_Process() {
 
 	/* Reset Condition */
-	if ((GL_KipControlManager_CurrentState_E != KC_IDLE) && (GL_KipControlManager_CurrentState_E != KC_ERROR) && (!(KipControlMedium_IsReady() && GL_KipControlManagerEnabled_B))) {
+	if (((GL_KipControlManager_CurrentState_E != KC_IDLE) && (GL_KipControlManager_CurrentState_E != KC_ERROR) && (!(KipControlMedium_IsReady() && GL_KipControlManagerEnabled_B)))
+        || (GL_WorkingData_X.RelaunchProcess_B)) {
 		TransitionToIdle();
 	}
 
@@ -189,6 +192,14 @@ signed int KipControlManager_GetCurrentWeight() {
 
 void KipControlManager_SetConfiguredFlag() {
     GL_WorkingData_X.IsConfigured_B = true;
+}
+
+void KipControlManager_ResetConfiguredFlag() {
+    GL_WorkingData_X.IsConfigured_B = false;
+}
+
+void KipControlManager_RelaunchProcess() {
+    GL_WorkingData_X.RelaunchProcess_B = true;
 }
 
 void KipControlManager_EnableRecording(boolean Enable_B) {
@@ -675,6 +686,7 @@ void ProcessError(void) {
 
 void TransitionToIdle(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To IDLE");
+    GL_WorkingData_X.RelaunchProcess_B = false;
 	GL_KipControlManager_CurrentState_E = KC_STATE::KC_IDLE;
 }
 

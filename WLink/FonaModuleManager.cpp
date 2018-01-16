@@ -60,6 +60,7 @@ static unsigned long GL_FonaManagerPowerSequenceNb_UL = 0;
 static unsigned long GL_FonaAbsoluteTime_UL = 0;
 static boolean GL_FonaModuleManagerEnabled_B = false;
 static boolean GL_FonaModuleManagerEnableGprs_B = false;
+static boolean GL_FonaModuleManagerEnableStatusPolling_B = false;
 static unsigned long GL_FonaModuleManagerPollingIndex_UL = 0;
 
 
@@ -100,9 +101,11 @@ static void TransitionToError(void);
 void FonaModuleManager_Init(FonaModule * pFona_H, boolean EnableGprs_B) {
     GL_pFona_H = pFona_H;
     GL_FonaModuleManagerEnabled_B = false;
+    GL_FonaModuleManagerEnableStatusPolling_B = false;
 	GL_FonaModuleManagerEnableGprs_B = EnableGprs_B;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "FONA Module Manager Initialized");
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "GPRS enabled in the current configuration");
+    if (GL_FonaModuleManagerEnableGprs_B)
+	    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "GPRS enabled in the current configuration");
 }
 
 void FonaModuleManager_Enable() {
@@ -178,6 +181,11 @@ boolean FonaModuleManager_IsRunning() {
 
 boolean FonaModuleManager_IsError() {
     return ((GL_FonaModuleManager_CurrentState_E == FONA_MODULE_MANAGER_ERROR) ? true : false);
+}
+
+
+void FonaModuleManager_EnableStatusPolling(boolean Enable_B) {
+    GL_FonaModuleManagerEnableStatusPolling_B = Enable_B;
 }
 
 
@@ -319,18 +327,19 @@ void ProcessRunning(void) {
     // Poll Statuses
     if ((millis() - GL_FonaAbsoluteTime_UL) >= FONA_MODULE_MANAGER_POLLING_INTERVAL_MS) {
 
-		switch (GL_FonaModuleManagerPollingIndex_UL) {
-		case 0:	GL_FonaModuleManagerRssi_SI = GL_pFona_H->getSignalStrength();		break;
-		case 1:	GL_FonaModuleManagerGprsState_B = GL_pFona_H->isGprsEnabled();		break;
-		//case 2:	GL_FonaModuleManagerBatteryLeve_UI = GL_pFona_H->getBatteryLevel();	break;
-		default:	break;
-		}
+        switch (GL_FonaModuleManagerPollingIndex_UL) {
+        case 0:	if (GL_FonaModuleManagerEnableStatusPolling_B)  GL_FonaModuleManagerRssi_SI = GL_pFona_H->getSignalStrength();		break;
+        case 1:	GL_FonaModuleManagerGprsState_B = GL_pFona_H->isGprsEnabled();		                                                break;
+//      case 2:	GL_FonaModuleManagerBatteryLeve_UI = GL_pFona_H->getBatteryLevel();	                                                break;
+        default:	break;
+        }
 
-		GL_FonaModuleManagerPollingIndex_UL++;
-		GL_FonaModuleManagerPollingIndex_UL = GL_FonaModuleManagerPollingIndex_UL % 3;
+        GL_FonaModuleManagerPollingIndex_UL++;
+        GL_FonaModuleManagerPollingIndex_UL = GL_FonaModuleManagerPollingIndex_UL % 3;
 
         GL_FonaAbsoluteTime_UL = millis();
     }
+
 }
 
 void ProcessError(void) {

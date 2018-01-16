@@ -796,17 +796,17 @@ WCFG_STATUS WConfigManager_Process() {
                         GL_GlobalConfig_X.EthConfig_X.isAdvancedConfig_B = true;
                         DBG_PRINTLN(DEBUG_SEVERITY_INFO, "- Advanced configuration");
 
-                        GL_GlobalConfig_X.EthConfig_X.SubnetMaskAddr_X = IPAddress(GL_pWConfigBuffer_UB[8], GL_pWConfigBuffer_UB[9], GL_pWConfigBuffer_UB[10], GL_pWConfigBuffer_UB[11]);
+                        GL_GlobalConfig_X.EthConfig_X.SubnetMaskAddr_X = IPAddress(GL_pWConfigBuffer_UB[12], GL_pWConfigBuffer_UB[13], GL_pWConfigBuffer_UB[14], GL_pWConfigBuffer_UB[15]);
                         DBG_PRINT(DEBUG_SEVERITY_INFO, "- Subnet Mask = ");
                         DBG_PRINTDATA(GL_GlobalConfig_X.EthConfig_X.SubnetMaskAddr_X);
                         DBG_ENDSTR();
 
-                        GL_GlobalConfig_X.EthConfig_X.GatewayAddr_X = IPAddress(GL_pWConfigBuffer_UB[8], GL_pWConfigBuffer_UB[9], GL_pWConfigBuffer_UB[10], GL_pWConfigBuffer_UB[11]);
+                        GL_GlobalConfig_X.EthConfig_X.GatewayAddr_X = IPAddress(GL_pWConfigBuffer_UB[16], GL_pWConfigBuffer_UB[17], GL_pWConfigBuffer_UB[18], GL_pWConfigBuffer_UB[19]);
                         DBG_PRINT(DEBUG_SEVERITY_INFO, "- Gateway Address = ");
                         DBG_PRINTDATA(GL_GlobalConfig_X.EthConfig_X.GatewayAddr_X);
                         DBG_ENDSTR();
 
-                        GL_GlobalConfig_X.EthConfig_X.DnsIpAddr_X = IPAddress(GL_pWConfigBuffer_UB[8], GL_pWConfigBuffer_UB[9], GL_pWConfigBuffer_UB[10], GL_pWConfigBuffer_UB[11]);
+                        GL_GlobalConfig_X.EthConfig_X.DnsIpAddr_X = IPAddress(GL_pWConfigBuffer_UB[20], GL_pWConfigBuffer_UB[21], GL_pWConfigBuffer_UB[22], GL_pWConfigBuffer_UB[23]);
                         DBG_PRINT(DEBUG_SEVERITY_INFO, "- DNS Address = ");
                         DBG_PRINTDATA(GL_GlobalConfig_X.EthConfig_X.DnsIpAddr_X);
                         DBG_ENDSTR();

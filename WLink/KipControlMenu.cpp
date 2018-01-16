@@ -125,6 +125,7 @@ void KipControlMenu_Init(void) {
     GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD].TimerValue_UL = 15000;
     GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD].pOnTimerNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_GET_BATCH_NUMBER]);
 
+    GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD].pFct_OnTransition = KCMenuItem_ContinueRecording_OnTransition;
     GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD].pFct_OnEnter = KCMenuItem_ContinueRecording_OnEnter;
     GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD].pFct_OnTimerElapsed = KCMenuItem_ContinueRecording_OnTimerElapsed;
 
