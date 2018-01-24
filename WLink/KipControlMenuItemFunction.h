@@ -64,6 +64,8 @@ void KCMenuItem_CurrentRecord_Process(void * Handler_H);
 void KCMenuItem_CurrentWeight_Process(void * Handler_H);
 void KCMenuItem_CurrentWeight_Transition(void * Handler_H);
 
+void KCMenuItem_ResetWeight_OnEnter(void * Handler_H);
+
 
 #endif // __KCMENU_ITEM_FUNCTION_H__
 

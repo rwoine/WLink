@@ -61,8 +61,8 @@ boolean KCMenuItem_WelcomeScreen_GetCondition(void * Handler_H) {
 /* ******************************************************************************** */
 // > On Transition
 void KCMenuItem_ContinueRecording_OnTransition(void * Handler_H) {
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Prevent statuses polling of FONA module");
-    FonaModuleManager_EnableStatusPolling(false);
+    //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Prevent statuses polling of FONA module");
+    //FonaModuleManager_EnableStatusPolling(false);
 }
 
 // > On Enter
@@ -541,8 +541,8 @@ void KCMenuItem_ActualRecording_Transition(void * Handler_H) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Enable recording to portal and average management");
     KipControlManager_EnableRecording(true);
 
-    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Allow FONA Module statuses polling");
-    FonaModuleManager_EnableStatusPolling(true);
+    //DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Allow FONA Module statuses polling");
+    //FonaModuleManager_EnableStatusPolling(true);
 }
 
 // > Get Condition
@@ -582,4 +582,14 @@ void KCMenuItem_CurrentWeight_Transition(void * Handler_H) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Disable recording to display current weight");
     KipControlManager_EnableRecording(false);
     GL_ItemAbsoluteTime_UL = millis();
+}
+
+
+/* ******************************************************************************** */
+/* Reset Weight
+/* ******************************************************************************** */
+// > On Enter
+void KCMenuItem_ResetWeight_OnEnter(void * Handler_H) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Set flag to zero indicator");
+    KipControlManager_SetZeroIndicator();
 }

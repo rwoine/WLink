@@ -206,6 +206,10 @@ void KipControlManager_EnableRecording(boolean Enable_B) {
     GL_WorkingData_X.EnableRecording_B = Enable_B;
 }
 
+void KipControlManager_SetZeroIndicator() {
+    IndicatorManager_SetZeroIndicator();
+}
+
 /* ******************************************************************************** */
 /* Internal Functions
 /* ******************************************************************************** */

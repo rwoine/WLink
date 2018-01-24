@@ -45,6 +45,8 @@ FlatPanel::FlatPanel() {
 /* ******************************************************************************** */
 void FlatPanel::init(Keypad * pKeypad_H) {
 	GL_pKeypad_H = pKeypad_H;
+    GL_pKeypad_H->setDebounceTime(10);  // maintain default value
+    GL_pKeypad_H->setHoldTime(2000);    // enlength hold time to get PRESSED state longer
     GL_pKeypad_H->addEventListener(OnKeyEvents);
 	GL_FlatPanelParam_X.IsInitialized_B = true;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Flat Panel Module Initialized");

@@ -39,6 +39,7 @@ typedef enum {
 	KCMENU_ITEM_ACTUAL_RECORD,
 	KCMENU_ITEM_CURRENT_RECORD,
     KCMENU_ITEM_CURRENT_WEIGHT,
+    KCMENU_ITEM_RESET_WEIGHT,
 	KCMENU_ITEM_NUMBER
 } KCMENU_ITEM_ENUM;
 
@@ -69,6 +70,7 @@ const String GL_ppKCMenuItemText_Str[][3] = {
 	{ "00/00/00 00:00:00   ",     "00/00/00 00:00:00   ",     "00/00/00 00:00:00   " },
     { " New weight :       ",	  " Nouveau poids :    ",     " Nieuw gewicht :    " },
     { " Actual weight :    ",	  " Poids actuel :     ",     " Huidig gewicht :   " },
+    { " Reset weight ?     ",	  " Remise a zero ?    ",     " Reset gewicht ?    " },
 };
 
 //              Text for all menu item :        
@@ -90,6 +92,7 @@ const String GL_ppKCMenuItemText2_Str[][3] = {
 	{ "Min weight :       g",     "Poids min :        g",     "Min gewicht :      g" },
 	{ "Start day :         ",     "Jour debut :        ",     "Startdag :          " },
 	{ "DXX - Av.           ",     "JXX - Moy.          ",     "DXX - Gem.          " },
+    { "                    ",     "                    ",     "                    " },
     { "                    ",     "                    ",     "                    " },
     { "                    ",     "                    ",     "                    " },
 };

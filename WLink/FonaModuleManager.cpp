@@ -101,11 +101,13 @@ static void TransitionToError(void);
 void FonaModuleManager_Init(FonaModule * pFona_H, boolean EnableGprs_B) {
     GL_pFona_H = pFona_H;
     GL_FonaModuleManagerEnabled_B = false;
-    GL_FonaModuleManagerEnableStatusPolling_B = false;
+    GL_FonaModuleManagerEnableStatusPolling_B = true;   // enable by default
 	GL_FonaModuleManagerEnableGprs_B = EnableGprs_B;
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "FONA Module Manager Initialized");
     if (GL_FonaModuleManagerEnableGprs_B)
-	    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "GPRS enabled in the current configuration");
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "GPRS enabled in the current configuration");
+    if (GL_FonaModuleManagerEnableStatusPolling_B)
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Statuses polling enabled by default");
 }
 
 void FonaModuleManager_Enable() {

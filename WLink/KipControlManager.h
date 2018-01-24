@@ -80,6 +80,7 @@ void KipControlManager_SetConfiguredFlag();
 void KipControlManager_ResetConfiguredFlag();
 void KipControlManager_RelaunchProcess();
 void KipControlManager_EnableRecording(boolean Enable_B);
+void KipControlManager_SetZeroIndicator();
 
 #endif // __KIPCONTROL_MANAGER_H__
 
