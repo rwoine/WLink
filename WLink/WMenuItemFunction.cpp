@@ -201,3 +201,10 @@ void WMenuItem_TimeSet_Process(void * Handler_H) {
 	}
 }
 
+
+/* ******************************************************************************** */
+/* Reset W-Link
+/* ******************************************************************************** */
+void WMenuItem_ResetConfirm_OnEnter(void * Handler_H) {
+    WLinkManager_Reset();
+}

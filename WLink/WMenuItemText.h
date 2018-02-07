@@ -34,6 +34,8 @@ typedef enum {
     WMENU_ITEM_SETTINGS_DATETIME_TIME_SET,
     WMENU_ITEM_SETTINGS_LCD,
     WMENU_ITEM_SETTINGS_LCD_BACKLIGHT,
+    WMENU_ITEM_SETTINGS_RESET,
+    WMENU_ITEM_SETTINGS_RESET_CONFIRM,
     WMENU_ITEM_NUMBER
 } WMENU_ITEM_ENUM;
 
@@ -58,6 +60,8 @@ const String GL_ppWMenuItemText_Str[][3] = {
     { "  hh:mm:ss          ",     "  hh:mm:ss          ",     "  uu:mm:ss          " },
     { "  LCD               ",     "  LCD               ",     "  LCD               " },
     { "  Backlight         ",     "  Retroeclairage    ",     "  Tegenlicht        " },
+    { "  Reset             ",     "  Reset             ",     "  Reset             " },
+    { "X=No - V=Yes        ",     "X=Non - V=Oui       ",     "X=Nee - V=Ja        " },
 };
 
 /* ******************************************************************************** */

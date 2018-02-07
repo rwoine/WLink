@@ -62,6 +62,7 @@ static void TransitionToConfig(void);
 static void TransitionToProcessWLink(void);
 static void TransitionToError(void);
 
+
 /* ******************************************************************************** */
 /* Functions
 /* ******************************************************************************** */
@@ -80,6 +81,20 @@ void WLinkManager_Enable() {
 
 void WLinkManager_Disable() {
     GL_WLinkManagerEnabled_B = false;
+}
+
+void WLinkManager_Reset() {
+    DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Reset W-Link Manager");
+    delay(200);
+
+    // RSTC_CR = 0x400E1A00 --> Reset Controller Control Register Address
+    //      - 0xA5 = Key
+    //      - 0xD = [EXTRST].[PERRST].0.[PROCRST]
+    //          > EXTRST = External Reset
+    //          > PERRST = Preipheral Reset
+    //          > PROCRST = Processor Reset
+
+    *(volatile unsigned int *)0x400E1A00 = 0xA500000D;
 }
 
 void WLinkManager_Process() {
@@ -151,6 +166,7 @@ void ProcessWLink(void) {
     if (GL_GlobalConfig_X.App_X.hasApplication_B) {
         if (GL_GlobalConfig_X.App_X.pFctIsEnabled())                            GL_GlobalConfig_X.App_X.pFctProcess();
     }
+
 }
 
 void ProcessError(void) {

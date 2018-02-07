@@ -63,7 +63,7 @@ static unsigned char GL_pParam_UB[16];
 static unsigned long GL_AbsoluteTime_UL = 0;
 static unsigned long GL_ExAppTime_UL = 0;
 
-static const char GL_pWMenuPassword_UB[] = {'1', '2', '3', '4', '5', '6'};
+static const char GL_pWMenuPassword_UB[] = {'1', '5', '9'};
 
 typedef struct {
 	unsigned long Step_UL;
@@ -365,6 +365,7 @@ void InitMenuItem(void) {
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD_BACKLIGHT]);
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
 	GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppOnNavItem_X[WMENU_NAVBUTTON_UP] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_DATETIME]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD].ppOnNavItem_X[WMENU_NAVBUTTON_DOWN] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET]);
 
 
 
@@ -379,6 +380,30 @@ void InitMenuItem(void) {
 
 
 	/* 0.0.2.0.0. Set Backlight */
+
+
+
+    /* 0.0.3. Reset */
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET].Type_E = WMENU_ITEM_TYPE_MENU;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET].Id_UL = WMENU_ITEM_SETTINGS_RESET;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET].NavIndex_UL = 3;
+
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_RESET][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET_CONFIRM]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET].ppOnNavItem_X[WMENU_NAVBUTTON_UP] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_LCD]);
+
+    /* 0.0.3.0. Confirm Reset */
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET_CONFIRM].Type_E = WMENU_ITEM_TYPE_INFO;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET_CONFIRM].Id_UL = WMENU_ITEM_SETTINGS_RESET_CONFIRM;
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET_CONFIRM].NavIndex_UL = 0;
+
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET_CONFIRM].ppText_UB[0] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_RESET][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET_CONFIRM].ppText_UB[1] = GL_ppWMenuItemText_Str[WMENU_ITEM_SETTINGS_RESET_CONFIRM][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET_CONFIRM].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET]);
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET_CONFIRM].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET]);
+
+    GL_pWMenuItem_X[WMENU_ITEM_SETTINGS_RESET_CONFIRM].pFct_OnEnter = WMenuItem_ResetConfirm_OnEnter;
 
 
 

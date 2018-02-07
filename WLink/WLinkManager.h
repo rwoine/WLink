@@ -32,6 +32,7 @@
 void WLinkManager_Init();
 void WLinkManager_Enable();
 void WLinkManager_Disable();
+void WLinkManager_Reset();
 void WLinkManager_Process();
 
 

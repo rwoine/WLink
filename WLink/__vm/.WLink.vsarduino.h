@@ -50,7 +50,7 @@ extern "C" void __cxa_pure_virtual() {;}
 	#include "sam3xa.h"
 #endif
 
-#include <Arduino.h>
+#include <arduino.h>
 #include <pins_arduino.h> 
 #include <variant.h> 
 #include <variant.cpp> 

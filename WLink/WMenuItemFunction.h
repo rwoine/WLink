@@ -41,6 +41,8 @@ void WMenuItem_DateSet_Process(void * Handler_H);
 
 void WMenuItem_TimeSet_Process(void * Handler_H);
 
+void WMenuItem_ResetConfirm_OnEnter(void * Handler_H);
+
 
 #endif // __WMENU_ITEM_FUNCTION_H__
 
