@@ -52,6 +52,7 @@ void KipControlMedium_Print(unsigned long Data_UL);
 void KipControlMedium_Print(char * pData_UB);
 void KipControlMedium_Print(String Data_Str);
 void KipControlMedium_EndTransaction(void);
+boolean KipControlMedium_IsTransactionOk(void);
 
 void KipControlMedium_Flush(void);
 

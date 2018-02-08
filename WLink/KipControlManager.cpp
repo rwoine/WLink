@@ -49,6 +49,7 @@ enum KC_STATE {
 	KC_GET_CONFIG,
 	KC_RECOVER_DATA,
 	KC_CONNECTING,
+    KC_WAIT_ENABLE_RECORDING,
 	KC_WAIT_INDICATOR,
 	KC_CHECK_WEIGHT,
 	KC_SEND_PACKET,
@@ -87,6 +88,7 @@ static void ProcessWaitUser(void);
 static void ProcessGetConfig(void);
 static void ProcessRecoverData(void);
 static void ProcessConnecting(void);
+static void ProcessWaitEnableRecording(void);
 static void ProcessWaitIndicator(void);
 static void ProcessCheckWeight(void);
 static void ProcessSendPacket(void);
@@ -101,6 +103,7 @@ static void TransitionToWaitUser(void);
 static void TransitionToGetConfig(void);
 static void TransitionToRecoverData(void);
 static void TransitionToConnecting(void);
+static void TransitionToWaitEnableRecording(void);
 static void TransitionToWaitIndicator(void);
 static void TransitionToCheckWeight(void);
 static void TransitionToSendPacket(void);
@@ -143,26 +146,31 @@ void KipControlManager_Disable() {
 void KipControlManager_Process() {
 
 	/* Reset Condition */
-	if (((GL_KipControlManager_CurrentState_E != KC_IDLE) && (GL_KipControlManager_CurrentState_E != KC_ERROR) && (!(KipControlMedium_IsReady() && GL_KipControlManagerEnabled_B)))
-        || (GL_WorkingData_X.RelaunchProcess_B)) {
+	if (GL_WorkingData_X.RelaunchProcess_B) {
 		TransitionToIdle();
 	}
 
+    /* Error condition */
+    if ((GL_KipControlManager_CurrentState_E != KC_IDLE) && GL_KipControlManagerEnabled_B && !KipControlMedium_IsReady()) {
+        TransitionToError();
+    }
+
 	/* State Machine */
     switch (GL_KipControlManager_CurrentState_E) {
-    case KC_IDLE:				ProcessIdle();				break;
-	case KC_WAIT_USER:			ProcessWaitUser();			break;
-    case KC_GET_CONFIG:			ProcessGetConfig();			break;
-	case KC_RECOVER_DATA:		ProcessRecoverData();		break;
-    case KC_CONNECTING:			ProcessConnecting();        break;
-    case KC_WAIT_INDICATOR:     ProcessWaitIndicator();		break;
-    case KC_CHECK_WEIGHT:       ProcessCheckWeight();       break;
-	case KC_SEND_PACKET:		ProcessSendPacket();		break;
-	case KC_SERVER_RESPONSE:	ProcessServerResponse();	break;
-    case KC_OFF_INDICATOR:      ProcessOffIndicator();      break;
-    case KC_ASK_INDICATOR:      ProcessAskIndicator();      break;
-	case KC_END:				ProcessEnd();				break;
-	case KC_ERROR:				ProcessError();				break;
+    case KC_IDLE:				    ProcessIdle();				    break;
+	case KC_WAIT_USER:			    ProcessWaitUser();			    break;
+    case KC_GET_CONFIG:			    ProcessGetConfig();			    break;
+	case KC_RECOVER_DATA:		    ProcessRecoverData();		    break;
+    case KC_CONNECTING:			    ProcessConnecting();            break;
+    case KC_WAIT_ENABLE_RECORDING:  ProcessWaitEnableRecording();   break;
+    case KC_WAIT_INDICATOR:         ProcessWaitIndicator();		    break;
+    case KC_CHECK_WEIGHT:           ProcessCheckWeight();           break;
+	case KC_SEND_PACKET:		    ProcessSendPacket();		    break;
+	case KC_SERVER_RESPONSE:	    ProcessServerResponse();	    break;
+    case KC_OFF_INDICATOR:          ProcessOffIndicator();          break;
+    case KC_ASK_INDICATOR:          ProcessAskIndicator();          break;
+	case KC_END:				    ProcessEnd();				    break;
+	case KC_ERROR:				    ProcessError();				    break;
     }
 }
 
@@ -416,14 +424,20 @@ void ProcessConnecting(void) {
 		GL_WorkingData_X.OfflineMode_B = true;
 	}
 
-	// Flush Indicator Serial and FIFO
-	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Flush Indicator Serial and FIFO");
-	GL_GlobalData_X.Indicator_H.flushIndicator();
-	while (!(GL_GlobalData_X.Indicator_H.isFifoEmpty()))
-		GL_GlobalData_X.Indicator_H.fifoPop();
+    TransitionToWaitEnableRecording();
+}
 
-	// Go to Wait Indicator (real process)
-	TransitionToWaitIndicator();
+void ProcessWaitEnableRecording(void) {
+    if (GL_WorkingData_X.EnableRecording_B) {
+        // Flush Indicator Serial and FIFO
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Flush Indicator Serial and FIFO");
+        GL_GlobalData_X.Indicator_H.flushIndicator();
+        while (!(GL_GlobalData_X.Indicator_H.isFifoEmpty()))
+            GL_GlobalData_X.Indicator_H.fifoPop();
+
+        // Go to Wait Indicator (real process)
+        TransitionToWaitIndicator();
+    }
 }
 
 void ProcessWaitIndicator(void) {
@@ -580,7 +594,14 @@ void ProcessSendPacket(void) {
 	KipControlMedium_Print(((GL_WorkingData_X.IsValid_B) ? 1 : 0));
 	KipControlMedium_EndTransaction();
 
-	TransitionToServerResponse();
+    if (KipControlMedium_IsTransactionOk()) {
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transaction succeeded !");
+        TransitionToServerResponse();
+    }
+    else {
+        DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Error in Transaction !");
+        TransitionToError();
+    }
 }
 
 void ProcessServerResponse(void) {
@@ -607,7 +628,18 @@ void ProcessServerResponse(void) {
 
 			AnotherTryNeeded_B = true;
 		}
-	}
+    }
+    else {
+        GL_ServerParam_X.Response_SI = KipControlMedium_GetServerResponse();
+
+        if (GL_ServerParam_X.Response_SI != KC_MANAGER_SERVER_RESPONSE_OK) {
+            DBG_PRINT(DEBUG_SEVERITY_WARNING, "The Server did not respond OK -> Response = ");
+            DBG_PRINTDATA(GL_ServerParam_X.Response_SI);
+            DBG_ENDSTR();
+
+            AnotherTryNeeded_B = true;
+        }
+    }
 
 	// Check Timeout
 	if ((millis() - GL_KipControlManagerAbsoluteTime_UL) >= KC_MANAGER_SERVER_RESPONSE_TIMEOUT_MS) {
@@ -713,6 +745,11 @@ void TransitionToConnecting(void) {
     DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To CONNECTING");
 	KipControlMedium_Connect();
     GL_KipControlManager_CurrentState_E = KC_STATE::KC_CONNECTING;
+}
+
+void TransitionToWaitEnableRecording(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT ENABLE RECORDING");
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_WAIT_ENABLE_RECORDING;
 }
 
 void TransitionToWaitIndicator(void) {

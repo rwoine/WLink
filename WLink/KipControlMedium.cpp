@@ -46,6 +46,7 @@ static unsigned long GL_ServerPort_UL = 80;
 
 static int GL_ServerResponse_SI = 0;
 static int GL_ServerData_SI = 0;
+static boolean GL_TransactionStatus_B = false;
 
 
 /* ******************************************************************************** */
@@ -236,9 +237,21 @@ void KipControlMedium_EndTransaction(void) {
 	case KC_MEDIUM_GSM:
 		GL_pMediumGsm_H->httpParamAdd("&submitted=1&action=validate");
 		GL_pMediumGsm_H->httpParamEnd();
-		GL_pMediumGsm_H->httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET, &GL_ServerResponse_SI, &GL_ServerData_SI);
+        GL_TransactionStatus_B = GL_pMediumGsm_H->httpAction(FONA_MODULE_HTTP_ACTION_METHOD_GET, &GL_ServerResponse_SI, &GL_ServerData_SI);
 		break;
 	}
+}
+
+boolean KipControlMedium_IsTransactionOk(void) {
+    switch (GL_Medium_E) {
+    case KC_MEDIUM_ETHERNET:
+        return true;
+        break;
+
+    case KC_MEDIUM_GSM:
+        return GL_TransactionStatus_B;
+        break;
+    }
 }
 
 void KipControlMedium_Flush(void) {
