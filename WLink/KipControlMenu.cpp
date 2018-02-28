@@ -38,7 +38,7 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 /* ******************************************************************************** */
 /* Local Variables
 /* ******************************************************************************** */
-static WMENU_ITEM_STRUCT GL_pKCMenuItem_X[KCMENU_ITEM_NUMBER];
+WMENU_ITEM_STRUCT GL_pKCMenuItem_X[KCMENU_ITEM_NUMBER];
 
 /* ******************************************************************************** */
 /* Constructor
@@ -309,7 +309,7 @@ void KipControlMenu_Init(void) {
     GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].ppOnFctItem_X[WMENU_FCTBUTTON_F2] = &(GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_WEIGHT]);
     GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].ppOnFctItem_X[WMENU_FCTBUTTON_F3] = &(GL_pKCMenuItem_X[KCMENU_ITEM_RESET_WEIGHT]);
 
-	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pOnConditionNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD]);
+	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pOnConditionNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD]);    // Default Item - Other items assigned in GetCondition function
 	GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pFct_GetCondition = KCMenuItem_ActualRecording_GetCondition;
 
     GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD].pFct_OnProcess = KCMenuItem_ActualRecording_Process;

@@ -18,6 +18,7 @@
 #include "KipControlMenuItemFunction.h"
 #include "KipControl.h"
 #include "KipControlManager.h"
+#include "KipControlMenuItemText.h"
 
 #include "Debug.h"
 
@@ -27,6 +28,8 @@
 /* ******************************************************************************** */
 extern GLOBAL_PARAM_STRUCT GL_GlobalData_X;
 extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
+
+extern WMENU_ITEM_STRUCT GL_pKCMenuItem_X[KCMENU_ITEM_NUMBER];
 
 
 /* ******************************************************************************** */
@@ -547,7 +550,21 @@ void KCMenuItem_ActualRecording_Transition(void * Handler_H) {
 
 // > Get Condition
 boolean KCMenuItem_ActualRecording_GetCondition(void * Hander_H) {
-	return (KipControlManager_IsProcessingWeight());
+    if (KipControlManager_IsError()) {
+        ((WMENU_ITEM_STRUCT *)Hander_H)->pOnConditionNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_ERROR_SCREEN]);
+        return true;
+    }
+    else if (KipControlManager_IsProcessingWeight()) {
+        ((WMENU_ITEM_STRUCT *)Hander_H)->pOnConditionNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD]);
+        return true;
+    }
+    //else if (KipControlManager_IsEnd()) {
+    //      TODO - to add
+    //    return true;
+    //}
+    else {
+        return false;
+    }
 }
 
 

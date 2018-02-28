@@ -151,7 +151,7 @@ void KipControlManager_Process() {
 	}
 
     /* Error condition */
-    if ((GL_KipControlManager_CurrentState_E != KC_IDLE) && GL_KipControlManagerEnabled_B && !KipControlMedium_IsReady()) {
+    if ((GL_KipControlManager_CurrentState_E != KC_IDLE) && (GL_KipControlManager_CurrentState_E != KC_ERROR) && GL_KipControlManagerEnabled_B && !KipControlMedium_IsReady()) {
         TransitionToError();
     }
 
