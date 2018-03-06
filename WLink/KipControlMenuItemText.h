@@ -67,7 +67,7 @@ const String GL_ppKCMenuItemText_Str[][3] = {
 	{ "Enter setting       ",     "Entrez parametre    ",     "Voeren parameter    " },
 	{ "Enter setting       ",     "Entrez parametre    ",     "Voeren parameter    " },
 	{ "Enter setting       ",     "Entrez parametre    ",     "Voeren parameter    " },
-	{ "00/00/00 00:00:00   ",     "00/00/00 00:00:00   ",     "00/00/00 00:00:00   " },
+	{ "00/00               ",     "00/00               ",     "00/00               " },
     { " New weight :       ",	  " Nouveau poids :    ",     " Nieuw gewicht :    " },
     { " Actual weight :    ",	  " Poids actuel :     ",     " Huidig gewicht :   " },
     { " Reset weight ?     ",	  " Remise a zero ?    ",     " Reset gewicht ?    " },

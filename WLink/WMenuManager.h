@@ -69,6 +69,7 @@ typedef struct {
 	char Key_UB;
 	unsigned long ParamIndex_UL;
 	unsigned char * pParam_UB;
+    boolean HasRollbacked_B;
 } WMENU_ITEM_PARAM_STRUCT;
 
 

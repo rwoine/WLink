@@ -182,6 +182,12 @@ void KCMenuItem_SetBatchNumber_Process(void * Handler_H) {
 	if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B) {
 		((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B = false;
 
+        if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = false;
+            for (int i = ColIdx_UL; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
+                GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, i, " ");
+        }
+
 		// Validate Input
 		// TODO : Check for validation further
 		switch (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL) {
@@ -196,8 +202,10 @@ void KCMenuItem_SetBatchNumber_Process(void * Handler_H) {
 		((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL] = 0xFF;	// help to end-up number
 
 		// Rollback
-		if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 3)
-			((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+        if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 3) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = true;
+        }
 
 	}
 }
@@ -241,6 +249,12 @@ void KCMenuItem_SetReferenceId_Process(void * Handler_H) {
 	if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B) {
 		((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B = false;
 
+        if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = false;
+            for (int i = ColIdx_UL; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
+                GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, i, " ");
+        }
+
 		// Validate Input
 		// TODO : Check for validation further
 		switch (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL) {
@@ -254,8 +268,10 @@ void KCMenuItem_SetReferenceId_Process(void * Handler_H) {
 		((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL] = 0xFF;	// help to end-up number
 
 																															// Rollback
-		if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 2)
-			((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+		if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 2) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = true;
+        }
 
 	}
 }
@@ -296,6 +312,12 @@ void KCMenuItem_SetTolerance_Process(void * Handler_H) {
 	if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B) {
 		((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B = false;
 
+        if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = false;
+            for (int i = ColIdx_UL; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
+                GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, i, " ");
+        }
+
 		// Validate Input
 		// TODO : Check for validation further
 		switch (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL) {
@@ -309,8 +331,10 @@ void KCMenuItem_SetTolerance_Process(void * Handler_H) {
 		((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL] = 0xFF;	// help to end-up number
 
 																															// Rollback
-		if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 2)
-			((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+		if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 2) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = true;
+        }
 
 	}
 }
@@ -352,6 +376,12 @@ void KCMenuItem_SetMinWeight_Process(void * Handler_H) {
 	if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B) {
 		((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B = false;
 
+        if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = false;
+            for (int i = ColIdx_UL; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
+                GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, i, " ");
+        }
+
 		// Validate Input
 		// TODO : Check for validation further
 		switch (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL) {
@@ -367,8 +397,10 @@ void KCMenuItem_SetMinWeight_Process(void * Handler_H) {
 		((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL] = 0xFF;	// help to end-up number
 
 																															// Rollback
-		if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 4)
-			((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+		if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 4) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = true;
+        }
 
 	}
 }
@@ -416,6 +448,12 @@ void KCMenuItem_SetStartDay_Process(void * Handler_H) {
 	if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B) {
 		((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B = false;
 
+        if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = false;
+            for (int i = ColIdx_UL; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
+                GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, i, " ");
+        }
+
 		// Validate Input
 		// TODO : Check for validation further
 		switch (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL) {
@@ -429,8 +467,10 @@ void KCMenuItem_SetStartDay_Process(void * Handler_H) {
 		((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL] = 0xFF;	// help to end-up number
 
 																															// Rollback
-		if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 2)
-			((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+		if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 2) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = true;
+        }
 
 	}
 }
@@ -485,12 +525,18 @@ void KCMenuItem_ActualRecording_Process(void * Handler_H) {
 	unsigned char CurrentDay_UB = 0;
 	unsigned long ColIdx_UL = 0;
 	float Average_f = 0.0;
+    String CurrentReference_str = "";
 	String Average_str = "";
 
 	// --> Line 1
 	// ----------
 
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 0, GL_GlobalData_X.Rtc_H.getDateTimeString());
+    // Display Date/Time
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 0, GL_GlobalData_X.Rtc_H.getDateShort());
+
+    // Display Theoritical Weight
+    CurrentReference_str = String(KipControlManager_GetCurrentReferenceData()) + " g";
+    GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 17 - CurrentReference_str.length(), CurrentReference_str);
 
 	// Display Network Signal Strength if any
 	if (GL_GlobalConfig_X.GsmConfig_X.isEnabled_B) {
@@ -537,6 +583,10 @@ void KCMenuItem_ActualRecording_Process(void * Handler_H) {
 	Average_str = String(Average_f, 2);
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL, Average_str);
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL + Average_str.length() + 1, "g");
+
+    // Erase end of line
+    for (int i = ColIdx_UL + Average_str.length() + 2; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
+        GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, i, " ");
 }
 
 // > Transition

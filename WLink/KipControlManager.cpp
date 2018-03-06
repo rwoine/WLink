@@ -198,6 +198,10 @@ signed int KipControlManager_GetCurrentWeight() {
 	return (GL_WorkingData_X.Weight_SI);
 }
 
+unsigned int KipControlManager_GetCurrentReferenceData() {
+    return GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB];
+}
+
 void KipControlManager_SetConfiguredFlag() {
     GL_WorkingData_X.IsConfigured_B = true;
 }

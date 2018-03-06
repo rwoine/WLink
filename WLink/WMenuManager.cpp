@@ -132,6 +132,7 @@ void WMenuManager_Init() {
     WMenuCallback_ResetFlags();
 
 	// Initialize Parameters Structure
+    GL_ItemParam_X.HasRollbacked_B = false;
 	GL_ItemParam_X.pSenderItem_H = NULL;
 	GL_ItemParam_X.KeyPressed_B = false;
 	GL_ItemParam_X.Key_UB = 0x00;
@@ -645,6 +646,7 @@ void ProcessParam(void) {
 
 		// Reset item parameters
 		GL_ItemParam_X.ParamIndex_UL = 0;
+        GL_ItemParam_X.HasRollbacked_B = false;
 
 		if (GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_BACK]->Type_E != WMENU_ITEM_TYPE_NULL) {
 			GL_pWMenuCurrentItem_X = GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_BACK];
@@ -663,6 +665,7 @@ void ProcessParam(void) {
 
 		// Reset item parameters
 		GL_ItemParam_X.ParamIndex_UL = 0;
+        GL_ItemParam_X.HasRollbacked_B = false;
 
 		if (GL_pWMenuCurrentItem_X->ppOnNavItem_X[WMENU_NAVBUTTON_ENTER]->Type_E != WMENU_ITEM_TYPE_NULL) {
 

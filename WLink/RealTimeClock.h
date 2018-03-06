@@ -67,6 +67,7 @@ public:
     RTC_TIME_STRUCT getTime(void);
     RTC_DATETIME_STRUCT getDateTime(void);
     String getDateTimeString(void);
+    String getDateShort(void);
     String getTimestamp(void);    
 
 	RTC_PARAM GL_RealTimeClockParam_X;

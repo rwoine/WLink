@@ -36,6 +36,7 @@ static unsigned char GL_PinSquareOut_UB;
 
 static RTC_DATETIME_STRUCT GL_InternalDateTime_X;
 static char GL_pRTCFormatString_UB[] = "00/00/00 00:00:00x";
+static char GL_pRTCDateShortString_UB[] = "00/00x";
 static char GL_pRTCTimestampFormatString_UB[] = "0000-00-00+00:00:00x";
 
 /* ******************************************************************************** */
@@ -207,6 +208,24 @@ String RealTimeClock::getDateTimeString(void) {
     GL_pRTCFormatString_UB[i++] = 0x00;
 
     return GL_pRTCFormatString_UB;
+}
+
+String RealTimeClock::getDateShort(void) {
+    int i = 0;
+
+    // Call function to have the record
+    getDate();
+
+    // Target string format: DD/MM
+    GL_pRTCDateShortString_UB[i++] = HighNybbleToAscii(DecToBcd(GL_InternalDateTime_X.Date_X.Day_UB));
+    GL_pRTCDateShortString_UB[i++] = LowNybbleToAscii(DecToBcd(GL_InternalDateTime_X.Date_X.Day_UB));
+    i++;
+    GL_pRTCDateShortString_UB[i++] = HighNybbleToAscii(DecToBcd(GL_InternalDateTime_X.Date_X.Month_UB));
+    GL_pRTCDateShortString_UB[i++] = LowNybbleToAscii(DecToBcd(GL_InternalDateTime_X.Date_X.Month_UB));
+
+    GL_pRTCDateShortString_UB[i++] = 0x00;
+
+    return GL_pRTCDateShortString_UB;
 }
 
 String RealTimeClock::getTimestamp(void) {

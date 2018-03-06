@@ -75,6 +75,7 @@ boolean KipControlManager_IsWaitingWeight();
 boolean KipControlManager_IsProcessingWeight();
 
 signed int KipControlManager_GetCurrentWeight();
+unsigned int KipControlManager_GetCurrentReferenceData();
 
 void KipControlManager_SetConfiguredFlag();
 void KipControlManager_ResetConfiguredFlag();
