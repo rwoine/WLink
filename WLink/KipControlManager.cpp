@@ -505,7 +505,17 @@ void ProcessWaitIndicator(void) {
 			DBG_ENDSTR();
 			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "-> End of recording");
 			TransitionToEnd();
-		}
+        }
+        else if (GL_WorkingData_X.CurrentIdx_UB != GL_pKipControl_H->getCurrentIdx()) {
+            DBG_PRINT(DEBUG_SEVERITY_INFO, "Current index has changed, save new value : ");
+            DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
+            DBG_ENDSTR();
+            GL_pKipControl_H->setCurrentIdx(GL_WorkingData_X.CurrentIdx_UB);
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reset working data (average calculation)");
+            GL_pKipControl_H->setTotalValue(0);
+            GL_pKipControl_H->setValueNb(0);
+        }
 	}
 }
 
@@ -527,9 +537,9 @@ void ProcessCheckWeight(void) {
 		float LimitHigh_F = (float)GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB] * (1 + (float)GL_WorkingData_X.Tolerance_UB / 100);
 		float LimitLow_F = (float)GL_pReferenceData_UI[GL_WorkingData_X.CurrentIdx_UB] * (1 - (float)GL_WorkingData_X.Tolerance_UB / 100);
 		DBG_PRINT(DEBUG_SEVERITY_INFO, "Weight should be within [");
-		DBG_PRINTDATA(LimitHigh_F);
-		DBG_PRINTDATA(":");
 		DBG_PRINTDATA(LimitLow_F);
+		DBG_PRINTDATA(":");
+		DBG_PRINTDATA(LimitHigh_F);
 		DBG_PRINTDATA("]");
 		DBG_ENDSTR();
 
@@ -542,7 +552,14 @@ void ProcessCheckWeight(void) {
 			GL_WorkingData_X.TotalValue_UL = GL_pKipControl_H->getTotalValue();
 			GL_WorkingData_X.ValueNb_UL = GL_pKipControl_H->getValueNb();
 
-			DBG_PRINT(DEBUG_SEVERITY_INFO, "Average of the Day = ");
+            DBG_PRINT(DEBUG_SEVERITY_INFO, "Total value = ");
+            DBG_PRINTDATA(GL_WorkingData_X.TotalValue_UL);
+            DBG_ENDSTR();
+            DBG_PRINT(DEBUG_SEVERITY_INFO, "Number of values = ");
+            DBG_PRINTDATA(GL_WorkingData_X.ValueNb_UL);
+            DBG_ENDSTR();
+
+			DBG_PRINT(DEBUG_SEVERITY_INFO, "==> Average of the Day = ");
 			DBG_PRINTDATA((GL_WorkingData_X.TotalValue_UL) / (GL_WorkingData_X.ValueNb_UL));
 			DBG_PRINTDATA(" [g]");
 			DBG_ENDSTR();

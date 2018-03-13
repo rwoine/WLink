@@ -314,7 +314,7 @@ void KCMenuItem_SetTolerance_Process(void * Handler_H) {
 
         if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B) {
             ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = false;
-            for (int i = ColIdx_UL; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
+            for (int i = ColIdx_UL; i < LCD_DISPLAY_COLUMN_NUMBER-1; i++)
                 GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, i, " ");
         }
 
@@ -378,7 +378,7 @@ void KCMenuItem_SetMinWeight_Process(void * Handler_H) {
 
         if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B) {
             ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = false;
-            for (int i = ColIdx_UL; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
+            for (int i = ColIdx_UL; i < LCD_DISPLAY_COLUMN_NUMBER-1; i++)
                 GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, i, " ");
         }
 
@@ -582,7 +582,7 @@ void KCMenuItem_ActualRecording_Process(void * Handler_H) {
 		Average_f = 0.0;
 	Average_str = String(Average_f, 2);
 	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL, Average_str);
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL + Average_str.length() + 1, "g");
+	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL + Average_str.length(), " g");
 
     // Erase end of line
     for (int i = ColIdx_UL + Average_str.length() + 2; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
