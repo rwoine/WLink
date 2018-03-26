@@ -191,9 +191,12 @@ void KCMenuItem_SetBatchNumber_Process(void * Handler_H) {
 		// Validate Input
 		// TODO : Check for validation further
 		switch (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL) {
-		case 0:     break;	//	100		-	10		-	1
-		case 1:     break;	//	10		-	1		-	
-		case 2:     break;	//	1		-			-
+        case 0:     break;	//	100000  -   10000   -   1000    -   100		-	10		-	1
+        case 1:     break;	//	10000   -   1000    -   100		-	10		-	1
+        case 2:     break;	//	1000    -   100		-	10		-	1
+        case 3:     break;	//	100		-	10		-	1
+		case 4:     break;	//	10		-	1		-	
+		case 5:     break;	//	1		-			-
 		}
 
 		// Write on LCD and in Buffer
@@ -202,7 +205,7 @@ void KCMenuItem_SetBatchNumber_Process(void * Handler_H) {
 		((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL] = 0xFF;	// help to end-up number
 
 		// Rollback
-        if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 3) {
+        if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 6) {
             ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
             ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = true;
         }
@@ -212,23 +215,32 @@ void KCMenuItem_SetBatchNumber_Process(void * Handler_H) {
 
 // > OnValidate
 void KCMenuItem_SetBatchNumber_OnValidate(unsigned char * pParam_UB) {
-	unsigned char BatchId_UB = 0x00;
+	unsigned long BatchId_UL = 0x00;
 
 	if (pParam_UB[1] == 0xFF) {
-		BatchId_UB = pParam_UB[0];
+        BatchId_UL = pParam_UB[0];
 	}
 	else if (pParam_UB[2] == 0xFF) {
-		BatchId_UB = pParam_UB[0] * 10 + pParam_UB[1];
+        BatchId_UL = pParam_UB[0] * 10 + pParam_UB[1];
 	}
-	else if (pParam_UB[3] == 0xFF) {
-		BatchId_UB = pParam_UB[0] * 100 + pParam_UB[1] * 10 + pParam_UB[2];
-	}
+    else if (pParam_UB[3] == 0xFF) {
+        BatchId_UL = pParam_UB[0] * 100 + pParam_UB[1] * 10 + pParam_UB[2];
+    }
+    else if (pParam_UB[4] == 0xFF) {
+        BatchId_UL = pParam_UB[0] * 1000 + pParam_UB[1] * 100 + pParam_UB[2] * 10 + pParam_UB[3];
+    }
+    else if (pParam_UB[5] == 0xFF) {
+        BatchId_UL = pParam_UB[0] * 10000 + pParam_UB[1] * 1000 + pParam_UB[2] * 100 + pParam_UB[3] * 10 + pParam_UB[4];
+    }
+    else if (pParam_UB[6] == 0xFF) {
+        BatchId_UL = pParam_UB[0] * 100000 + pParam_UB[1] * 10000 + pParam_UB[2] * 1000 + pParam_UB[3] * 100 + pParam_UB[4] * 10 + pParam_UB[5];
+    }
 
 	DBG_PRINT(DEBUG_SEVERITY_INFO, "Set new value for Batch ID : ");
-	DBG_PRINTDATA(BatchId_UB);
+	DBG_PRINTDATA(BatchId_UL);
 	DBG_ENDSTR();
 
-	GL_GlobalData_X.KipControl_H.setBatchId(BatchId_UB);
+	GL_GlobalData_X.KipControl_H.setBatchId(BatchId_UL);
 }
 
 

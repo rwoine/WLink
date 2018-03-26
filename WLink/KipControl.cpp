@@ -6,6 +6,7 @@
 /*		Describes the utilities functions for the KipControl object	                */
 /*                                                                                  */
 /* History :  	15/08/2017  (RW)	Creation of this file                           */
+/*              26/03/2018  (RW)    Update BatchId to unsigned long                 */
 /*                                                                                  */
 /* ******************************************************************************** */
 
@@ -81,9 +82,9 @@ unsigned char KipControl::getReferenceDataId(void) {
 		return 0;
 }
 
-unsigned char KipControl::getBatchId(void) {
-	if (GL_GlobalData_X.Eeprom_H.read(KC_BATCH_ID_ADDR, GL_pBuffer_UB, 1) == 1)
-		return GL_pBuffer_UB[0];
+unsigned long KipControl::getBatchId(void) {
+    if (GL_GlobalData_X.Eeprom_H.read(KC_BATCH_ID_ADDR, GL_pBuffer_UB, 4) == 4)
+        return ((GL_pBuffer_UB[3] << 24) + (GL_pBuffer_UB[2] << 16) + (GL_pBuffer_UB[1] << 8) + GL_pBuffer_UB[0]);
 	else
 		return 0;
 }
@@ -169,8 +170,12 @@ void KipControl::setReferenceDataId(unsigned char ReferenceDataId_UB) {
 	GL_GlobalData_X.Eeprom_H.write(KC_REFERENCE_DATA_ID_ADDR, &ReferenceDataId_UB, 1);
 }
 
-void KipControl::setBatchId(unsigned char BatchId_UB) {
-	GL_GlobalData_X.Eeprom_H.write(KC_BATCH_ID_ADDR, &BatchId_UB, 1);
+void KipControl::setBatchId(unsigned long BatchId_UL) {
+    GL_pBuffer_UB[0] = (unsigned char)(BatchId_UL % 256);
+    GL_pBuffer_UB[1] = (unsigned char)((BatchId_UL >> 8) % 256);
+    GL_pBuffer_UB[2] = (unsigned char)((BatchId_UL >> 16) % 256);
+    GL_pBuffer_UB[3] = (unsigned char)((BatchId_UL >> 24) % 256);
+    GL_GlobalData_X.Eeprom_H.write(KC_BATCH_ID_ADDR, GL_pBuffer_UB, 4);
 }
 
 void KipControl::setStartIdx(unsigned char StartIdx_UB) {
