@@ -110,6 +110,14 @@ void KipControlMenu_Init(void) {
     GL_pKCMenuItem_X[KCMENU_ITEM_ERROR_SCREEN].ppText_UB[0] = GL_ppKCMenuItemText_Str[KCMENU_ITEM_ERROR_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
     GL_pKCMenuItem_X[KCMENU_ITEM_ERROR_SCREEN].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_ERROR_SCREEN][GL_GlobalConfig_X.Language_E].c_str();
 
+    /* 0. End of Recording */
+    GL_pKCMenuItem_X[KCMENU_ITEM_END_OF_RECORD].Type_E = KCMENU_ITEM_TYPE_INFO;
+    GL_pKCMenuItem_X[KCMENU_ITEM_END_OF_RECORD].Id_UL = KCMENU_ITEM_END_OF_RECORD;
+    GL_pKCMenuItem_X[KCMENU_ITEM_END_OF_RECORD].NavIndex_UL = 0;
+
+    GL_pKCMenuItem_X[KCMENU_ITEM_END_OF_RECORD].ppText_UB[0] = GL_ppKCMenuItemText_Str[KCMENU_ITEM_END_OF_RECORD][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pKCMenuItem_X[KCMENU_ITEM_END_OF_RECORD].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_END_OF_RECORD][GL_GlobalConfig_X.Language_E].c_str();
+
 
 	/* 0. Continue Recording */
 	GL_pKCMenuItem_X[KCMENU_ITEM_CONTINUE_RECORD].Type_E = KCMENU_ITEM_TYPE_INFO;
@@ -286,12 +294,27 @@ void KipControlMenu_Init(void) {
 	GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DAY].ppText_UB[0] = GL_ppKCMenuItemText_Str[KCMENU_ITEM_SET_START_DAY][GL_GlobalConfig_X.Language_E].c_str();
 	GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DAY].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_SET_START_DAY][GL_GlobalConfig_X.Language_E].c_str();
 
-	GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DAY].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD]);
+	GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DAY].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DATE]);
 	GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DAY].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pKCMenuItem_X[KCMENU_ITEM_SET_MIN_WEIGHT]);
 
 	GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DAY].pFct_OnProcess = KCMenuItem_SetStartDay_Process;
 	GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DAY].pFct_OnValidateParam = KCMenuItem_SetStartDay_OnValidate;
 	
+
+
+    /* 0. Set Start Date */
+    GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DATE].Type_E = KCMENU_ITEM_TYPE_PARAM;
+    GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DATE].Id_UL = KCMENU_ITEM_SET_START_DATE;
+    GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DATE].NavIndex_UL = 0;
+
+    GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DATE].ppText_UB[0] = GL_ppKCMenuItemText_Str[KCMENU_ITEM_SET_START_DATE][GL_GlobalConfig_X.Language_E].c_str();
+    GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DATE].ppText_UB[1] = GL_ppKCMenuItemText2_Str[KCMENU_ITEM_SET_START_DATE][GL_GlobalConfig_X.Language_E].c_str();
+
+    GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DATE].ppOnNavItem_X[WMENU_NAVBUTTON_ENTER] = &(GL_pKCMenuItem_X[KCMENU_ITEM_ACTUAL_RECORD]);
+    GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DATE].ppOnNavItem_X[WMENU_NAVBUTTON_BACK] = &(GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DAY]);
+
+    GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DATE].pFct_OnProcess = KCMenuItem_SetStartDate_Process;
+    GL_pKCMenuItem_X[KCMENU_ITEM_SET_START_DATE].pFct_OnValidateParam = KCMenuItem_SetStartDate_OnValidate;
 
 
 

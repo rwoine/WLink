@@ -70,6 +70,7 @@ void KipControlManager_Process();
 boolean KipControlManager_IsEnabled();
 boolean KipControlManager_IsReady();
 boolean KipControlManager_IsError();
+boolean KipControlManager_IsEnd();
 
 boolean KipControlManager_IsWaitingWeight();
 boolean KipControlManager_IsProcessingWeight();

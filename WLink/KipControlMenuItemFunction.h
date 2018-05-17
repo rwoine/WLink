@@ -52,6 +52,8 @@ void KCMenuItem_SetMinWeight_Process(void * Handler_H);
 void KCMenuItem_SetMinWeight_OnValidate(unsigned char * pParam_UB);
 void KCMenuItem_SetStartDay_Process(void * Handler_H);
 void KCMenuItem_SetStartDay_OnValidate(unsigned char * pParam_UB);
+void KCMenuItem_SetStartDate_Process(void * Handler_H);
+void KCMenuItem_SetStartDate_OnValidate(unsigned char * pParam_UB);
 
 void KCMenuItem_NewRecording_OnEnter(void * Handler_H);
 

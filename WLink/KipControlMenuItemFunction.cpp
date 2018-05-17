@@ -511,10 +511,85 @@ void KCMenuItem_SetStartDay_OnValidate(unsigned char * pParam_UB) {
 	DBG_ENDSTR();
 
 	GL_GlobalData_X.KipControl_H.setStartIdx(StartDay_UB - 1);
-	GL_GlobalData_X.KipControl_H.setStartDate(CurrentDate_X);	
+	//GL_GlobalData_X.KipControl_H.setStartDate(CurrentDate_X);	
+
+    //KipControlManager_SetConfiguredFlag();  // Enable configuration
+}
+
+
+/* ******************************************************************************** */
+/* Set Start Date
+/* ******************************************************************************** */
+// > Process
+void KCMenuItem_SetStartDate_Process(void * Handler_H) {
+
+    //// Get start position
+    //unsigned long ColIdx_UL = GetIndexOfChar((((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pSenderItem_H->ppText_UB[1]), ':');
+    //ColIdx_UL += 2;
+
+    //// Manage cursor
+    //ColIdx_UL += ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL;
+    //GL_GlobalData_X.Lcd_H.enableCursor(LCD_DISPLAY_LINE2, ColIdx_UL);
+
+    //if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B) {
+    //    ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B = false;
+
+    //    if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B) {
+    //        ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = false;
+    //        for (int i = ColIdx_UL; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
+    //            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, i, " ");
+    //    }
+
+    //    // Validate Input
+    //    // TODO : Check for validation further
+    //    switch (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL) {
+    //    case 0:     break;	//	10		-	1			
+    //    case 1:     break;	//	1		-				
+    //    }
+
+    //    // Write on LCD and in Buffer
+    //    GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL, (unsigned char *)(&(((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB)), 1);
+    //    ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL++] = atoi(&(((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB));
+    //    ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL] = 0xFF;	// help to end-up number
+
+    //                                                                                                                        // Rollback
+    //    if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 2) {
+    //        ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+    //        ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = true;
+    //    }
+
+    //}
+}
+
+// > OnValidate
+void KCMenuItem_SetStartDate_OnValidate(unsigned char * pParam_UB) {
+    //unsigned char StartDay_UB = 0x00;
+    RTC_DATE_STRUCT CurrentDate_X = GL_GlobalData_X.Rtc_H.getDate();
+
+    //if (pParam_UB[1] == 0xFF) {
+    //    StartDay_UB = pParam_UB[0];
+    //}
+    //else if (pParam_UB[2] == 0xFF) {
+    //    StartDay_UB = pParam_UB[0] * 10 + pParam_UB[1];
+    //}
+
+    //DBG_PRINT(DEBUG_SEVERITY_INFO, "Set new value for Start Day : ");
+    //DBG_PRINTDATA(StartDay_UB);
+    //DBG_ENDSTR();
+    //DBG_PRINT(DEBUG_SEVERITY_INFO, "-> Start Index : ");
+    //DBG_PRINTDATA(StartDay_UB - 1);
+    //DBG_ENDSTR();
+
+    //DBG_PRINT(DEBUG_SEVERITY_INFO, "Set Start Date to today : ");
+    //DBG_PRINTDATA(dateToString(CurrentDate_X));
+    //DBG_ENDSTR();
+
+    //GL_GlobalData_X.KipControl_H.setStartIdx(StartDay_UB - 1);
+    GL_GlobalData_X.KipControl_H.setStartDate(CurrentDate_X);
 
     KipControlManager_SetConfiguredFlag();  // Enable configuration
 }
+
 
 /* ******************************************************************************** */
 /* New Recording
@@ -554,19 +629,19 @@ void KCMenuItem_ActualRecording_Process(void * Handler_H) {
 	if (GL_GlobalConfig_X.GsmConfig_X.isEnabled_B) {
 		SignalStrength_SI = FonaModuleManager_GetCurrentSignalStrength();
 		if ((SignalStrength_SI >= -111) && (SignalStrength_SI <= -97)) {
-			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)1);
+			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)1); // |
 		}
 		else if ((SignalStrength_SI > -97) && (SignalStrength_SI <= -82)) {
-			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)2);
+			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)2); // ||
 		}
 		else if ((SignalStrength_SI > -82) && (SignalStrength_SI <= -67)) {
-			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)3);
+			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)3); // |||
 		}
 		else if ((SignalStrength_SI > -67) && (SignalStrength_SI <= -52)) {
-			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)4);
+			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)4); // ||||
 		}
 		else {
-			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)5);
+			GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE1, 18, (byte)5); // x
 		}
 	}
 	else {
@@ -620,10 +695,10 @@ boolean KCMenuItem_ActualRecording_GetCondition(void * Hander_H) {
         ((WMENU_ITEM_STRUCT *)Hander_H)->pOnConditionNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_CURRENT_RECORD]);
         return true;
     }
-    //else if (KipControlManager_IsEnd()) {
-    //      TODO - to add
-    //    return true;
-    //}
+    else if (KipControlManager_IsEnd()) {
+        ((WMENU_ITEM_STRUCT *)Hander_H)->pOnConditionNavItem_X = &(GL_pKCMenuItem_X[KCMENU_ITEM_END_OF_RECORD]);
+        return true;
+    }
     else {
         return false;
     }

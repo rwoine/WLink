@@ -38,6 +38,7 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 
 #define KC_MANAGER_CHECK_DATE_POLLING_TIME_MS		10000
 #define KC_MANAGER_SERVER_RESPONSE_TIMEOUT_MS		10000
+#define KC_MANAGER_WAIT_TIME_BEFORE_RESET_MS		1800000
 
 
 /* ******************************************************************************** */
@@ -184,6 +185,10 @@ boolean KipControlManager_IsReady() {
 
 boolean KipControlManager_IsError() {
     return ((GL_KipControlManager_CurrentState_E == KC_ERROR) ? true : false);
+}
+
+boolean KipControlManager_IsEnd() {
+    return ((GL_KipControlManager_CurrentState_E == KC_END) ? true : false);
 }
 
 boolean KipControlManager_IsWaitingWeight() {
@@ -737,7 +742,12 @@ void ProcessEnd(void) {
 }
 
 void ProcessError(void) {
-	// Wait for further config or reset..
+    if ((millis() - GL_KipControlManagerAbsoluteTime_UL) >= KC_MANAGER_WAIT_TIME_BEFORE_RESET_MS) {
+        GL_KipControlManagerAbsoluteTime_UL = millis(); // prevent recursive call
+        DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Perform a reset..");
+        delay(100);
+        WLinkManager_Reset();
+    }
 }
 
 
@@ -817,5 +827,6 @@ void TransitionToEnd(void) {
 
 void TransitionToError(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To ERROR");
+    GL_KipControlManagerAbsoluteTime_UL = millis();
 	GL_KipControlManager_CurrentState_E = KC_STATE::KC_ERROR;
 }
