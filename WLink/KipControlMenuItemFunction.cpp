@@ -153,15 +153,31 @@ void KCMenuItem_GetMinWeight_Transition(void * Handler_H) {
 /* ******************************************************************************** */
 // > Transition
 void KCMenuItem_GetCurrentDay_Transition(void * Handler_H) {
-	int Index_SI = GetIndexOfChar((((WMENU_ITEM_STRUCT *)Handler_H)->ppText_UB[1]), ':');
-	Index_SI += 2;
+    int Index_SI = GetIndexOfChar((((WMENU_ITEM_STRUCT *)Handler_H)->ppText_UB[1]), ':');
+    Index_SI += 2;
 
-	String Text_Str = String(GL_GlobalData_X.KipControl_H.getCurrentIdx() + 1);
+    String Text_Str = String(GL_GlobalData_X.KipControl_H.getCurrentIdx() + 1);
 
-	while ((Index_SI + Text_Str.length()) < (LCD_DISPLAY_COLUMN_NUMBER - 1))
-		Text_Str += ' ';
+    while ((Index_SI + Text_Str.length()) < (LCD_DISPLAY_COLUMN_NUMBER - 1))
+        Text_Str += ' ';
 
-	GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, Index_SI, Text_Str);
+    GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, Index_SI, Text_Str);
+}
+
+
+/* ******************************************************************************** */
+/* Get Start Date
+/* ******************************************************************************** */
+// > Transition
+void KCMenuItem_GetStartDate_Transition(void * Handler_H) {
+    int Index_SI = 1;
+
+    String Text_Str = dateToString(GL_GlobalData_X.KipControl_H.getStartDate());
+
+    while ((Index_SI + Text_Str.length()) < (LCD_DISPLAY_COLUMN_NUMBER - 1))
+        Text_Str += ' ';
+
+    GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, Index_SI, Text_Str);
 }
 
 
@@ -522,69 +538,63 @@ void KCMenuItem_SetStartDay_OnValidate(unsigned char * pParam_UB) {
 /* ******************************************************************************** */
 // > Process
 void KCMenuItem_SetStartDate_Process(void * Handler_H) {
+    unsigned long ColIdx_UL = 0;
 
-    //// Get start position
-    //unsigned long ColIdx_UL = GetIndexOfChar((((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pSenderItem_H->ppText_UB[1]), ':');
-    //ColIdx_UL += 2;
+    // Manage cursor
+    switch (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL) {
+    case 0:   ColIdx_UL = 1; break;  // -> D 10
+    case 1:   ColIdx_UL = 2; break;  // -> D 1
+    case 2:   ColIdx_UL = 4; break;  // -> M 10
+    case 3:   ColIdx_UL = 5; break;  // -> M 1
+    case 4:   ColIdx_UL = 7; break;  // -> Y 10
+    case 5:   ColIdx_UL = 8; break;  // -> Y 1
+    }
 
-    //// Manage cursor
-    //ColIdx_UL += ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL;
-    //GL_GlobalData_X.Lcd_H.enableCursor(LCD_DISPLAY_LINE2, ColIdx_UL);
+    GL_GlobalData_X.Lcd_H.enableCursor(LCD_DISPLAY_LINE2, ColIdx_UL);
 
-    //if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B) {
-    //    ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B = false;
+    if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B) {
+        ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->KeyPressed_B = false;
 
-    //    if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B) {
-    //        ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = false;
-    //        for (int i = ColIdx_UL; i < LCD_DISPLAY_COLUMN_NUMBER; i++)
-    //            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, i, " ");
-    //    }
+        if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = false;
+            GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, 1, "  /  /  ");
+        }
 
-    //    // Validate Input
-    //    // TODO : Check for validation further
-    //    switch (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL) {
-    //    case 0:     break;	//	10		-	1			
-    //    case 1:     break;	//	1		-				
-    //    }
+        // Validate Input
+        switch (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL) {
+        case 0:     if (atoi(&(((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB)) > 3)    (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB) = '3';																		break;
+        case 1:     if ((((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[0] == 3) && (atoi(&(((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB)) > 1))  (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB) = '1';		break;
+        case 2:     if (atoi(&(((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB)) > 1)    (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB) = '1';																		break;
+        case 3:     if ((((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[2] == 1) && (atoi(&(((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB)) > 2))  (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB) = '2';		break;
+        case 4:     if (atoi(&(((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB)) > 3)    (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB) = '3';																		break;
+        case 5:     break;
+        }
 
-    //    // Write on LCD and in Buffer
-    //    GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL, (unsigned char *)(&(((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB)), 1);
-    //    ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL++] = atoi(&(((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB));
-    //    ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL] = 0xFF;	// help to end-up number
+        // Write on LCD and in Buffer
+        GL_GlobalData_X.Lcd_H.writeDisplay(LCD_DISPLAY_LINE2, ColIdx_UL, (unsigned char *)(&(((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB)), 1);
+        ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->pParam_UB[((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL++] = atoi(&(((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->Key_UB));
 
-    //                                                                                                                        // Rollback
-    //    if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 2) {
-    //        ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
-    //        ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = true;
-    //    }
+        // Rollback
+        if (((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL == 6) {
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->ParamIndex_UL = 0;
+            ((WMENU_ITEM_PARAM_STRUCT *)Handler_H)->HasRollbacked_B = true;
+        }
+    }
 
-    //}
 }
 
 // > OnValidate
 void KCMenuItem_SetStartDate_OnValidate(unsigned char * pParam_UB) {
-    //unsigned char StartDay_UB = 0x00;
     RTC_DATE_STRUCT CurrentDate_X = GL_GlobalData_X.Rtc_H.getDate();
 
-    //if (pParam_UB[1] == 0xFF) {
-    //    StartDay_UB = pParam_UB[0];
-    //}
-    //else if (pParam_UB[2] == 0xFF) {
-    //    StartDay_UB = pParam_UB[0] * 10 + pParam_UB[1];
-    //}
+    CurrentDate_X.Day_UB = pParam_UB[0] * 10 + pParam_UB[1];
+    CurrentDate_X.Month_UB = pParam_UB[2] * 10 + pParam_UB[3];
+    CurrentDate_X.Year_UB = pParam_UB[4] * 10 + pParam_UB[5];
 
-    //DBG_PRINT(DEBUG_SEVERITY_INFO, "Set new value for Start Day : ");
-    //DBG_PRINTDATA(StartDay_UB);
-    //DBG_ENDSTR();
-    //DBG_PRINT(DEBUG_SEVERITY_INFO, "-> Start Index : ");
-    //DBG_PRINTDATA(StartDay_UB - 1);
-    //DBG_ENDSTR();
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Set new value for Start Date : ");
+    DBG_PRINTDATA(dateToString(CurrentDate_X));
+    DBG_ENDSTR();
 
-    //DBG_PRINT(DEBUG_SEVERITY_INFO, "Set Start Date to today : ");
-    //DBG_PRINTDATA(dateToString(CurrentDate_X));
-    //DBG_ENDSTR();
-
-    //GL_GlobalData_X.KipControl_H.setStartIdx(StartDay_UB - 1);
     GL_GlobalData_X.KipControl_H.setStartDate(CurrentDate_X);
 
     KipControlManager_SetConfiguredFlag();  // Enable configuration

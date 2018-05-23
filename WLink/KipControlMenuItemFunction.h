@@ -41,6 +41,7 @@ void KCMenuItem_GetReferenceId_Transition(void * Handler_H);
 void KCMenuItem_GetTolerance_Transition(void * Handler_H);
 void KCMenuItem_GetMinWeight_Transition(void * Handler_H);
 void KCMenuItem_GetCurrentDay_Transition(void * Handler_H);
+void KCMenuItem_GetStartDate_Transition(void * Handler_H);
 
 void KCMenuItem_SetBatchNumber_Process(void * Handler_H);
 void KCMenuItem_SetBatchNumber_OnValidate(unsigned char * pParam_UB);
