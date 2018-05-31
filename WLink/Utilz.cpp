@@ -125,7 +125,7 @@ boolean isLeap(unsigned int Year_UI) {
     return ((((Year_UI % 4) == 0) && (((Year_UI % 100) != 0) || ((Year_UI % 400) == 0))) ? true : false);
 }
 
-unsigned long getDeltaDay(RTC_DATE_STRUCT FromDate_X, RTC_DATE_STRUCT ToDate_X) {
+signed long getDeltaDay(RTC_DATE_STRUCT FromDate_X, RTC_DATE_STRUCT ToDate_X) {
     struct tm FromTime_X = { 0 };
     struct tm ToTime_X = { 0 };
 
@@ -149,7 +149,7 @@ unsigned long getDeltaDay(RTC_DATE_STRUCT FromDate_X, RTC_DATE_STRUCT ToDate_X) 
 
     Diff_D = difftime(mktime(&ToTime_X), mktime(&FromTime_X));
 
-    return ((unsigned long)(Diff_D / 86400));
+    return ((signed long)(Diff_D / 86400));
 }
 
 String dateToString(RTC_DATE_STRUCT Date_X) {	

@@ -48,6 +48,7 @@ enum KC_STATE {
 	KC_IDLE,
 	KC_WAIT_USER,
 	KC_GET_CONFIG,
+    KC_WAIT_START_DATE,
 	KC_RECOVER_DATA,
 	KC_CONNECTING,
     KC_WAIT_ENABLE_RECORDING,
@@ -87,6 +88,7 @@ KC_MANAGER_SERVER_PARAM GL_ServerParam_X;
 static void ProcessIdle(void);
 static void ProcessWaitUser(void);
 static void ProcessGetConfig(void);
+static void ProcessWaitStartDate(void);
 static void ProcessRecoverData(void);
 static void ProcessConnecting(void);
 static void ProcessWaitEnableRecording(void);
@@ -102,6 +104,7 @@ static void ProcessError(void);
 static void TransitionToIdle(void);
 static void TransitionToWaitUser(void);
 static void TransitionToGetConfig(void);
+static void TransitionToWaitStartDate(void);
 static void TransitionToRecoverData(void);
 static void TransitionToConnecting(void);
 static void TransitionToWaitEnableRecording(void);
@@ -162,6 +165,7 @@ void KipControlManager_Process() {
 	case KC_WAIT_USER:			    ProcessWaitUser();			    break;
     case KC_GET_CONFIG:			    ProcessGetConfig();			    break;
 	case KC_RECOVER_DATA:		    ProcessRecoverData();		    break;
+    case KC_WAIT_START_DATE:        ProcessWaitStartDate();         break;
     case KC_CONNECTING:			    ProcessConnecting();            break;
     case KC_WAIT_ENABLE_RECORDING:  ProcessWaitEnableRecording();   break;
     case KC_WAIT_INDICATOR:         ProcessWaitIndicator();		    break;
@@ -338,8 +342,8 @@ void ProcessGetConfig(void) {
 			}
 
 
-			// Transition to get other data
-			TransitionToRecoverData();
+			// Transition to Wait Start Date
+			TransitionToWaitStartDate();
 		}
 		else {
 			DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Reference Data table NOT found !");
@@ -356,6 +360,28 @@ void ProcessGetConfig(void) {
 	}
 
 }
+
+
+void ProcessWaitStartDate(void) {
+
+    signed long Delta_SL = 0;
+
+    if ((millis() - GL_KipControlManagerAbsoluteTime_UL) >= KC_MANAGER_CHECK_DATE_POLLING_TIME_MS) {
+        GL_KipControlManagerAbsoluteTime_UL = millis();
+
+        // Get current date
+        GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getDate();
+        
+        // Get difference : CurrentDate - StartDate
+        Delta_SL = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X);
+        if (Delta_SL >= 0) {
+
+            DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Reached Start Date");
+            TransitionToRecoverData();
+        }
+    }
+}
+
 
 void ProcessRecoverData(void) {
 	unsigned char TempIndex_UB = 0;
@@ -383,7 +409,7 @@ void ProcessRecoverData(void) {
 		DBG_ENDSTR();
 
 		// Check if current index is still up-to-date
-		TempIndex_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
+		TempIndex_UB = (unsigned char)getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
 		if (TempIndex_UB == GL_WorkingData_X.CurrentIdx_UB) {
 			DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Current Index is still up-to-date -> Work with it");
 
@@ -466,7 +492,7 @@ void ProcessWaitIndicator(void) {
             GL_WorkingData_X.TimeStamp_Str = GL_GlobalData_X.Rtc_H.getTimestamp();
             GL_WorkingData_X.CurrentDate_X = GL_GlobalData_X.Rtc_H.getLastDate();
 
-            GL_WorkingData_X.CurrentIdx_UB = getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
+            GL_WorkingData_X.CurrentIdx_UB = (unsigned char)getDeltaDay(GL_WorkingData_X.StartDate_X, GL_WorkingData_X.CurrentDate_X) + GL_WorkingData_X.StartIdx_UB;
             if (GL_WorkingData_X.CurrentIdx_UB != GL_pKipControl_H->getCurrentIdx()) {
                 DBG_PRINT(DEBUG_SEVERITY_INFO, "Current index has changed, save new value : ");
                 DBG_PRINTDATA(GL_WorkingData_X.CurrentIdx_UB);
@@ -765,6 +791,12 @@ void TransitionToWaitUser(void) {
 void TransitionToGetConfig(void) {
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To GET CONFIG");
 	GL_KipControlManager_CurrentState_E = KC_STATE::KC_GET_CONFIG;
+}
+
+void TransitionToWaitStartDate(void) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Transition To WAIT START DATE");
+    GL_KipControlManagerAbsoluteTime_UL = millis();
+    GL_KipControlManager_CurrentState_E = KC_STATE::KC_WAIT_START_DATE;
 }
 
 void TransitionToRecoverData(void) {

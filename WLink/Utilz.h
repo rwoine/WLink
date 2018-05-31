@@ -46,7 +46,7 @@ void DefaultOnProcessFct(void * Handler_H);
 void DefaultOnValidateFct(unsigned char * pParam_UB);
 
 boolean isLeap(unsigned int Year_UI);
-unsigned long getDeltaDay(RTC_DATE_STRUCT FromDate_X, RTC_DATE_STRUCT ToDate_X);
+signed long getDeltaDay(RTC_DATE_STRUCT FromDate_X, RTC_DATE_STRUCT ToDate_X);
 String dateToString(RTC_DATE_STRUCT Date_X);
 
 
