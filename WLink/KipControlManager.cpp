@@ -40,6 +40,8 @@ extern GLOBAL_CONFIG_STRUCT GL_GlobalConfig_X;
 #define KC_MANAGER_SERVER_RESPONSE_TIMEOUT_MS		10000
 #define KC_MANAGER_WAIT_TIME_BEFORE_RESET_MS		1800000
 
+#define KC_MANAGER_LIFE_COUNTER_INTERVAL_MS         60000
+
 
 /* ******************************************************************************** */
 /* Local Variables
@@ -80,6 +82,7 @@ typedef struct {
 } KC_MANAGER_SERVER_PARAM;
 
 KC_MANAGER_SERVER_PARAM GL_ServerParam_X;
+unsigned long GL_AbsoluteLifeCounter_UL = 0;
 
 
 /* ******************************************************************************** */
@@ -88,9 +91,9 @@ KC_MANAGER_SERVER_PARAM GL_ServerParam_X;
 static void ProcessIdle(void);
 static void ProcessWaitUser(void);
 static void ProcessGetConfig(void);
-static void ProcessWaitStartDate(void);
 static void ProcessRecoverData(void);
 static void ProcessConnecting(void);
+static void ProcessWaitStartDate(void);
 static void ProcessWaitEnableRecording(void);
 static void ProcessWaitIndicator(void);
 static void ProcessCheckWeight(void);
@@ -101,12 +104,14 @@ static void ProcessAskIndicator(void);
 static void ProcessEnd(void);
 static void ProcessError(void);
 
+static void ProcessLifeCounter(void);
+
 static void TransitionToIdle(void);
 static void TransitionToWaitUser(void);
 static void TransitionToGetConfig(void);
-static void TransitionToWaitStartDate(void);
-static void TransitionToRecoverData(void);
 static void TransitionToConnecting(void);
+static void TransitionToRecoverData(void);
+static void TransitionToWaitStartDate(void);
 static void TransitionToWaitEnableRecording(void);
 static void TransitionToWaitIndicator(void);
 static void TransitionToCheckWeight(void);
@@ -165,8 +170,8 @@ void KipControlManager_Process() {
 	case KC_WAIT_USER:			    ProcessWaitUser();			    break;
     case KC_GET_CONFIG:			    ProcessGetConfig();			    break;
 	case KC_RECOVER_DATA:		    ProcessRecoverData();		    break;
-    case KC_WAIT_START_DATE:        ProcessWaitStartDate();         break;
     case KC_CONNECTING:			    ProcessConnecting();            break;
+    case KC_WAIT_START_DATE:        ProcessWaitStartDate();         break;
     case KC_WAIT_ENABLE_RECORDING:  ProcessWaitEnableRecording();   break;
     case KC_WAIT_INDICATOR:         ProcessWaitIndicator();		    break;
     case KC_CHECK_WEIGHT:           ProcessCheckWeight();           break;
@@ -177,6 +182,9 @@ void KipControlManager_Process() {
 	case KC_END:				    ProcessEnd();				    break;
 	case KC_ERROR:				    ProcessError();				    break;
     }
+
+    /* Life Counter Management */
+    ProcessLifeCounter();
 }
 
 boolean KipControlManager_IsEnabled() {
@@ -269,6 +277,9 @@ void ProcessGetConfig(void) {
 	// Setup offline mode
 	GL_WorkingData_X.OfflineMode_B = false;
 
+    // Reset  Life Counter
+    GL_WorkingData_X.LifeCounter_UL = 0;
+
 	// Get fixed configuration (default or from LCD) -> stored in EEPROM
 	DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Get configuration stored in EEPROM");
 
@@ -341,9 +352,7 @@ void ProcessGetConfig(void) {
 				DBG_ENDSTR();
 			}
 
-
-			// Transition to Wait Start Date
-			TransitionToWaitStartDate();
+			TransitionToConnecting();
 		}
 		else {
 			DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Reference Data table NOT found !");
@@ -361,6 +370,22 @@ void ProcessGetConfig(void) {
 
 }
 
+void ProcessConnecting(void) {
+    if (KipControlMedium_IsConnected()) {
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Turn to online mode -> recording to portal allowed");
+        GL_WorkingData_X.OfflineMode_B = false;
+
+        DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Setup connectivity environment");
+        KipControlMedium_SetupEnvironment();
+    }
+    else {
+        DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Cannot connect to portal");
+        DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Turn to offline mode -> recording to portal disabled");
+        GL_WorkingData_X.OfflineMode_B = true;
+    }
+
+    TransitionToWaitStartDate();
+}
 
 void ProcessWaitStartDate(void) {
 
@@ -440,23 +465,6 @@ void ProcessRecoverData(void) {
 
 		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Set running flag");
 		GL_pKipControl_H->setRunningFlag(true);		
-	}
-
-	TransitionToConnecting();
-}
-
-void ProcessConnecting(void) {
-	if (KipControlMedium_IsConnected()) {
-		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Turn to online mode -> recording to portal allowed");
-		GL_WorkingData_X.OfflineMode_B = false;
-
-		DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Setup connectivity environment");
-		KipControlMedium_SetupEnvironment();
-	}
-	else {
-		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Cannot connect to portal");
-		DBG_PRINTLN(DEBUG_SEVERITY_WARNING, "Turn to offline mode -> recording to portal disabled");
-		GL_WorkingData_X.OfflineMode_B = true;
 	}
 
     TransitionToWaitEnableRecording();
@@ -773,6 +781,31 @@ void ProcessError(void) {
         DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Perform a reset..");
         delay(100);
         WLinkManager_Reset();
+    }
+}
+
+
+void ProcessLifeCounter(void) {
+    if (!(GL_WorkingData_X.OfflineMode_B)) {
+        if ((millis() - GL_AbsoluteLifeCounter_UL) >= KC_MANAGER_LIFE_COUNTER_INTERVAL_MS) {
+            GL_AbsoluteLifeCounter_UL = millis();
+
+            if (GL_KipControlManager_CurrentState_E != KC_STATE::KC_SEND_PACKET) {
+                DBG_PRINTLN(DEBUG_SEVERITY_INFO, "Send Life Counter Packet to portal..");
+
+                KipControlMedium_BeginTransaction();
+                KipControlMedium_Print("/kipcontrol/lifecounter?");
+                KipControlMedium_Print("&data[0][BalanceSerial]=");
+                KipControlMedium_Print((char *)(GL_WorkingData_X.MacAddr_Str).c_str());
+                KipControlMedium_Print("&data[0][LifeCounter]=");
+                KipControlMedium_Print(GL_WorkingData_X.LifeCounter_UL++);
+                KipControlMedium_EndTransaction();
+
+                delay(1);
+
+                KipControlMedium_Flush();
+            }
+        }
     }
 }
 

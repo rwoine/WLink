@@ -56,6 +56,8 @@ typedef struct {
 	String TimeStamp_Str;				// Current timestamp
 	boolean IsValid_B;					// Check if weight is valid (within tolerance)
 
+    unsigned long LifeCounter_UL;       // Life Counter to keep track of the connection status
+
 } KC_WORKING_DATA_STRUCT;
 
 
