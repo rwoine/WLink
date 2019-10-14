@@ -32,7 +32,7 @@
 /* ******************************************************************************** */
 /* Constant
 /* ******************************************************************************** */
-const String cGL_pWLinkRevisionId_Str = "17012301";	// YYMMDDVV - Year-Month-Day-Version
+const String cGL_pWLinkRevisionId_Str = "19101401";	// YYMMDDVV - Year-Month-Day-Version
 
 /* ******************************************************************************** */
 /* Global
@@ -44,6 +44,7 @@ unsigned long GL_AbsoluteTime_UL;
 /* ******************************************************************************** */
 /* Prototypes for Internal Functions
 /* ******************************************************************************** */
+void GpioManager_Process(void);
 void BlinkingLedManager_Process(void);
 void ManageKeyToLcd(char Key_UB);
 
@@ -82,6 +83,7 @@ const WCMD_FCT_DESCR cGL_pFctDescr_X[] =
 	{ WCMD_GPIO_WRITE, WCmdProcess_GpioWrite },
 	{ WCMD_GPIO_SET_BIT, WCmdProcess_GpioSetBit },
 	{ WCMD_GPIO_CLR_BIT, WCmdProcess_GpioClrBit },
+	{ WCMD_GPIO_SET_BIT_WITH_TIMER, WCmdProcess_GpioSetBitWithTimer },
 
 	{ WCMD_INDICATOR_GET_WEIGHT, WCmdProcess_IndicatorGetWeight },
 	{ WCMD_INDICATOR_GET_WEIGHT_ALIBI, WCmdProcess_IndicatorGetWeightAlibi },
@@ -281,12 +283,24 @@ void loop() {
 	BadgeReaderManager_Process();
 	FlatPanelManager_Process();
 	BlinkingLedManager_Process();
+    GpioManager_Process();
 
 }
 
 /* ******************************************************************************** */
 /* Internal Functions
 /* ******************************************************************************** */
+void GpioManager_Process(void) {
+    for (int i = 0; i < 4; i++) {
+        if (GL_GlobalData_X.GpioParam_X[i].isTimerEnabled_B) {
+            if ((millis() - GL_GlobalData_X.GpioParam_X[i].AbsoluteTime_UL) >= GL_GlobalData_X.GpioParam_X[i].TimerValue_UL) {
+                GL_GlobalData_X.GpioParam_X[i].isTimerEnabled_B = false;
+                digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], LOW);
+            }
+        }
+    }
+}
+
 void BlinkingLedManager_Process(void) {
 	if ((millis() - GL_AbsoluteTime_UL) >= 500) {
 		if(digitalRead(GL_GlobalData_X.LedPin_UB) == LOW)

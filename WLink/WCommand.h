@@ -28,6 +28,7 @@
 #define WCMD_GPIO_WRITE						0x02
 #define WCMD_GPIO_SET_BIT					0x03
 #define WCMD_GPIO_CLR_BIT					0x04
+#define WCMD_GPIO_SET_BIT_WITH_TIMER    	0x05
 #define WCMD_INDICATOR_GET_WEIGHT			0x11
 #define WCMD_INDICATOR_GET_WEIGHT_ALIBI		0x12
 #define WCMD_INDICATOR_SET_ZERO				0x13
@@ -77,6 +78,7 @@ WCMD_FCT_STS WCmdProcess_GpioRead(const unsigned char * pParam_UB, unsigned long
 WCMD_FCT_STS WCmdProcess_GpioWrite(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_GpioSetBit(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_GpioClrBit(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
+WCMD_FCT_STS WCmdProcess_GpioSetBitWithTimer(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 
 WCMD_FCT_STS WCmdProcess_IndicatorGetWeight(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);
 WCMD_FCT_STS WCmdProcess_IndicatorGetWeightAlibi(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL);

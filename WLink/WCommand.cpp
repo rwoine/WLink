@@ -84,10 +84,14 @@ WCMD_FCT_STS WCmdProcess_GpioWrite(const unsigned char * pParam_UB, unsigned lon
 
 	// Write Outputs Only
 	for (int i = 0; i < 4; i++) {
-		if ((pParam_UB[0] & (0x01 << (i + 4))) == (0x01 << (i + 4)))
-			digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], HIGH);
-		else
-			digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], LOW);
+        if ((pParam_UB[0] & (0x01 << (i + 4))) == (0x01 << (i + 4))) {
+            digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], HIGH);
+            GL_GlobalData_X.GpioParam_X[i].isTimerEnabled_B = false;
+        }
+        else {
+            digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], LOW);
+            GL_GlobalData_X.GpioParam_X[i].isTimerEnabled_B = false;
+        }
 	}
 
 	DBG_PRINT(DEBUG_SEVERITY_INFO, "Write Values = ");
@@ -108,6 +112,7 @@ WCMD_FCT_STS WCmdProcess_GpioSetBit(const unsigned char * pParam_UB, unsigned lo
 	for (int i = 0; i < 4; i++) {
 		if ((pParam_UB[0] & (0x01 << (i + 4))) == (0x01 << (i + 4))) {
 			digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], HIGH);
+            GL_GlobalData_X.GpioParam_X[i].isTimerEnabled_B = false;
 		}
 	}
 
@@ -127,8 +132,10 @@ WCMD_FCT_STS WCmdProcess_GpioClrBit(const unsigned char * pParam_UB, unsigned lo
 
 	// Write Outputs Only if bit High
 	for (int i = 0; i < 4; i++) {
-		if ((pParam_UB[0] & (0x01 << (i + 4))) == (0x01 << (i + 4)))
-			digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], LOW);
+        if ((pParam_UB[0] & (0x01 << (i + 4))) == (0x01 << (i + 4))) {
+            digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], LOW);
+            GL_GlobalData_X.GpioParam_X[i].isTimerEnabled_B = false;
+        }
 	}
 
 	DBG_PRINT(DEBUG_SEVERITY_INFO, "Write Values (Clr-Bit) = ");
@@ -136,6 +143,38 @@ WCMD_FCT_STS WCmdProcess_GpioClrBit(const unsigned char * pParam_UB, unsigned lo
 	DBG_ENDSTR();
 
 	return WCMD_FCT_STS_OK;
+}
+
+WCMD_FCT_STS WCmdProcess_GpioSetBitWithTimer(const unsigned char * pParam_UB, unsigned long ParamNb_UL, unsigned char * pAns_UB, unsigned long * pAnsNb_UL) {
+    DBG_PRINTLN(DEBUG_SEVERITY_INFO, "WCmdProcess_GpioSetBitWithTimer");
+    *pAnsNb_UL = 0;
+
+    if (ParamNb_UL < 2)
+        return WCMD_FCT_STS_BAD_PARAM_NB;
+
+    if (pParam_UB[1] == 0) {
+        DBG_PRINTLN(DEBUG_SEVERITY_ERROR, "Timer value not set!");
+        return WCMD_FCT_STS_BAD_DATA;
+    }
+
+    // Write Outputs Only if bit High
+    for (int i = 0; i < 4; i++) {
+        if ((pParam_UB[0] & (0x01 << (i + 4))) == (0x01 << (i + 4))) {
+            digitalWrite(GL_GlobalData_X.pGpioOutputIndex_UB[i], HIGH);
+            GL_GlobalData_X.GpioParam_X[i].isTimerEnabled_B = true;
+            GL_GlobalData_X.GpioParam_X[i].TimerValue_UL = (unsigned long) (1000 * pParam_UB[1]);
+            GL_GlobalData_X.GpioParam_X[i].AbsoluteTime_UL = millis();
+        }
+    }
+
+    DBG_PRINT(DEBUG_SEVERITY_INFO, "Write Values (Set-Bit With Timer) = ");
+    DBG_PRINTDATABASE((pParam_UB[0] & 0xF0), HEX);
+    DBG_PRINTDATA(" during ");
+    DBG_PRINTDATABASE((pParam_UB[1]), DEC);
+    DBG_PRINTDATA("[s]");
+    DBG_ENDSTR();
+
+    return WCMD_FCT_STS_OK;
 }
 
 /* Indicator ********************************************************************** */

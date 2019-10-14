@@ -74,10 +74,17 @@ typedef struct {
 } NETWORK_INTERFACE_STRUCT;
 
 typedef struct {
+    boolean isTimerEnabled_B;
+    unsigned long TimerValue_UL;
+    unsigned long AbsoluteTime_UL;
+} GPIO_PARAM_STRUCT;
+
+typedef struct {
 	unsigned char pRevisionId_UB[8];
 	unsigned char LedPin_UB;
 	unsigned char pGpioInputIndex_UB[4];
 	unsigned char pGpioOutputIndex_UB[4];
+    GPIO_PARAM_STRUCT GpioParam_X[4];
 	LcdDisplay Lcd_H;
 	FlatPanel FlatPanel_H;
 	EepromWire Eeprom_H;
